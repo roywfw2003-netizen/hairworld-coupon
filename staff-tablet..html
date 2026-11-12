@@ -232,3 +232,237 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
     pendN.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
       const div=document.createElement('div'); div.className='record-item';
       div.innerHTML=`<input type="checkbox" class="batch-chk" data-scope="studentPendingList" data-id="${b.id}">`+infoHtml(b,'')
+        +`<div class="barber-selector">${barberRadios(b,'n')}</div>
+          <div class="record-actions">
+            <button class="btn btn-success mark-processing" data-id="${b.id}" data-type="normal">開始剪髮</button>
+            <button class="btn btn-warning mark-noshow" data-id="${b.id}">未到達</button>
+          </div>`;
+      boxN.appendChild(div);
+    });
+
+    const boxV=document.getElementById('parentPendingList');
+    boxV.innerHTML=pendV.length?'':'<div style="padding:30px;text-align:center;">無優惠券預約</div>';
+    pendV.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
+      const div=document.createElement('div'); div.className='record-item voucher';
+      div.innerHTML=`<input type="checkbox" class="batch-chk" data-scope="parentPendingList" data-id="${b.id}">`+infoHtml(b,'［$20券］')
+        +`<div class="barber-selector">${barberRadios(b,'v')}</div>
+          <div class="record-actions">
+            <button class="btn btn-success mark-parent-complete" data-id="${b.id}">已完成</button>
+            <button class="btn btn-warning mark-noshow" data-id="${b.id}">未到達</button>
+          </div>`;
+      boxV.appendChild(div);
+    });
+
+    const boxP=document.getElementById('processingList');
+    boxP.innerHTML=proc.length?'':'<div style="padding:30px;text-align:center;">無處理中預約</div>';
+    proc.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
+      const div=document.createElement('div'); div.className='record-item'+(b.type==='voucher'?' voucher':'');
+      div.innerHTML=`<input type="checkbox" class="batch-chk" data-scope="processingList" data-id="${b.id}">`+infoHtml(b,`｜師傅：${b.barber||'未指派'}`)
+        +`<div class="record-actions">
+            <button class="btn btn-success mark-complete-with-voucher" data-id="${b.id}">買 $20 券</button>
+            <button class="btn btn-secondary mark-complete-without-voucher" data-id="${b.id}">未買券</button>
+          </div>`;
+      boxP.appendChild(div);
+    });
+
+    renderList('completedItems',comp,'completed');
+    renderList('noshowItems',no,'noshow');
+    loadStats();
+    batchSyncAll();
+  }
+
+  function batchCheckboxes(scope){ return Array.from(document.querySelectorAll('.batch-chk[data-scope="'+scope+'"]')); }
+  function batchSyncBar(scope){
+    const bar=document.getElementById(scope+'BatchBar');
+    if(!bar) return;
+    const boxes=batchCheckboxes(scope), sel=boxes.filter(c=>c.checked);
+    bar.style.display=boxes.length?'flex':'none';
+    const cnt=bar.querySelector('.batch-count');
+    if(cnt) cnt.innerText='已選 '+sel.length+' 項';
+    const all=bar.querySelector('.batch-all');
+    if(all) all.checked=boxes.length>0&&sel.length===boxes.length;
+    boxes.forEach(c=>{ const row=c.closest('.record-item')||c.closest('tr'); if(row) row.classList.toggle('is-checked',c.checked); });
+  }
+  function batchSyncAll(){
+    ['studentPendingList','parentPendingList','processingList','completedItems','noshowItems'].forEach(batchSyncBar);
+  }
+  async function batchDo(scope,mode){
+    const ids=batchCheckboxes(scope).filter(c=>c.checked).map(c=>c.dataset.id);
+    if(!ids.length){ alert('請先勾選資料'); return; }
+    if(mode==='delete'){
+      if(!staffEditMode){ alert('請先解鎖編輯模式'); return; }
+      if(!confirm('確定刪除已選的 '+ids.length+' 筆記錄？此操作無法復原')) return;
+      for(const id of ids){ await deleteById(id); }
+    }else{
+      if(!staffEditMode){ alert('請先解鎖編輯模式'); return; }
+      if(!confirm('確定把已選的 '+ids.length+' 筆改回「待處理」？')) return;
+      for(const id of ids){ await updateStatus(id,'pending',{completedAt:null}); }
+    }
+    await fetchAllBookings();
+    renderStaffPage(document.getElementById('staffDatePicker').value);
+  }
+
+  function renderList(boxId,items,kind){
+    const box=document.getElementById(boxId);
+    if(!items.length){ box.innerHTML='<div style="padding:20px;text-align:center;">無記錄</div>'; return; }
+    box.innerHTML=items.map(b=>{
+      const ut=b.updatedAt||(kind==='completed'?b.completedAt:b.noShowAt);
+      const t=ut?new Date(ut).toLocaleTimeString('zh-HK',{hour12:false,hour:'2-digit',minute:'2-digit'}):'';
+      const tag=b.type==='voucher'?'［券］':'';
+      let acts='';
+      if(kind==='completed'&&(staffEditMode)) acts+=`<button class="btn btn-secondary revert-complete" data-id="${b.id}" style="padding:8px 14px;min-width:auto;">返回</button>`;
+      if(staffEditMode) acts+=`<button class="btn btn-warning delete-record" data-id="${b.id}" style="padding:8px 14px;min-width:auto;">刪除</button>`;
+      const bScope=kind==='completed'?'completedItems':'noshowItems';
+      return `<div class="record-item${b.type==='voucher'?' voucher':''}">
+        <input type="checkbox" class="batch-chk" data-scope="${bScope}" data-id="${b.id}">
+        <div class="record-info"><span class="sub">[${t}]</span> <span class="time">${b.time||''}</span> ${tag} ${b.name||''} ${b.gender||''}／${b.service||''}
+        <br><span class="sub">師傅：${b.barber||'-'}｜${b.email||'（無 Email）'}｜$20券：${b.voucherPurchased?'有':'無'}</span></div>
+        <div class="record-actions">${acts}</div></div>`;
+    }).join('');
+  }
+
+  let chart=null;
+  function loadStats(){
+    const comp=bookings.filter(b=>b.status==='completed');
+    document.getElementById('totalCompleted').innerText=comp.length;
+    document.getElementById('totalVouchers').innerText=comp.filter(b=>b.voucherPurchased===true).length;
+
+    const st={}; config.barbers.forEach(n=>st[n]={s:0,v:0});
+    comp.forEach(b=>{ if(b.barber&&st[b.barber]){ st[b.barber].s++; if(b.voucherPurchased) st[b.barber].v++; } });
+
+    const ctx=document.getElementById('barberChart').getContext('2d');
+    if(chart) chart.destroy();
+    chart=new Chart(ctx,{
+      type:'bar',
+      data:{labels:config.barbers,datasets:[
+        {label:'服務量（已剪）',data:config.barbers.map(n=>st[n].s),backgroundColor:'#F25C0A',borderRadius:10},
+        {label:'$20 券售出',data:config.barbers.map(n=>st[n].v),backgroundColor:'#28a745',borderRadius:10}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+    });
+  }
+
+  async function updateStatus(id,status,extra){
+    try{ await db.collection("appointments").doc(id).update({status:status,updatedAt:new Date().toISOString(),...extra}); return true; }
+    catch(e){ console.error(e); return false; }
+  }
+  async function deleteById(id){
+    try{ await db.collection("appointments").doc(id).delete(); return true; }
+    catch(e){ console.error(e); return false; }
+  }
+
+  document.addEventListener('change',function(e){
+    const t=e.target;
+    if(t.classList&&t.classList.contains('batch-chk')){ batchSyncBar(t.dataset.scope); return; }
+    if(t.classList&&t.classList.contains('batch-all')){
+      const scope=t.dataset.scope;
+      batchCheckboxes(scope).forEach(c=>c.checked=t.checked);
+      batchSyncBar(scope);
+    }
+  });
+
+  document.addEventListener('click',async function(e){
+    const t=e.target;
+    const date=document.getElementById('staffDatePicker').value;
+    if(t.classList.contains('batch-action')){ await batchDo(t.dataset.scope,t.dataset.mode); return; }
+
+    if(t.classList.contains('mark-processing')){
+      const sel=document.querySelector(`input[name="barber_${t.dataset.type==='normal'?'n':'v'}_${t.dataset.id}"]:checked`);
+      if(!sel){ alert('請選擇師傅'); return; }
+      await updateStatus(t.dataset.id,'processing',{barber:sel.value});
+      renderStaffPage(date); return;
+    }
+    if(t.classList.contains('mark-parent-complete')){
+      const sel=document.querySelector(`input[name="barber_v_${t.dataset.id}"]:checked`);
+      if(!sel){ alert('請選擇師傅'); return; }
+      await updateStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),barber:sel.value,voucherPurchased:false});
+      renderStaffPage(date); return;
+    }
+    if(t.classList.contains('mark-noshow')){
+      await updateStatus(t.dataset.id,'no-show',{noShowAt:new Date().toISOString()});
+      renderStaffPage(date); return;
+    }
+    if(t.classList.contains('mark-complete-with-voucher')){
+      await updateStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),voucherPurchased:true});
+      renderStaffPage(date); return;
+    }
+    if(t.classList.contains('mark-complete-without-voucher')){
+      await updateStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),voucherPurchased:false});
+      renderStaffPage(date); return;
+    }
+    if(t.classList.contains('revert-complete')){
+      if(!staffEditMode){ alert('請先解鎖編輯模式'); return; }
+      if(!confirm('返回為待處理？')) return;
+      await updateStatus(t.dataset.id,'pending',{completedAt:null});
+      renderStaffPage(date); return;
+    }
+    if(t.classList.contains('delete-record')){
+      if(!staffEditMode){ alert('請先解鎖編輯模式'); return; }
+      if(!confirm('確定刪除此記錄？此操作無法復原')) return;
+      await deleteById(t.dataset.id);
+      renderStaffPage(date); return;
+    }
+  });
+
+  async function manualRegister(type){
+    const name=document.getElementById('staffName').value.trim();
+    const email=document.getElementById('staffEmail').value.trim();
+    const gender=document.getElementById('staffGender').value;
+    const service=document.getElementById('staffService').value;
+    const barber=document.getElementById('staffBarber').value;
+
+    if(!name||!gender||!service||!barber){ alert('請填寫姓名、性別、服務項目、師傅'); return; }
+    if(email&&!email.includes('@')){ alert('Email 格式不正確'); return; }
+
+    await fetchAllBookings();
+
+    if(email){
+      const dup=bookings.find(b=>b.email===email&&['pending','processing','completed','no-show'].includes(b.status));
+      if(dup){
+        alert(`此 Email 已有預約記錄，請勿重複登記。\n\n姓名：${dup.name||''}\n狀態：${dup.status}\n日期：${dup.date} ${dup.time||''}`);
+        return;
+      }
+    }else{
+      const dupToday=bookings.find(b=>b.name===name&&b.date===getTodayStr()&&b.type===type);
+      if(dupToday && !confirm(`今日已有同名（${name}）記錄，仍然登記？`)) return;
+    }
+
+    const now=new Date();
+    try{
+      await db.collection("appointments").add({
+        email:email, name:name, gender:gender, service:service,
+        date:getTodayStr(), time:now.toTimeString().slice(0,5), barber:barber,
+        status:'completed', type:type, voucherPurchased:false,
+        completedAt:now.toISOString(), updatedAt:now.toISOString(), source:'walkin'
+      });
+      document.getElementById('staffName').value='';
+      document.getElementById('staffEmail').value='';
+      await renderStaffPage(getTodayStr());
+      alert(`登記成功\n${type==='voucher'?'（優惠券）':''}\n${name} ${gender}／${service}\n師傅：${barber}`);
+    }catch(err){ alert('登記失敗：'+err.message); }
+  }
+  document.getElementById('submitStudentWalkin').addEventListener('click',()=>manualRegister('normal'));
+  document.getElementById('submitParentWalkin').addEventListener('click',()=>manualRegister('voucher'));
+
+  document.getElementById('staffRefreshBtn').addEventListener('click',()=>renderStaffPage(document.getElementById('staffDatePicker').value));
+  document.getElementById('staffDatePicker').addEventListener('change',function(){ renderStaffPage(this.value); });
+
+  document.getElementById('unlockEditBtn').addEventListener('click',function(){
+    const pwd=prompt('請輸入編輯解鎖密碼');
+    if(pwd===config.staffEditPassword){
+      staffEditMode=true;
+      document.getElementById('editModeBadge').style.display='inline-block';
+      renderStaffPage(document.getElementById('staffDatePicker').value);
+      alert('編輯模式已啟用');
+    }else alert('密碼錯誤');
+  });
+
+  (async function init(){
+    await auth.signInAnonymously();
+    await fetchConfig();
+    await renderStaffPage(getTodayStr());
+  })();
+})();
+</script>
+</body>
+</html>

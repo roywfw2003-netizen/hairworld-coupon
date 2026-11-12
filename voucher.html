@@ -2,107 +2,1702 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hair World 優惠券預約</title>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
-*{box-sizing:border-box;font-family:system-ui,sans-serif}
-body{max-width:600px;margin:20px auto;padding:16px}
-.title{font-size:24px;font-weight:bold;text-align:center;margin-bottom:20px;color:#ff7700}
-.form-item{margin:12px 0}
-label{display:block;margin-bottom:6px;font-weight:500}
-input,select{width:100%;padding:10px;font-size:16px;border:1px solid #ccc;border-radius:6px}
-.btn{width:100%;padding:12px;background:#ff7700;color:white;border:none;border-radius:8px;font-size:17px;margin-top:16px}
-.alert{color:red}
-.success{color:green}
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:16px 0}
-.calendar-day{padding:10px;text-align:center;border:1px solid #ddd;border-radius:6px}
-.calendar-day.available{background:#fff7e6}
-.calendar-day.block{background:#eee;color:#999}
-.time-slot{display:inline-block;padding:8px 10px;margin:4px;border:1px solid #ff7700;border-radius:6px}
-.time-slot.full{background:#eee;color:#888;border-color:#aaa}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+body{background:#FFF5E6;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:12px 0 30px;margin:0}
+.app-container{width:100%;max-width:400px;background:#fff;border-radius:32px 32px 0 0;box-shadow:0 8px 30px rgba(247,147,49,.15);padding:20px 20px 30px;margin:10px 12px;border:1px solid #FFD8B2}
+.brand{display:flex;align-items:center;margin-bottom:20px;padding-left:6px}
+.brand h1{font-size:28px;font-weight:700;color:#F25C0A;letter-spacing:1px;background:#fff;padding:0 12px 0 0}
+.brand span{background:#F25C0A;color:#fff;font-size:14px;padding:4px 12px;border-radius:40px;font-weight:500;margin-left:4px}
+.page{display:block}.hidden{display:none!important}
+.form-group{margin-bottom:18px}
+label{font-size:15px;font-weight:600;color:#77450E;display:block;margin-bottom:5px;margin-left:4px}
+.required::after{content:" *";color:#F25C0A;font-weight:bold}
+input,select,textarea{width:100%;padding:16px 18px;border:1.5px solid #FFCDA5;border-radius:50px;font-size:16px;background:#fff;transition:.2s;outline:none;color:#2D1F0C;line-height:1.2}
+select{appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F25C0A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 18px center;background-size:16px}
+textarea{border-radius:28px;min-height:80px}
+.checkbox-wrapper{display:flex;align-items:center;background:#FFF2E3;border-radius:50px;padding:12px 18px;border:1px solid #FFCDA5;min-height:58px;margin-bottom:12px}
+.checkbox-wrapper input[type=checkbox]{width:24px;height:24px;margin-right:12px;accent-color:#F25C0A;flex-shrink:0}
+.checkbox-wrapper label{margin:0;font-weight:500;color:#4F310B;font-size:16px}
+.checkbox-note{font-size:13px;color:#ff4d4d;margin-left:42px;margin-top:-8px;margin-bottom:18px;font-weight:500}
+.btn{background:#F25C0A;color:#fff;border:none;padding:16px 18px;border-radius:60px;font-size:18px;font-weight:700;width:100%;margin-top:12px;cursor:pointer;box-shadow:0 6px 0 #B04400;transition:.1s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #B04400}
+.btn-secondary{background:#fff;color:#F25C0A;border:2px solid #F25C0A;box-shadow:none;font-weight:600;margin-top:8px}
+.btn-small{background:#FFE1C7;color:#B04400;border:none;box-shadow:none;font-size:16px;padding:12px;font-weight:600;margin-top:5px;cursor:pointer;border-radius:40px}
+.btn-success{background:#28a745;color:#fff;box-shadow:0 4px 0 #1e7e34}
+.btn-danger{background:#dc3545;color:#fff;box-shadow:0 4px 0 #bd2130}
+.btn-warning{background:#ffc107;color:#333;box-shadow:0 4px 0 #d39e00}
+.btn-info{background:#17a2b8;color:#fff;box-shadow:0 4px 0 #117a8b}
+.divider{height:1px;background:#FFD8B2;margin:26px 0 18px}
+.admin-row{display:flex;gap:8px;align-items:center;margin:20px 0 8px}
+.admin-row input{flex:2;padding:14px 16px}
+.admin-row button{flex:1;margin-top:0;padding:14px 0;font-size:16px}
+.info-card{background:#FFF2E3;border-radius:28px;padding:16px;margin:20px 0 12px;border:1px solid #FFB985}
+.info-card h4{color:#B04400;margin-bottom:8px;font-size:18px}
+.info-card p{margin:5px 0;font-size:16px;color:#2D1F0C}
+.form-feedback{margin:8px 0 0;padding:10px 16px;border-radius:40px;background:#FFE6D3;color:#B04400;font-size:15px;font-weight:500;display:none}
+.form-feedback.error{background:#ffe6e6;color:#c00;border:1px solid #ff9999}
+.form-feedback.success{background:#e6ffe6;color:#0a0}
+.social-links{display:flex;justify-content:space-around;align-items:center;margin:20px 0 10px;padding:12px;background:#FFF2E3;border-radius:50px;border:1px solid #FFB985}
+.social-link{display:flex;align-items:center;gap:8px;color:#F25C0A;text-decoration:none;font-size:16px;font-weight:600;padding:5px 15px;border-radius:30px;background:#fff;box-shadow:0 2px 0 #FFCDA5}
+.footer-note{margin-top:20px;padding:16px;background:#FFF2E3;border-radius:28px;border:1px solid #FFB985;font-size:14px;color:#77450E;line-height:1.6}
+.student-calendar{margin-bottom:18px;background:#FFF9F2;border-radius:28px;padding:15px;border:1px solid #FFD8B2}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.cal-header h4{color:#F25C0A;font-size:18px}
+.cal-nav{display:flex;gap:10px}
+.cal-nav button{background:#FFE6D3;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;color:#F25C0A;font-weight:bold;cursor:pointer;box-shadow:0 2px 0 #FFB27F}
+.cal-weekdays,.weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-weight:600;color:#B45A2A;margin-bottom:8px;font-size:14px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{aspect-ratio:1/1;background:#fff;border-radius:12px;border:1px solid #FFD8B2;display:flex;justify-content:center;align-items:center;font-weight:600;color:#4F310B;position:relative;cursor:pointer}
+.cal-cell.holiday{color:#f00;border:2px solid #ff4d4d;background:#ffe6e6}
+.cal-cell.selected{background:#F25C0A;color:#fff!important;border-color:#F25C0A}
+.cal-cell.unavailable{background:#f0f0f0;color:#aaa;cursor:not-allowed}
+.cal-cell .full-mark{position:absolute;top:0;right:2px;color:#f00;font-size:16px;font-weight:bold}
+.empty-cell{background:transparent;border:none;cursor:default}
+.booking-count-red,.shadow-mark{position:absolute;bottom:2px;right:2px;width:20px;height:20px;background:#f00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:bold}
+.cal-title{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.help-icon{width:20px;height:20px;background:#f00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:bold;cursor:help}
+.calendar-header{display:flex;justify-content:space-between;align-items:center;margin:10px 0 20px}
+.calendar-header h2{color:#F25C0A;font-size:22px;flex:1;text-align:center}
+.month-nav{display:flex;gap:10px}
+.month-nav button{background:#FFE6D3;border:none;width:44px;height:44px;border-radius:50%;font-size:24px;color:#F25C0A;font-weight:bold;cursor:pointer;box-shadow:0 3px 0 #FFB27F}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.calendar-cell{aspect-ratio:1/1;background:#FFF9F2;border-radius:16px;border:1px solid #FFD8B2;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding:6px;font-weight:600;color:#4F310B;position:relative;cursor:pointer}
+.calendar-cell.holiday{border:2px solid #ff4d4d;background:#ffe6e6}
+.calendar-cell .day-number{font-size:16px;align-self:flex-start}
+.calendar-cell .booking-count-red{bottom:4px;right:4px}
+.calendar-cell .full-mark{position:absolute;top:2px;right:2px;color:#f00;font-size:18px;z-index:3;text-shadow:0 0 2px #fff}
+.detail-panel{background:#FFF2E3;border-radius:28px;padding:18px 16px;margin:20px 0 12px;border:1px solid #FFB985}
+.detail-panel h3{color:#B04400;font-size:16px;margin-bottom:10px}
+.appointment-item{background:#fff;border-radius:40px;padding:12px 16px;margin-bottom:8px;border-left:6px solid #F25C0A;font-size:15px;display:flex;align-items:center;gap:0 10px;flex-wrap:wrap}
+.appointment-item .actions{margin-left:auto;display:flex;gap:5px}
+.delete-btn{background:#ff6b6b;color:#fff;border:none;border-radius:30px;padding:5px 12px;font-size:13px;cursor:pointer;box-shadow:0 2px 0 #b30000}
+.complete-btn{background:#28a745;color:#fff;border:none;border-radius:30px;padding:5px 12px;font-size:13px;cursor:pointer;box-shadow:0 2px 0 #1e7e34}
+.back-btn{background:#fff;border:2px solid #F25C0A;color:#F25C0A;font-weight:600;padding:14px;border-radius:40px;width:100%;font-size:18px;cursor:pointer;margin-top:20px}
+.note{color:#B45A2A;font-size:14px;margin:8px 0 0 8px}
+.settings-section{margin-bottom:10px;border:1px solid #FFB985;border-radius:20px;background:#FFF9F2}
+.settings-section summary{font-weight:600;color:#F25C0A;padding:12px 15px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.settings-section summary::-webkit-details-marker{display:none}
+.settings-section summary::after{content:'▼';font-size:12px;transition:transform .2s}
+.settings-section[open] summary::after{transform:rotate(180deg)}
+.settings-section .section-content{padding:0 15px 15px}
+.settings-section h4{color:#B04400;font-size:15px;margin:10px 0 8px}
+.deprecated-box{background:#F5F5F5;border:1px dashed #bbb;border-radius:16px;padding:14px;color:#777;font-size:14px;line-height:1.6}
+.item-list,.school-list{margin:10px 0}
+.item-row,.school-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.item-row input,.school-item input{flex:1;padding:10px 12px;border-radius:40px;border:1px solid #FFB985}
+.item-row .remove-item,.school-item .remove-school{background:#ff6b6b;color:#fff;border:none;border-radius:30px;padding:5px 12px;cursor:pointer;font-size:13px}
+.add-item,.add-school{display:flex;gap:8px;margin-top:5px;flex-wrap:wrap}
+.time-slot-list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.time-slot-item{background:#FFE6D3;border-radius:30px;padding:5px 12px;display:flex;align-items:center;gap:6px}
+.time-slot-item button{background:#ff6b6b;border:none;color:#fff;border-radius:20px;padding:2px 8px;font-size:12px;cursor:pointer}
+.add-time-slot{display:flex;gap:8px;align-items:center;margin-top:8px}
+.field-setting-row .label-input{width:auto;min-width:100px;flex:0 0 auto;padding:6px 14px;border-radius:30px;font-size:14px;font-weight:600;color:#B04400;background:#fff;border:1.5px solid #FFB985}
+.field-setting-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;background:#FFF9F2;padding:8px 12px;border-radius:40px;border:1px solid #FFCDA5}
+.field-setting-row label{margin:0;font-size:14px;white-space:nowrap}
+.field-setting-row input[type=checkbox]{width:18px;height:18px;margin:0;accent-color:#F25C0A}
+.field-setting-row .field-label{font-weight:600;color:#B04400;min-width:60px}
+.suspicious-panel{margin-top:20px;border:2px solid #dc3545;border-radius:28px;padding:15px;background:#fff8f8}
+.suspicious-panel h4{color:#a00;font-size:15px;margin-bottom:10px}
+.suspicious-table{max-height:200px;overflow-y:auto;border:1px solid #ffb0b0;border-radius:20px;background:#fff}
+.suspicious-table table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.suspicious-table th{background:#ffe0e0;color:#a00;padding:6px 2px;position:sticky;top:0}
+.database-panel{margin-top:20px;border:2px solid #F25C0A;border-radius:28px;padding:15px;background:#FFF9F2}
+.database-panel h4{color:#B04400;font-size:15px;margin-bottom:10px;line-height:1.8}
+.sortable-table{max-height:300px;overflow-y:auto;border:1px solid #FFB985;border-radius:20px;background:#fff}
+.sortable-table table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+.sortable-table th{background:#FFE6D3;color:#B04400;padding:8px 4px;position:sticky;top:0;z-index:2;font-size:12px}
+.sortable-table td{padding:6px 4px;border-bottom:1px solid #FFE6D3;word-break:break-all}
+.action-btn{background:#F25C0A;color:#fff;border:none;border-radius:30px;padding:3px 8px;font-size:11px;cursor:pointer;margin:0 1px;box-shadow:0 1px 0 #B04400}
+.delete-row-btn{background:#ff6b6b}
+.password-change{margin-top:15px;border-top:2px solid #FFB985;padding-top:15px}
+.password-change input{margin-bottom:8px}
+.shadow-calendar{margin-top:20px;border:2px solid #F25C0A;border-radius:28px;padding:15px;background:#FFF9F2}
+.shadow-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.shadow-header h5{color:#F25C0A;font-size:18px;margin:0}
+.shadow-nav{display:flex;gap:10px}
+.shadow-nav button{background:#FFE6D3;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;color:#F25C0A;font-weight:bold;cursor:pointer;box-shadow:0 2px 0 #FFB27F}
+.shadow-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px}
+.shadow-cell{aspect-ratio:1/1;background:#fff;border-radius:12px;border:1px solid #FFD8B2;display:flex;justify-content:center;align-items:center;font-weight:600;color:#4F310B;position:relative;cursor:pointer}
+.shadow-cell.holiday{border:2px solid #ff4d4d;background:#ffe6e6}
+.shadow-footer{display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.sync-switch{display:flex;align-items:center;gap:5px;font-size:14px;background:#FFE6D3;padding:5px 12px;border-radius:30px}
+.sync-switch input{width:18px;height:18px;accent-color:#F25C0A}
+.staff-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:8px;flex-wrap:wrap}
+.staff-header h3{color:#F25C0A;font-size:18px}
+.staff-date-picker{display:flex;gap:8px;align-items:center;margin-bottom:20px}
+.staff-date-picker input{flex:1;padding:12px}
+.record-list{max-height:300px;overflow-y:auto;border:1px solid #FFB985;border-radius:20px;padding:10px;background:#fff;margin-bottom:20px}
+.record-item{border-bottom:1px solid #FFE6D3;padding:10px 0;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.record-item:last-child{border-bottom:none}
+.record-info{flex:1;min-width:150px;font-size:14px;line-height:1.5}
+.record-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.edit-mode-badge{background:#ffc107;color:#333;padding:2px 8px;border-radius:30px;font-size:12px}
+.total-badge{background:#F25C0A;color:#fff;padding:5px 12px;border-radius:30px;font-size:14px;margin-left:10px}
+.completed-section,.noshow-section{margin-top:20px;border-top:2px dashed #FFB985;padding-top:15px}
+.barber-selector{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.barber-selector label{font-size:13px;margin:0;display:flex;align-items:center;gap:3px}
+.barber-selector input[type=radio]{width:auto;margin:0}
+.list-header{display:flex;justify-content:space-between;font-weight:bold;padding:5px 0;border-bottom:1px solid #FFB985;margin-bottom:5px;font-size:12px;color:#B04400}
+.list-header span{flex:1}
+.stats-container{margin-top:20px;padding:15px;background:#fff;border-radius:28px;border:2px solid #F25C0A}
+.stats-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:8px;flex-wrap:wrap}
+.stats-header h3{color:#F25C0A;font-size:16px}
+.chart-container{height:300px;margin-bottom:20px}
+.stats-summary{display:flex;gap:15px;justify-content:space-around;margin-top:15px}
+.summary-card{background:#FFF2E3;padding:10px;border-radius:20px;text-align:center;flex:1}
+.summary-card .number{font-size:24px;font-weight:bold;color:#F25C0A}
+.summary-card .label{font-size:14px;color:#B04400}
+.h4-title{color:#F25C0A;font-size:18px;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.captcha-group{display:flex;align-items:center;gap:10px;background:#FFF2E3;border:1px solid #FFB985;border-radius:50px;padding:8px 16px}
+.captcha-group span{font-weight:700;color:#B04400;font-size:16px;white-space:nowrap}
+.captcha-group input{flex:1;padding:10px 14px}
+.settings-row{display:flex;gap:8px;align-items:center}
+.settings-row input{flex:1}
+.chip-group{display:flex;flex-wrap:wrap;gap:10px}
+.chip-btn{flex:1 1 auto;min-width:90px;padding:14px 10px;border-radius:18px;border:2px solid #FFB985;background:#fff;color:#B04400;font-size:16px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;box-sizing:border-box}
+.chip-btn:hover{background:#FFF2E3}
+.chip-btn.active{background:#F25C0A;border-color:#F25C0A;color:#fff;box-shadow:0 4px 12px rgba(242,92,10,.28)}
+.confirm-item{margin-bottom:12px}
+.confirm-item .checkbox-wrapper{margin-bottom:0}
+.confirm-item .checkbox-note{margin-top:6px;margin-bottom:0;margin-left:42px}
+.cb-edit-row{background:#FFF9F2;border:1px solid #FFCDA5;border-radius:20px;padding:10px 12px;margin-bottom:8px}
+.cb-edit-row input{margin-bottom:6px}
 </style>
 </head>
 <body>
-<div class="title">Hair World 優惠券預約</div>
-<div style="background:#fff2e0;padding:12px;border-radius:8px;margin-bottom:16px">
-$20優惠券使用須知：適用門市剪髮服務，預約流程同一般預約。
-</div>
-<div id="calendarWrap"></div>
-<div id="timeWrap"></div>
-<form id="bookingForm">
-  <div class="form-item">
-    <label>Email</label>
-    <input type="email" id="email" required placeholder="example@mail.com">
-  </div>
-  <div class="form-item">
-    <label>姓名</label>
-    <input type="text" id="name" required placeholder="客人姓名">
-  </div>
-  <div class="form-item">
-    <label>性別</label>
-    <select id="gender" required>
-      <option value="">請選擇</option>
-      <option value="男">男</option>
-      <option value="女">女</option>
-    </select>
-  </div>
-  <div class="form-item">
-    <label>服務項目</label>
-    <select id="service" required>
-      <option value="">請選擇</option>
-      <option value="單剪">單剪</option>
-      <option value="剪髮+洗頭">剪髮+洗頭</option>
-    </select>
-  </div>
-  <div class="form-item">
-    <label><input type="checkbox" id="chk1" required>我已閱讀優惠券須知</label>
-  </div>
-  <div class="form-item">
-    <label><input type="checkbox" id="chk2" required>確認預約資料正確</label>
-  </div>
-  <div class="alert" id="msgBox"></div>
-  <button class="btn" type="submit">提交預約</button>
-</form>
-<script src="https://www.gstatic.com/firebasejs/10/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10/firebase-firestore.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey:"YOUR_API_KEY",
-  authDomain:"YOUR_PROJECT.firebaseapp.com",
-  projectId:"YOUR_PROJECT_ID",
-  storageBucket:"YOUR_PROJECT.appspot.com",
-  messagingSenderId:"YOUR_SENDER_ID",
-  appId:"YOUR_APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-let selectedDate = null;
-let selectedTime = null;
+<div class="app-container">
+  <div class="brand"><h1>Hair World</h1><span id="brandTag">優惠券預約</span></div>
 
-document.getElementById("bookingForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const email = document.getElementById("email").value.trim();
-  const name = document.getElementById("name").value.trim();
-  const gender = document.getElementById("gender").value;
-  const service = document.getElementById("service").value;
-  const msgBox = document.getElementById("msgBox");
-  msgBox.textContent="";
-  const exist = await db.collection("bookings").where("email","==",email).where("status","in",["pending","processing"]).get();
-  if(!exist.empty){
-    msgBox.textContent="你已經有一個有效預約，不可重複預約";
-    return;
+  <!-- ===== 客人預約頁 ===== -->
+  <div id="bookingPage" class="page">
+    <form id="bookingForm">
+      <div class="form-group" id="group-email">
+        <label class="required" id="label-email">Email</label>
+        <input type="email" id="email" placeholder="example@mail.com">
+      </div>
+      <div class="form-group" id="group-name">
+        <label class="required" id="label-name">姓名</label>
+        <input type="text" id="name" placeholder="請輸入姓名">
+      </div>
+      <div class="form-group" id="group-gender">
+        <label class="required" id="label-gender">性別</label>
+        <input type="hidden" id="gender" value="">
+        <div class="chip-group" id="genderChips"></div>
+      </div>
+      <div class="form-group" id="group-service">
+        <label class="required" id="label-service">服務項目</label>
+        <input type="hidden" id="service" value="">
+        <div class="chip-group" id="serviceChips"></div>
+      </div>
+
+      <div class="student-calendar">
+        <div class="cal-title"><span>預約人數</span><div class="help-icon" title="紅色數字為管理員設定的影子標記或當日預約人數">?</div></div>
+        <div class="cal-header"><h4 id="studentCalMonthYear"></h4><div class="cal-nav"><button type="button" id="studentPrevMonth">←</button><button type="button" id="studentNextMonth">→</button></div></div>
+        <div class="cal-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div id="studentCalGrid" class="cal-grid"></div>
+      </div>
+
+      <div class="form-group"><label class="required">預約時間</label><select id="timeSlot"><option value="">請先選擇日期</option></select><div class="note" id="timeNote"></div></div>
+
+      <div id="captchaContainer" style="display:none;margin-bottom:18px;">
+        <div class="captcha-group"><span id="captchaQuestion"></span><input type="number" id="captchaAnswer" placeholder="輸入答案" min="0"></div>
+      </div>
+
+      <div style="background:#FFF2E3;border-radius:20px;padding:10px;margin:10px 0;font-size:14px;color:#B04400;border:1px solid #FFB985;line-height:1.6;">
+        <i class="fa-solid fa-circle-info"></i> <strong>預約小提示：</strong> 提交後系統需要約5秒處理，請稍候。若多人同時預約同一時段，將以提交時間最早者優先，時間相同則隨機抽選。
+      </div>
+
+      <div class="footer-note" style="margin:0 0 16px;background:#EAF7EE;border-color:#8FD3A2;color:#1F6B3A;">
+        <p style="margin-bottom:6px;"><strong>$20 優惠券使用說明</strong></p>
+        <div id="voucherInfoContent"></div>
+      </div>
+
+      <div id="confirmBoxesContainer"></div>
+
+      <div class="social-links">
+        <a href="https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-brands fa-instagram"></i> Instagram</a>
+        <a href="https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-solid fa-location-dot"></i> 井財街店</a>
+      </div>
+
+      <button type="button" class="btn" id="submitBooking">提交預約</button>
+      <div id="formFeedback" class="form-feedback"></div>
+      <div id="studentInfoArea" class="info-card" style="display:none;"><h4>我的預約記錄</h4><div id="studentInfoContent"></div></div>
+      <button type="button" class="btn btn-secondary" id="modifyBookingBtn">修改我的預約</button>
+      <div id="bookingNoticeArea" class="footer-note" style="margin-top:15px;"><p><strong>預約須知</strong></p><div id="bookingNoticeContent"></div></div>
+    </form>
+
+    <div style="text-align:center;font-size:10px;color:#ccc;margin-top:20px;padding-top:10px;border-top:1px dashed #FFD8B2;">@vison 11.0（優惠券版）</div>
+    <div class="divider"></div>
+    <div style="margin-top:12px;"><label>管理員專區</label><div class="admin-row"><input type="password" id="adminPass" placeholder="管理員密碼"><button class="btn-small" id="viewCalendarBtn">查看所有記錄</button></div></div>
+    <div style="margin-top:8px;"><label>員工專區</label><div class="admin-row"><input type="password" id="staffPass" placeholder="員工密碼"><button class="btn-small" id="enterStaffBtn">進入員工頁面</button></div></div>
+  </div>
+
+  <!-- ===== 管理員月曆頁 ===== -->
+  <div id="calendarPage" class="page hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <button class="btn-small" id="showStatsBtn">統計報表</button>
+      <label class="sync-switch"><span>同步主頁</span><input type="checkbox" id="syncMainCalendar" checked></label>
+    </div>
+
+    <div id="statsSection" class="stats-container hidden">
+      <div class="stats-header">
+        <h3>理髮師統計報表</h3>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="password" id="ownerPass" placeholder="店主密碼" style="width:110px;padding:8px;border-radius:30px;border:1px solid #FFB985;">
+          <button class="btn-small" id="unlockStatsBtn" style="margin:0;">解鎖</button>
+        </div>
+      </div>
+      <div id="statsContent" style="display:none;">
+        <div class="chart-container"><canvas id="barberChart"></canvas></div>
+        <div class="stats-summary">
+          <div class="summary-card"><div class="number" id="totalCompleted">0</div><div class="label">已完成訂單</div></div>
+          <div class="summary-card"><div class="number" id="totalVouchers">0</div><div class="label">已買優惠券</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calendar-header">
+      <div class="month-nav"><button id="prevMonth">←</button></div>
+      <h2 id="monthYearDisplay"></h2>
+      <div class="month-nav"><button id="nextMonth">→</button></div>
+    </div>
+    <div class="weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+    <div id="calendarGrid" class="calendar-grid"></div>
+    <div id="dailyDetail" class="detail-panel">
+      <h3 id="selectedDateTitle">點擊日期查看預約</h3>
+      <div id="appointmentList"></div>
+    </div>
+
+    <div class="suspicious-panel">
+      <h4>可疑活動監控（最近1小時同設備多筆預約）</h4>
+      <div class="suspicious-table" id="suspiciousTable"></div>
+      <div style="margin-top:10px;text-align:right;"><button class="btn-small" id="clearSuspicious">清除舊記錄</button></div>
+    </div>
+
+    <div class="shadow-calendar">
+      <div class="shadow-header"><h5>指定日子封鎖時段 <span id="shadowMonthYear" style="font-size:14px;color:#B45A2A;font-weight:400;"></span></h5><div class="shadow-nav"><button id="shadowPrevMonth">←</button><button id="shadowNextMonth">→</button></div></div>
+      <div class="weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+      <div id="shadowGrid" class="shadow-grid"></div>
+      <p style="font-size:13px;color:#B45A2A;line-height:1.6;margin-bottom:8px;">
+        <strong>用法：</strong>點一下日期 → 輸入 1–9 的數字，代表該日要「收起」幾個可預約時段（客人當天會看到少了幾個時段／全滿）；輸入 0 或留空可取消。此設定會同步到所有客人裝置。
+      </p>
+      <div class="shadow-footer"><button class="btn-small" id="clearShadowMonth">清除本月數字</button></div>
+    </div>
+
+    <details class="settings-section" id="section-field" open>
+      <summary>欄位顯示、必填、可重複與記錄開關</summary>
+      <div class="section-content"><div id="fieldSettingsContainer"></div></div>
+    </details>
+
+    <details class="settings-section" id="section-options">
+      <summary>選項管理（性別 / 服務項目）</summary>
+      <div class="section-content">
+        <h4>性別選項</h4>
+        <div id="genderOptionsContainer" class="item-list"></div>
+        <div class="add-item"><input type="text" id="newGenderOption" placeholder="例如 男"><button class="btn-small" id="addGenderOptionBtn">新增</button></div>
+        <h4>服務項目選項</h4>
+        <div id="serviceOptionsContainer" class="item-list"></div>
+        <div class="add-item"><input type="text" id="newServiceOption" placeholder="例如 單剪"><button class="btn-small" id="addServiceOptionBtn">新增</button></div>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-barber">
+      <summary>師傅管理</summary>
+      <div class="section-content">
+        <div id="barbersContainer" class="item-list"></div>
+        <div class="add-item"><input type="text" id="newBarberName" placeholder="師傅名稱"><button class="btn-small" id="addBarberBtn">新增師傅</button></div>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-timeslot">
+      <summary>時段管理</summary>
+      <div class="section-content">
+        <div style="border:1px solid #FFB985;border-radius:28px;padding:12px;margin-bottom:20px;">
+          <div style="font-weight:600;color:#B04400;">平日預約時間</div>
+          <div id="weekdaySlotsContainer" class="time-slot-list"></div>
+          <div class="add-time-slot"><input type="text" id="newWeekdaySlot" placeholder="例如 16:00"><button class="btn-small" id="addWeekdaySlotBtn">新增</button></div>
+        </div>
+        <div style="border:1px solid #FFB985;border-radius:28px;padding:12px;">
+          <div style="font-weight:600;color:#B04400;">週末／假日預約時間</div>
+          <div id="holidaySlotsContainer" class="time-slot-list"></div>
+          <div class="add-time-slot"><input type="text" id="newHolidaySlot" placeholder="例如 10:30"><button class="btn-small" id="addHolidaySlotBtn">新增</button></div>
+        </div>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-deadline">
+      <summary>每日預約截止時間</summary>
+      <div class="section-content">
+        <div class="form-group" style="margin:10px 0 0;">
+          <label>每日截止時間（例如 20:00，留空不限制）</label>
+          <input type="text" id="dailyCutoff" placeholder="HH:MM">
+          <small style="color:#B45A2A;">設定後，當天該時間過後便不能預約次日</small>
+        </div>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-notice">
+      <summary>預約頁面文字設定（一般版）</summary>
+      <div class="section-content">
+        <h4>預約須知</h4>
+        <textarea id="noticeText" rows="4"></textarea>
+        <h4>確認框（可自由增減）</h4>
+        <div id="confirmBoxesSettings"></div>
+        <div class="add-item"><input type="text" id="newConfirmBoxText" placeholder="例如 我已準時到店"><button class="btn-small" id="addConfirmBoxBtn">新增確認框</button></div>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-voucher-notice">
+      <summary>預約頁面文字設定（優惠券版）</summary>
+      <div class="section-content">
+        <h4>預約須知</h4>
+        <textarea id="parentNoticeText" rows="4"></textarea>
+        <h4>$20 優惠券使用說明</h4>
+        <textarea id="voucherInfoText" rows="5"></textarea>
+        <h4>確認框（可自由增減）</h4>
+        <div id="confirmBoxesVoucherSettings"></div>
+        <div class="add-item"><input type="text" id="newVoucherConfirmBoxText" placeholder="例如 我已準備好出示優惠券核對"><button class="btn-small" id="addVoucherConfirmBoxBtn">新增確認框</button></div>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-ntfy">
+      <summary>即時通知設定</summary>
+      <div class="section-content">
+        <div class="settings-row"><input type="text" id="ntfyTopic" placeholder="主題名稱"><button class="btn-small" id="testNotificationBtn" style="margin:0;">測試</button></div>
+        <div style="color:#B45A2A;font-size:12px;margin-top:5px;" id="testResult"></div>
+        <label style="display:flex;align-items:center;gap:8px;margin:8px 0;"><input type="checkbox" id="enableNotification"> 啟用預約通知</label>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-captcha">
+      <summary>防惡意設定</summary>
+      <div class="section-content">
+        <label style="display:flex;align-items:center;gap:8px;margin:8px 0;"><input type="checkbox" id="enableCaptcha"> 啟用算術驗證碼</label>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-staff">
+      <summary>員工管理</summary>
+      <div class="section-content">
+        <div class="form-group"><label>員工登入密碼</label><input type="text" id="staffPasswordInput"></div>
+        <div class="form-group"><label>員工編輯權限密碼</label><input type="text" id="staffEditPasswordInput"></div>
+        <label style="display:flex;align-items:center;gap:8px;margin:8px 0;"><input type="checkbox" id="staffCanEditDefault"> 員工預設可編輯</label>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-password">
+      <summary>修改管理員密碼</summary>
+      <div class="section-content">
+        <div class="password-change">
+          <input type="password" id="newPassword" placeholder="新密碼">
+          <input type="password" id="confirmPassword" placeholder="確認新密碼">
+          <button class="btn-small" id="changePasswordBtn">變更密碼</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-legacy-class">
+      <summary>舊版設定（已停用）</summary>
+      <div class="section-content"><div class="deprecated-box">此區塊為上一代預約系統的設定（分組／機構／層級／字母分類及人數上限），現已由「Email＋姓名」預約取代，暫停使用。原有雲端資料仍然保留，不會被刪除；如需完全清除，請在 Firebase Console 手動處理。</div></div>
+    </details>
+
+    <div class="database-panel">
+      <h4>一般預約 待處理（pending）<span id="totalBookingsCount" style="font-weight:normal;font-size:13px;">（總數: 0）</span></h4>
+      <div class="sortable-table" id="pendingTable"></div>
+      <div class="completed-section">
+        <h4>一般預約 已完成 <span class="total-badge" id="completedTotal">0</span></h4>
+        <div class="sortable-table" id="completedTable"></div>
+      </div>
+      <div class="noshow-section">
+        <h4>一般預約 未到達 <span class="total-badge" id="noshowTotal">0</span></h4>
+        <div class="sortable-table" id="noshowTable"></div>
+        <button class="btn-small" id="cleanOldNoShow">清除昨日未到達</button>
+      </div>
+    </div>
+
+    <div class="database-panel" style="border-color:#28a745;">
+      <h4>優惠券預約 待處理（pending）<span id="parentTotalBookingsCount" style="font-weight:normal;font-size:13px;">（總數: 0）</span></h4>
+      <div class="sortable-table" id="parentPendingTable"></div>
+      <div class="completed-section">
+        <h4>優惠券預約 已完成 <span class="total-badge" id="parentCompletedTotal">0</span></h4>
+        <div class="sortable-table" id="parentCompletedTable"></div>
+      </div>
+      <div class="noshow-section">
+        <h4>優惠券預約 未到達 <span class="total-badge" id="parentNoshowTotal">0</span></h4>
+        <div class="sortable-table" id="parentNoshowTable"></div>
+        <button class="btn-small" id="cleanParentOldNoShow">清除昨日未到達</button>
+      </div>
+    </div>
+
+    <button class="btn-small" id="saveSettingsBtn" style="width:100%;margin:20px 0;">儲存所有設定</button>
+    <button class="back-btn" id="backToBookingBtn">返回預約頁</button>
+  </div>
+
+  <!-- ===== 員工工作區 ===== -->
+  <div id="staffPage" class="page hidden">
+    <div class="staff-header">
+      <h3>員工工作區</h3>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span class="edit-mode-badge" id="editModeBadge" style="display:none;">編輯模式</span>
+        <button class="btn-small" id="unlockEditBtn" style="margin:0;">解鎖編輯</button>
+      </div>
+    </div>
+
+    <div class="staff-date-picker">
+      <input type="date" id="staffDatePicker">
+      <button class="btn-small" id="staffRefreshBtn" style="margin:0;">刷新</button>
+    </div>
+
+    <h4 class="h4-title">一般預約 待處理 <span class="total-badge" id="studentPendingCount">0</span></h4>
+    <div class="record-list" id="studentPendingList"></div>
+
+    <h4 class="h4-title">優惠券預約 待處理 <span class="total-badge" id="parentPendingCount">0</span></h4>
+    <div class="record-list" id="parentPendingList"></div>
+
+    <h4 class="h4-title">處理中 <span class="total-badge" id="processingCount">0</span></h4>
+    <div class="record-list" id="processingList"></div>
+
+    <h4 class="h4-title">手動登記（現場）</h4>
+    <div style="background:#FFF9F2;border:1px solid #FFB985;border-radius:24px;padding:14px;margin-bottom:20px;">
+      <div class="form-group"><label>姓名</label><input type="text" id="staffName" placeholder="客人姓名"></div>
+      <div class="form-group"><label>Email（選填）</label><input type="email" id="staffEmail" placeholder="example@mail.com"></div>
+      <div class="form-group"><label>性別</label><select id="staffGender"><option value="">請選擇</option></select></div>
+      <div class="form-group"><label>服務項目</label><select id="staffService"><option value="">請選擇</option></select></div>
+      <div class="form-group"><label>師傅</label><select id="staffBarber"><option value="">請選擇師傅</option></select></div>
+      <button class="btn-small btn-success" id="submitStaffWalkin" style="width:100%;">完成登記（一般）</button>
+      <button class="btn-small" id="submitStaffWalkinVoucher" style="width:100%;background:#28a745;color:#fff;">完成登記（優惠券）</button>
+      <div class="note">登記前會檢查同一 Email 是否已有預約記錄，如有重複會拒絕登記。</div>
+    </div>
+
+    <h4 class="h4-title">已完成 <span class="total-badge" id="completedCount">0</span></h4>
+    <div class="record-list" id="completedItems"></div>
+
+    <h4 class="h4-title">未到達 <span class="total-badge" id="noshowCount">0</span></h4>
+    <div class="record-list" id="noshowItems"></div>
+
+    <button class="back-btn" id="backFromStaffBtn">返回主頁</button>
+  </div>
+</div>
+<script>
+(function(){
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTgUIWXKjNZqp-bC1jk-XxZvoMihs6vO4",
+    authDomain: "hairworld-2026.firebaseapp.com",
+    projectId: "hairworld-2026",
+    storageBucket: "hairworld-2026.firebasestorage.app",
+    messagingSenderId: "531811271889",
+    appId: "1:531811271889:web:62bf3e37996b9b154831f0"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  auth.signInAnonymously().catch(e => console.error("匿名登入失敗", e));
+
+  const DEVICE_ID_KEY='hairWorldDeviceId', ACTIVITY_KEY='hairWorldActivity',
+        SHADOW_KEY='hairWorldShadowMarks', SYNC_MAIN_KEY='hairWorldSyncMain',
+        OWNER_PASSWORD='owner123', REVIEW_WINDOW_MS=5000;
+
+  function getDeviceId(){
+    let id=localStorage.getItem(DEVICE_ID_KEY);
+    if(!id){ id='device_'+Math.random().toString(36).substring(2,15)+Math.random().toString(36).substring(2,15); localStorage.setItem(DEVICE_ID_KEY,id); }
+    return id;
   }
-  await db.collection("bookings").add({
-    email,name,gender,service,
-    date:selectedDate,time:selectedTime,
-    type:"voucher",
-    status:"pending",
-    couponBuy:true,
-    createAt:new Date()
+  const deviceId=getDeviceId();
+
+  const availabilityCache=new Map(), CACHE_TTL=5000;
+  function getCachedAvailability(d){ const c=availabilityCache.get(d); return (c && Date.now()-c.timestamp<CACHE_TTL)?c.data:null; }
+  function setCachedAvailability(d,v){ availabilityCache.set(d,{data:v,timestamp:Date.now()}); }
+
+  const DAY_TTL=60000;
+  let daySlotsCache={}, monthLoaded={};
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  async function fetchDaySlots(date,force){
+    const c=daySlotsCache[date];
+    if(!force && c && c.ts && Date.now()-c.ts<DAY_TTL) return c;
+    try{
+      const doc=await db.collection("daySlots").doc(date).get();
+      const data=doc.exists?doc.data():{};
+      const times=Array.isArray(data.times)?data.times:[];
+      daySlotsCache[date]={times:times,ts:Date.now()};
+      availabilityCache.delete(date);
+      return daySlotsCache[date];
+    }catch(e){ console.error('讀取當日時段失敗',e); return daySlotsCache[date]||{times:[],ts:0}; }
+  }
+  async function fetchMonthSlots(ym){
+    try{
+      const snap=await db.collection("daySlots")
+        .orderBy(firebase.firestore.FieldPath.documentId())
+        .startAt(ym+'-01').endAt(ym+'-31').get();
+      snap.forEach(doc=>{
+        const d=doc.data();
+        daySlotsCache[doc.id]={times:Array.isArray(d.times)?d.times:[],ts:Date.now()};
+      });
+      availabilityCache.clear();
+    }catch(e){ console.error('讀取每月時段失敗',e); }
+  }
+
+  let activities=JSON.parse(localStorage.getItem(ACTIVITY_KEY))||[];
+  function addActivity(b){
+    activities.push({deviceId,timestamp:Date.now(),email:b.email,name:b.name,service:b.service,date:b.date,time:b.time});
+    if(activities.length>100) activities=activities.slice(-100);
+    localStorage.setItem(ACTIVITY_KEY,JSON.stringify(activities));
+  }
+  function clearOldActivities(h=1){ const cut=Date.now()-h*3600000; activities=activities.filter(a=>a.timestamp>=cut); localStorage.setItem(ACTIVITY_KEY,JSON.stringify(activities)); }
+  function getSuspiciousActivities(){
+    const cut=Date.now()-3600000, recent=activities.filter(a=>a.timestamp>=cut), cnt={};
+    recent.forEach(a=>cnt[a.deviceId]=(cnt[a.deviceId]||0)+1);
+    const bad=Object.keys(cnt).filter(d=>cnt[d]>1);
+    return recent.filter(a=>bad.includes(a.deviceId));
+  }
+  function renderSuspiciousTable(){
+    clearOldActivities(1);
+    const list=getSuspiciousActivities(), div=document.getElementById('suspiciousTable');
+    if(!list.length){ div.innerHTML='<div style="padding:10px;text-align:center;">目前無可疑活動</div>'; return; }
+    let html='<table><thead><tr><th>時間</th><th>姓名</th><th>Email</th><th>日期</th><th>時段</th></tr></thead><tbody>';
+    list.sort((a,b)=>b.timestamp-a.timestamp).forEach(a=>{
+      const t=new Date(a.timestamp).toLocaleTimeString('zh-HK',{hour12:false});
+      html+=`<tr><td>${t}</td><td>${a.name||''}</td><td>${a.email||''}</td><td>${a.date||''}</td><td>${a.time||''}</td></tr>`;
+    });
+    div.innerHTML=html+'</tbody></table>';
+  }
+  document.getElementById('clearSuspicious').addEventListener('click',()=>{
+    activities=[]; localStorage.setItem(ACTIVITY_KEY,JSON.stringify(activities)); renderSuspiciousTable();
   });
-  msgBox.className="success";
-  msgBox.textContent="優惠券預約成功！";
-});
+
+  let shadowMarks=JSON.parse(localStorage.getItem(SHADOW_KEY))||{};
+  async function saveShadowMarks(){
+    localStorage.setItem(SHADOW_KEY,JSON.stringify(shadowMarks));
+    try{ await db.collection("config").doc("settings").set({shadowMarks:shadowMarks},{merge:true}); }
+    catch(e){ console.error('封鎖日期同步失敗',e); }
+  }
+  async function loadShadowMarks(){
+    try{
+      const doc=await db.collection("config").doc("settings").get();
+      if(doc.exists && doc.data().shadowMarks){
+        shadowMarks=doc.data().shadowMarks;
+        localStorage.setItem(SHADOW_KEY,JSON.stringify(shadowMarks));
+      }
+    }catch(e){ console.error('讀取封鎖日期失敗',e); }
+  }
+
+  let syncMain=localStorage.getItem(SYNC_MAIN_KEY)!=='false';
+  document.getElementById('syncMainCalendar').checked=syncMain;
+  document.getElementById('syncMainCalendar').addEventListener('change',function(e){
+    syncMain=e.target.checked; localStorage.setItem(SYNC_MAIN_KEY,syncMain); renderStudentCalendar();
+  });
+
+  let bookings=[], normalBookings=[], voucherBookings=[];
+
+  let config={
+    barbers:['師傅A','師傅B','師傅C','師傅D'],
+    genders:['男','女'],
+    services:['單剪','剪髮+洗頭'],
+    notice:"• 每位客人只可有一個有效預約。\n• 預約時間前2小時內無法修改或取消。\n• 預約只是分散人流，必須按照店舖人數排隊。",
+    screenshotLabel:"確定已截圖預約記錄",
+    studentCardLabel:"我已準時到店",
+    cardNoteLabel:"(請準時到達，逾時可能需重新輪候)",
+    parentNotice:"• 每位客人只可有一個有效預約。\n• 預約時間前2小時內無法修改或取消。\n• 使用優惠券需出示相關證明。",
+    parentScreenshotLabel:"確定已使用優惠券預約",
+    parentCardLabel:"我已準備好出示優惠券核對",
+    parentCardNoteLabel:"(需出示優惠券核對)",
+    voucherInfo:"• 本頁只供已購買 $20 優惠券的客人預約。\n• 到店時請出示優惠券（電子或實體均可）。\n• 優惠券可寄存於店舖，使用時請通知店員。\n• 每位客人同一時間只可保留一個有效預約。",
+    ntfyTopic:"hairworld_demo", ntfyEnabled:true, enableCaptcha:true,
+    adminPassword:"admin123", staffPassword:"staff123", staffEditPassword:"edit123",
+    staffCanEditDefault:false,
+    weekdaySlots:['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'],
+    holidaySlots:['10:30','11:30','12:30'],
+    dailyCutoff:'',
+    visibleFields:{email:true,name:true,gender:true,service:true},
+    requiredFields:{email:true,name:true,gender:true,service:true},
+    allowDuplicate:{email:false,name:true,gender:true,service:true},
+    fieldLabels:{email:"Email",name:"姓名",gender:"性別",service:"服務項目"},
+    confirmBoxes:[{label:"確定已截圖預約記錄",note:""},{label:"我已準時到店",note:"(請準時到達，逾時可能需重新輪候)"}],
+    voucherConfirmBoxes:[{label:"確定已使用優惠券預約",note:""},{label:"我已準備好出示優惠券核對",note:"(需出示優惠券核對)"}],
+    showInRecords:{email:true,name:true,gender:true,service:true,barber:true}
+  };
+  let adminPassword=config.adminPassword, staffPassword=config.staffPassword,
+      staffEditPassword=config.staffEditPassword, staffCanEditDefault=config.staffCanEditDefault,
+      staffEditMode=false;
+
+  let studentYear=new Date().getFullYear(), studentMonth=new Date().getMonth(),
+      currentSelectedDate=getTomorrowStr(),
+      adminYear=new Date().getFullYear(), adminMonth=new Date().getMonth(),
+      shadowYear=new Date().getFullYear(), shadowMonth=new Date().getMonth();
+
+  function getTodayStr(){ const d=new Date(); return d.toISOString().slice(0,10); }
+  function getTomorrowStr(){ const d=new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); }
+  function showFeedback(msg,isError=true){
+    const fb=document.getElementById('formFeedback');
+    fb.textContent=msg; fb.className='form-feedback '+(isError?'error':'success'); fb.style.display='block';
+  }
+  function hideFeedback(){ document.getElementById('formFeedback').style.display='none'; }
+
+  const LEGACY_WORDS=['學生證','學生','學校','年級','班別','班級','學號','家長'];
+  function stripLegacy(s){
+    if(typeof s!=='string') return s;
+    let out=s;
+    LEGACY_WORDS.forEach(w=>{ out=out.split(w).join(''); });
+    return out.replace(/[ \t　]+/g,' ').replace(/^ +| +$/g,'');
+  }
+  function normalizeType(t){ return t==='student' ? 'normal' : (t||'normal'); }
+
+  async function fetchAllBookings(){
+    try{
+      const snap=await db.collection("appointments").get();
+      const list=[];
+      snap.forEach(doc=>{
+        const d=doc.data(); d.id=doc.id;
+        if(d.date && typeof d.date==='string' && d.date.includes('T')) d.date=d.date.split('T')[0];
+        if(!d.status) d.status='pending';
+        d.type=normalizeType(d.type);
+        if(!d.voucherPurchased) d.voucherPurchased=false;
+        list.push(d);
+      });
+      bookings=list;
+      normalBookings=list.filter(b=>b.type==='normal');
+      voucherBookings=list.filter(b=>b.type==='voucher');
+    }catch(e){ console.error('讀取預約失敗',e); bookings=[]; normalBookings=[]; voucherBookings=[]; }
+  }
+
+  async function fetchConfig(){
+    try{
+      const doc=await db.collection("config").doc("settings").get();
+      if(doc.exists){
+        const data=doc.data();
+        let legacyFixed=false;
+        if(data.fieldLabels){
+          for(const k in data.fieldLabels){
+            const v=stripLegacy(data.fieldLabels[k]);
+            if(v!==data.fieldLabels[k]) legacyFixed=true;
+            data.fieldLabels[k]=v||'';
+          }
+        }
+        ['screenshotLabel','studentCardLabel','cardNoteLabel','notice','parentScreenshotLabel','parentCardLabel','parentCardNoteLabel','parentNotice','voucherInfo'].forEach(k=>{
+          if(typeof data[k]==='string'){ const v=stripLegacy(data[k]); if(v!==data[k]){ data[k]=v; legacyFixed=true; } }
+        });
+        Object.assign(config,data);
+        if(data.adminPassword) adminPassword=data.adminPassword;
+        if(data.staffPassword) staffPassword=data.staffPassword;
+        if(data.staffEditPassword) staffEditPassword=data.staffEditPassword;
+        if(data.staffCanEditDefault!==undefined) staffCanEditDefault=data.staffCanEditDefault;
+        if(!config.visibleFields) config.visibleFields={email:true,name:true,gender:true,service:true};
+        if(!config.requiredFields) config.requiredFields={email:true,name:true,gender:true,service:true};
+        if(!config.allowDuplicate) config.allowDuplicate={email:false,name:true,gender:true,service:true};
+        if(!config.fieldLabels) config.fieldLabels={email:"Email",name:"姓名",gender:"性別",service:"服務項目"};
+        const LB={email:"Email",name:"姓名",gender:"性別",service:"服務項目"};
+        ['email','name','gender','service'].forEach(k=>{ if(!config.fieldLabels[k]) config.fieldLabels[k]=LB[k]; });
+        if(!config.showInRecords) config.showInRecords={email:true,name:true,gender:true,service:true,barber:true};
+        ['email','name','gender','service','barber'].forEach(k=>{ if(config.showInRecords[k]===undefined) config.showInRecords[k]=true; });
+        if(!Array.isArray(config.confirmBoxes)||!config.confirmBoxes.length)
+          config.confirmBoxes=[{label:config.screenshotLabel||'確定已截圖預約記錄',note:''},{label:config.studentCardLabel||'我已準時到店',note:config.cardNoteLabel||''}];
+        config.confirmBoxes=config.confirmBoxes.filter(c=>c&&typeof c.label==='string'&&c.label.trim());
+        if(!config.confirmBoxes.length) config.confirmBoxes=[{label:'我確認資料正確',note:''}];
+        if(!Array.isArray(config.voucherConfirmBoxes)||!config.voucherConfirmBoxes.length)
+          config.voucherConfirmBoxes=[{label:config.parentScreenshotLabel||'確定已使用優惠券預約',note:''},{label:config.parentCardLabel||'我已準備好出示優惠券核對',note:config.parentCardNoteLabel||''}];
+        config.voucherConfirmBoxes=config.voucherConfirmBoxes.filter(c=>c&&typeof c.label==='string'&&c.label.trim());
+        if(!config.voucherConfirmBoxes.length) config.voucherConfirmBoxes=[{label:'我確認資料正確',note:''}];
+        if(!Array.isArray(config.genders)||!config.genders.length) config.genders=['男','女'];
+        if(!Array.isArray(config.services)||!config.services.length) config.services=['單剪','剪髮+洗頭'];
+        if(!Array.isArray(config.barbers)||!config.barbers.length) config.barbers=['師傅A','師傅B','師傅C','師傅D'];
+        if(!Array.isArray(config.weekdaySlots)) config.weekdaySlots=['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'];
+        if(!Array.isArray(config.holidaySlots)) config.holidaySlots=['10:30','11:30','12:30'];
+        if(config.dailyCutoff===undefined) config.dailyCutoff='';
+        if(!config.cardNoteLabel) config.cardNoteLabel="(請準時到達，逾時可能需重新輪候)";
+        if(!config.parentNotice) config.parentNotice="• 每位客人只可有一個有效預約。\n• 預約時間前2小時內無法修改或取消。\n• 使用優惠券需出示相關證明。";
+        if(!config.parentScreenshotLabel) config.parentScreenshotLabel="確定已使用優惠券預約";
+        if(!config.parentCardLabel) config.parentCardLabel="我已準備好出示優惠券核對";
+        if(!config.parentCardNoteLabel) config.parentCardNoteLabel="(需出示優惠券核對)";
+        if(!config.voucherInfo) config.voucherInfo="• 本頁只供已購買 $20 優惠券的客人預約。\n• 到店時請出示優惠券（電子或實體均可）。\n• 優惠券可寄存於店舖，使用時請通知店員。\n• 每位客人同一時間只可保留一個有效預約。";
+        if(legacyFixed) await updateConfig(config);
+        if(data.shadowMarks){ shadowMarks=data.shadowMarks; localStorage.setItem(SHADOW_KEY,JSON.stringify(shadowMarks)); }
+        renderStaffOptionSelects();
+      }else{
+        await db.collection("config").doc("settings").set(config);
+      }
+    }catch(e){ console.error('讀取設定失敗',e); }
+  }
+
+  async function updateConfig(newConfig){
+    try{
+      await db.collection("config").doc("settings").set(newConfig);
+      Object.assign(config,newConfig);
+      adminPassword=newConfig.adminPassword;
+      staffPassword=newConfig.staffPassword;
+      staffEditPassword=newConfig.staffEditPassword;
+      staffCanEditDefault=newConfig.staffCanEditDefault;
+      return true;
+    }catch(e){ console.error('更新設定失敗',e); return false; }
+  }
+
+  async function createBooking(booking,type){
+    try{
+      const slotRef=db.collection("slots").doc(`${booking.date}_${booking.time}`);
+      const dayRef=db.collection("daySlots").doc(booking.date);
+      const apptRef=db.collection("appointments").doc();
+      let taken=false;
+      await db.runTransaction(async tx=>{
+        const slotDoc=await tx.get(slotRef);
+        const dayDoc=await tx.get(dayRef);
+        const slotData=slotDoc.exists?slotDoc.data():null;
+        const times=(dayDoc.exists&&Array.isArray(dayDoc.data().times))?dayDoc.data().times:[];
+        if((slotData&&slotData.status!=='cancelled')||times.map(String).includes(String(booking.time))){ taken=true; return; }
+        const nowIso=new Date().toISOString();
+        tx.set(slotRef,{date:booking.date,time:booking.time,type:type,status:'pending',appointmentId:apptRef.id,email:booking.email||'',name:booking.name||'',createdAt:nowIso});
+        tx.set(dayRef,{times:times.concat([booking.time]),updatedAt:nowIso},{merge:true});
+        tx.set(apptRef,{email:booking.email||'',name:booking.name||'',gender:booking.gender||'',service:booking.service||'',
+          date:booking.date,time:booking.time,status:'pending',type:type,voucherPurchased:false,
+          createdAt:nowIso,updatedAt:nowIso,deviceId:deviceId});
+      });
+      if(taken) return {success:false,error:'slot_taken'};
+      const cur=(daySlotsCache[booking.date]&&daySlotsCache[booking.date].times)||[];
+      daySlotsCache[booking.date]={times:cur.concat([booking.time]),ts:0};
+      availabilityCache.delete(booking.date);
+      addActivity(booking);
+      return {success:true,id:apptRef.id};
+    }catch(e){ console.error('建立預約失敗',e); return {success:false,error:e.message}; }
+  }
+
+  async function releaseSlot(date,time){
+    if(!date||!time) return false;
+    try{
+      const slotRef=db.collection("slots").doc(`${date}_${time}`);
+      const dayRef=db.collection("daySlots").doc(date);
+      let newTimes=[];
+      await db.runTransaction(async tx=>{
+        const dayDoc=await tx.get(dayRef);
+        const times=(dayDoc.exists&&Array.isArray(dayDoc.data().times))?dayDoc.data().times.filter(t=>String(t)!==String(time)):[];
+        newTimes=times;
+        tx.set(dayRef,{times:times,updatedAt:new Date().toISOString()},{merge:true});
+        tx.set(slotRef,{status:'cancelled',cancelledAt:new Date().toISOString()},{merge:true});
+      });
+      daySlotsCache[date]={times:newTimes,ts:0};
+      availabilityCache.delete(date);
+      monthLoaded[date.slice(0,7)]=false;
+      return true;
+    }catch(e){ console.error('釋放時段失敗',e); return false; }
+  }
+
+  async function updateBookingStatus(id,status,extra={}){
+    try{
+      await db.collection("appointments").doc(id).update({status:status,updatedAt:new Date().toISOString(),...extra});
+      if(status==='completed'||status==='no-show'){
+        let b=bookings.find(x=>x.id===id);
+        if(!b){ const d=await db.collection("appointments").doc(id).get(); if(d.exists){ const x=d.data(); b={date:x.date,time:x.time}; } }
+        if(b&&b.date&&b.time) await releaseSlot(b.date,b.time);
+      }
+      return true;
+    }catch(e){ console.error('更新狀態失敗',e); return false; }
+  }
+  async function deleteBookingById(id){
+    try{
+      const doc=await db.collection("appointments").doc(id).get();
+      if(doc.exists){ const d=doc.data(); if(d.date&&d.time) await releaseSlot(d.date,d.time); }
+      await db.collection("appointments").doc(id).delete(); return true;
+    }catch(e){ console.error('刪除失敗',e); return false; }
+  }
+
+  async function autoMarkNoShow(){
+    const now=new Date();
+    for(const b of bookings.filter(b=>b.status==='pending'&&b.time)){
+      const dt=new Date(`${b.date}T${b.time}:00`);
+      if((now-dt)/(3600000)>=12) await updateBookingStatus(b.id,'no-show',{noShowAt:now.toISOString()});
+    }
+  }
+
+  const FIELDS=['email','name','gender','service'];
+  const FIELD_DEFAULT={email:'Email',name:'姓名',gender:'性別',service:'服務項目'};
+
+  function applyFieldSettings(){
+    FIELDS.forEach(f=>{
+      const group=document.getElementById('group-'+f);
+      if(group) group.style.display=config.visibleFields[f]?'block':'none';
+      const label=document.getElementById('label-'+f);
+      if(label){
+        label.textContent=config.fieldLabels[f]||FIELD_DEFAULT[f];
+        label.classList.toggle('required', !!(config.visibleFields[f]&&config.requiredFields[f]));
+      }
+      const input=document.getElementById(f);
+      if(input) input.required=!!(config.visibleFields[f]&&config.requiredFields[f]);
+    });
+    renderConfirmBoxes();
+    document.getElementById('bookingNoticeContent').innerHTML=(config.parentNotice||'').replace(/\n/g,'<br>');
+    document.getElementById('voucherInfoContent').innerHTML=(config.voucherInfo||'').replace(/\n/g,'<br>');
+  }
+
+  const PAGE_TYPE='voucher';
+  function getActiveConfirmBoxes(){ return PAGE_TYPE==='voucher' ? config.voucherConfirmBoxes : config.confirmBoxes; }
+  function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function renderConfirmBoxes(){
+    const box=document.getElementById('confirmBoxesContainer'); if(!box) return;
+    const list=getActiveConfirmBoxes()||[];
+    box.innerHTML=list.map((c,i)=>`<div class="confirm-item"><div class="checkbox-wrapper"><input type="checkbox" class="confirm-chk" data-i="${i}"><label>${escHtml(c.label)}</label></div>${c.note?`<div class="checkbox-note">${escHtml(c.note)}</div>`:''}</div>`).join('');
+  }
+  function renderConfirmBoxSettings(target,list){
+    const box=document.getElementById(target); if(!box) return;
+    box.innerHTML=list.map((c,i)=>`<div class="cb-edit-row">
+      <input type="text" class="cb-label-input" data-i="${i}" value="${escHtml(c.label)}" placeholder="確認框文字">
+      <input type="text" class="cb-note-input" data-i="${i}" value="${escHtml(c.note||'')}" placeholder="下方小字（可留空）">
+      <button type="button" class="btn-small remove-cb" data-i="${i}" style="margin-top:6px;background:#ff6b6b;color:#fff;">刪除此確認框</button>
+    </div>`).join('');
+    box.querySelectorAll('.cb-label-input').forEach(inp=>inp.addEventListener('change',function(){
+      list[this.dataset.i].label=this.value.trim(); renderConfirmBoxes();
+    }));
+    box.querySelectorAll('.cb-note-input').forEach(inp=>inp.addEventListener('change',function(){
+      list[this.dataset.i].note=this.value.trim(); renderConfirmBoxes();
+    }));
+    box.querySelectorAll('.remove-cb').forEach(b=>b.addEventListener('click',function(){
+      if(list.length<=1){ alert('最少要保留一個確認框'); return; }
+      list.splice(this.dataset.i,1); renderConfirmBoxSettings(target,list); renderConfirmBoxes();
+    }));
+  }
+  function renderChipGroup(boxId,hiddenId,values){
+    const box=document.getElementById(boxId), hidden=document.getElementById(hiddenId);
+    if(!box||!hidden) return;
+    const cur=hidden.value;
+    if(cur && !values.includes(cur)) hidden.value='';
+    const now=hidden.value;
+    box.innerHTML=values.map(v=>`<button type="button" class="chip-btn${now===v?' active':''}" data-value="${v}">${v}</button>`).join('');
+    box.querySelectorAll('.chip-btn').forEach(btn=>btn.addEventListener('click',function(){
+      box.querySelectorAll('.chip-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      hidden.value=this.dataset.value;
+    }));
+  }
+  function renderBookingOptionSelects(){
+    renderChipGroup('genderChips','gender',config.genders);
+    renderChipGroup('serviceChips','service',config.services);
+  }
+
+  function renderStaffOptionSelects(){
+    const g=document.getElementById('staffGender');
+    if(g) g.innerHTML='<option value="">請選擇</option>'+config.genders.map(v=>`<option value="${v}">${v}</option>`).join('');
+    const s=document.getElementById('staffService');
+    if(s) s.innerHTML='<option value="">請選擇</option>'+config.services.map(v=>`<option value="${v}">${v}</option>`).join('');
+    const b=document.getElementById('staffBarber');
+    if(b) b.innerHTML='<option value="">請選擇師傅</option>'+config.barbers.map(v=>`<option value="${v}">${v}</option>`).join('');
+  }
+
+  function renderFieldSettings(){
+    const box=document.getElementById('fieldSettingsContainer');
+    let html='';
+    FIELDS.forEach(f=>{
+      const visible=config.visibleFields[f]?'checked':'';
+      const required=config.requiredFields[f]?'checked':'';
+      const dup=config.allowDuplicate[f]?'checked':'';
+      const rec=config.showInRecords[f]?'checked':'';
+      html+=`<div class="field-setting-row" data-field="${f}">
+        <input type="text" class="label-input" data-field="${f}" value="${config.fieldLabels[f]||FIELD_DEFAULT[f]}">
+        <label><input type="checkbox" class="visible-chk" data-field="${f}" ${visible}> 顯示</label>
+        <label><input type="checkbox" class="required-chk" data-field="${f}" ${required} ${!visible?'disabled':''}> 必填</label>
+        <label><input type="checkbox" class="allow-duplicate-chk" data-field="${f}" ${dup} ${!visible?'disabled':''}> 可重複</label>
+        <label><input type="checkbox" class="show-record-chk" data-field="${f}" ${rec}> 記錄</label>
+      </div>`;
+    });
+    box.innerHTML=html;
+
+    box.querySelectorAll('.visible-chk').forEach(c=>c.addEventListener('change',function(){
+      const f=this.dataset.field, row=this.closest('.field-setting-row');
+      const req=row.querySelector('.required-chk'), dup=row.querySelector('.allow-duplicate-chk');
+      config.visibleFields[f]=this.checked;
+      if(!this.checked){ config.requiredFields[f]=false; config.allowDuplicate[f]=false; req.checked=false; dup.checked=false; req.disabled=true; dup.disabled=true; }
+      else { req.disabled=false; dup.disabled=false; }
+    }));
+    box.querySelectorAll('.required-chk').forEach(c=>c.addEventListener('change',function(){ config.requiredFields[this.dataset.field]=this.checked; }));
+    box.querySelectorAll('.allow-duplicate-chk').forEach(c=>c.addEventListener('change',function(){ config.allowDuplicate[this.dataset.field]=this.checked; }));
+    box.querySelectorAll('.show-record-chk').forEach(c=>c.addEventListener('change',function(){ config.showInRecords[this.dataset.field]=this.checked; }));
+    box.querySelectorAll('.label-input').forEach(inp=>inp.addEventListener('change',function(){
+      const f=this.dataset.field, v=this.value.trim();
+      config.fieldLabels[f]=v||FIELD_DEFAULT[f];
+      this.value=config.fieldLabels[f];
+      applyFieldSettings();
+    }));
+  }
+
+  function renderOptionSettings(){
+    const gBox=document.getElementById('genderOptionsContainer');
+    gBox.innerHTML=config.genders.map((v,i)=>`<div class="item-row"><input type="text" value="${v}" data-i="${i}" class="gender-input"><button class="remove-item" data-i="${i}" data-kind="gender">刪除</button></div>`).join('');
+    const sBox=document.getElementById('serviceOptionsContainer');
+    sBox.innerHTML=config.services.map((v,i)=>`<div class="item-row"><input type="text" value="${v}" data-i="${i}" class="service-input"><button class="remove-item" data-i="${i}" data-kind="service">刪除</button></div>`).join('');
+
+    gBox.querySelectorAll('.gender-input').forEach(inp=>inp.addEventListener('change',function(){ config.genders[this.dataset.i]=this.value; renderBookingOptionSelects(); renderStaffOptionSelects(); }));
+    sBox.querySelectorAll('.service-input').forEach(inp=>inp.addEventListener('change',function(){ config.services[this.dataset.i]=this.value; renderBookingOptionSelects(); renderStaffOptionSelects(); }));
+    gBox.querySelectorAll('.remove-item').forEach(b=>b.addEventListener('click',function(){ config.genders.splice(this.dataset.i,1); renderOptionSettings(); renderBookingOptionSelects(); renderStaffOptionSelects(); }));
+    sBox.querySelectorAll('.remove-item').forEach(b=>b.addEventListener('click',function(){ config.services.splice(this.dataset.i,1); renderOptionSettings(); renderBookingOptionSelects(); renderStaffOptionSelects(); }));
+  }
+  document.getElementById('addGenderOptionBtn').addEventListener('click',function(){
+    const v=document.getElementById('newGenderOption').value.trim();
+    if(v && !config.genders.includes(v)){ config.genders.push(v); document.getElementById('newGenderOption').value=''; renderOptionSettings(); renderBookingOptionSelects(); renderStaffOptionSelects(); }
+  });
+  document.getElementById('addServiceOptionBtn').addEventListener('click',function(){
+    const v=document.getElementById('newServiceOption').value.trim();
+    if(v && !config.services.includes(v)){ config.services.push(v); document.getElementById('newServiceOption').value=''; renderOptionSettings(); renderBookingOptionSelects(); renderStaffOptionSelects(); }
+  });
+
+  document.getElementById('addConfirmBoxBtn').addEventListener('click',function(){
+    const inp=document.getElementById('newConfirmBoxText'), v=inp.value.trim();
+    if(!v) return;
+    config.confirmBoxes.push({label:v,note:''}); inp.value='';
+    renderConfirmBoxSettings('confirmBoxesSettings',config.confirmBoxes); renderConfirmBoxes();
+  });
+  document.getElementById('addVoucherConfirmBoxBtn').addEventListener('click',function(){
+    const inp=document.getElementById('newVoucherConfirmBoxText'), v=inp.value.trim();
+    if(!v) return;
+    config.voucherConfirmBoxes.push({label:v,note:''}); inp.value='';
+    renderConfirmBoxSettings('confirmBoxesVoucherSettings',config.voucherConfirmBoxes); renderConfirmBoxes();
+  });
+
+  function renderBarbersSettings(){
+    const box=document.getElementById('barbersContainer');
+    box.innerHTML=config.barbers.map((v,i)=>`<div class="item-row"><input type="text" value="${v}" data-i="${i}" class="barber-input"><button class="remove-item" data-i="${i}">刪除</button></div>`).join('');
+    box.querySelectorAll('.barber-input').forEach(inp=>inp.addEventListener('change',function(){ config.barbers[this.dataset.i]=this.value; renderStaffOptionSelects(); }));
+    box.querySelectorAll('.remove-item').forEach(b=>b.addEventListener('click',function(){ config.barbers.splice(this.dataset.i,1); renderBarbersSettings(); renderStaffOptionSelects(); }));
+  }
+  document.getElementById('addBarberBtn').addEventListener('click',function(){
+    const v=document.getElementById('newBarberName').value.trim();
+    if(v){ config.barbers.push(v); document.getElementById('newBarberName').value=''; renderBarbersSettings(); renderStaffOptionSelects(); }
+  });
+
+  function renderTimeSlotSettings(){
+    const w=document.getElementById('weekdaySlotsContainer');
+    w.innerHTML=config.weekdaySlots.map(s=>`<div class="time-slot-item">${s}<button class="remove-slot" data-type="weekday" data-slot="${s}">刪除</button></div>`).join('');
+    const h=document.getElementById('holidaySlotsContainer');
+    h.innerHTML=config.holidaySlots.map(s=>`<div class="time-slot-item">${s}<button class="remove-slot" data-type="holiday" data-slot="${s}">刪除</button></div>`).join('');
+    document.querySelectorAll('.remove-slot').forEach(b=>b.addEventListener('click',function(){
+      const type=this.dataset.type, slot=this.dataset.slot;
+      if(type==='weekday') config.weekdaySlots=config.weekdaySlots.filter(s=>s!==slot);
+      else config.holidaySlots=config.holidaySlots.filter(s=>s!==slot);
+      renderTimeSlotSettings();
+    }));
+  }
+  function addSlot(type,inputId){
+    const inp=document.getElementById(inputId), slot=inp.value.trim();
+    if(!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(slot)){ alert('請輸入有效時間 (HH:MM)'); return; }
+    const arr=type==='weekday'?config.weekdaySlots:config.holidaySlots;
+    if(arr.includes(slot)){ alert('該時段已存在'); return; }
+    arr.push(slot); arr.sort(); renderTimeSlotSettings(); inp.value='';
+  }
+  document.getElementById('addWeekdaySlotBtn').addEventListener('click',()=>addSlot('weekday','newWeekdaySlot'));
+  document.getElementById('addHolidaySlotBtn').addEventListener('click',()=>addSlot('holiday','newHolidaySlot'));
+
+  const publicHolidays=['2026-01-01','2026-02-17','2026-02-18','2026-02-19','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-05-01','2026-05-25','2026-06-19','2026-07-01','2026-10-01','2026-10-02','2026-10-21','2026-12-25','2026-12-26','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-26','2027-03-27','2027-03-29','2027-04-05','2027-05-01','2027-05-14','2027-06-09','2027-07-01','2027-10-01','2027-10-02','2027-10-19','2027-12-25','2027-12-26'];
+  function isWeekend(d){ const x=new Date(d+'T12:00:00'); return x.getDay()===0||x.getDay()===6; }
+  function isHoliday(d){ return isWeekend(d)||publicHolidays.includes(d); }
+  function getBaseTimeSlots(d){ return isHoliday(d)?(config.holidaySlots||[]):(config.weekdaySlots||[]); }
+
+  function getShadowBlockedSlots(date,available){
+    const n=shadowMarks[date];
+    if(!n||n<=0||!available.length) return [];
+    if(n>=available.length) return available.slice();
+    const hashed=available.map(slot=>{
+      let h=0; const str=date+slot;
+      for(let i=0;i<str.length;i++){ h=((h<<5)-h)+str.charCodeAt(i); h|=0; }
+      return {slot,hash:h};
+    }).sort((a,b)=>a.hash-b.hash);
+    return hashed.slice(0,n).map(x=>x.slot);
+  }
+
+  function getAvailableTimeSlots(date){
+    const cached=getCachedAvailability(date); if(cached) return cached;
+    const base=getBaseTimeSlots(date);
+    const fromDocs=(daySlotsCache[date]&&daySlotsCache[date].times)||[];
+    const fromBookings=bookings.filter(b=>b.date===date&&b.status==='pending').map(b=>b.time);
+    const booked=Array.from(new Set(fromDocs.concat(fromBookings)));
+    const remain=base.filter(t=>!booked.includes(t));
+    const result=remain.filter(t=>!getShadowBlockedSlots(date,remain).includes(t));
+    setCachedAvailability(date,result);
+    return result;
+  }
+
+  function renderStudentCalendar(){
+    const y=studentYear,m=studentMonth;
+    const ymKey=`${y}-${pad2(m+1)}`;
+    if(!monthLoaded[ymKey]){
+      monthLoaded[ymKey]=true;
+      fetchMonthSlots(ymKey).then(()=>{
+        availabilityCache.clear();
+        if(studentYear===y&&studentMonth===m){ renderStudentCalendar(); renderTimeSlots(currentSelectedDate); }
+      });
+    }
+    const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+    document.getElementById('studentCalMonthYear').innerText=`${y}年${m+1}月`;
+    let html='';
+    for(let i=0;i<first;i++) html+='<div class="cal-cell empty-cell"></div>';
+    for(let d=1;d<=days;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      let unavailable = ds<=getTodayStr();
+      if(!unavailable&&config.dailyCutoff){
+        const t=new Date(ds+'T00:00:00'), now=new Date();
+        if(t.toDateString()===new Date(now.getTime()+86400000).toDateString()){
+          const p=config.dailyCutoff.split(':'), cut=new Date();
+          cut.setHours(parseInt(p[0],10),parseInt(p[1],10),0,0);
+          if(now>cut) unavailable=true;
+        }
+      }
+      const full=!unavailable && getAvailableTimeSlots(ds).length===0;
+      let cls='cal-cell';
+      if(unavailable) cls+=' unavailable';
+      else if(isHoliday(ds)) cls+=' holiday';
+      if(ds===currentSelectedDate) cls+=' selected';
+      const mark=(unavailable||full)?'<span class="full-mark">✖</span>':'';
+      let extra='';
+      if(syncMain){
+        const c=(daySlotsCache[ds]&&daySlotsCache[ds].times&&daySlotsCache[ds].times.length)?daySlotsCache[ds].times.length:bookings.filter(b=>b.date===ds&&b.status==='pending').length;
+        if(c>0) extra=`<span class="booking-count-red">${c}</span>`;
+      }else{
+        const sm=shadowMarks[ds];
+        if(sm) extra=`<span class="shadow-mark">${sm}</span>`;
+      }
+      html+=`<div class="${cls}" data-date="${ds}"><span class="day-number">${d}</span>${mark}${extra}</div>`;
+    }
+    document.getElementById('studentCalGrid').innerHTML=html;
+    document.querySelectorAll('#studentCalGrid .cal-cell:not(.empty-cell)').forEach(cell=>{
+      cell.addEventListener('click',function(){
+        const ds=this.dataset.date;
+        if(ds<=getTodayStr()){ showFeedback('只能預約明天或以後的日期'); return; }
+        if(config.dailyCutoff){
+          const t=new Date(ds+'T00:00:00'), now=new Date();
+          if(t.toDateString()===new Date(now.getTime()+86400000).toDateString()){
+            const p=config.dailyCutoff.split(':'), cut=new Date();
+            cut.setHours(parseInt(p[0],10),parseInt(p[1],10),0,0);
+            if(now>cut){ showFeedback('今日預約已截止，請選擇其他日期'); return; }
+          }
+        }
+        currentSelectedDate=ds; renderTimeSlots(ds); renderStudentCalendar();
+      });
+    });
+  }
+  document.getElementById('studentPrevMonth').addEventListener('click',()=>{ studentMonth--; if(studentMonth<0){studentMonth=11;studentYear--;} renderStudentCalendar(); });
+  document.getElementById('studentNextMonth').addEventListener('click',()=>{ studentMonth++; if(studentMonth>11){studentMonth=0;studentYear++;} renderStudentCalendar(); });
+
+  function renderTimeSlots(date){
+    const sel=document.getElementById('timeSlot'), note=document.getElementById('timeNote');
+    if(!date){ sel.innerHTML='<option value="">請先選擇日期</option>'; note.innerText=''; return; }
+    const avail=getAvailableTimeSlots(date);
+    if(!avail.length){ sel.innerHTML='<option value="">本日已滿</option>'; note.innerText='所有時段已被預約'; }
+    else{ sel.innerHTML=avail.map(t=>`<option value="${t}">${t}</option>`).join(''); note.innerText=`可預約時段（共 ${avail.length} 個）`; }
+  }
+
+  function renderAdminCalendar(){
+    const y=adminYear,m=adminMonth;
+    const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+    const total=normalBookings.filter(b=>b.date.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)&&b.status==='pending').length;
+    document.getElementById('monthYearDisplay').innerText=`${y}年${m+1}月（待處理 ${total}）`;
+    let html='';
+    for(let i=0;i<first;i++) html+='<div class="calendar-cell empty-cell"></div>';
+    for(let d=1;d<=days;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const cnt=bookings.filter(b=>b.date===ds&&b.status==='pending').length;
+      const holiday=isHoliday(ds)?'holiday':'';
+      const unavailable=ds<=getTodayStr();
+      const full=!unavailable && getAvailableTimeSlots(ds).length===0;
+      const mark=(unavailable||full)?'<span class="full-mark">✖</span>':'';
+      html+=`<div class="calendar-cell ${holiday}" data-date="${ds}"><span class="day-number">${d}</span>${cnt?`<span class="booking-count-red">${cnt}</span>`:''}${mark}</div>`;
+    }
+    document.getElementById('calendarGrid').innerHTML=html;
+    document.querySelectorAll('#calendarGrid .calendar-cell:not(.empty-cell)').forEach(cell=>{
+      cell.addEventListener('click',()=>showDateDetail(cell.dataset.date));
+    });
+  }
+  document.getElementById('prevMonth').addEventListener('click',()=>{ adminMonth--; if(adminMonth<0){adminMonth=11;adminYear--;} renderAdminCalendar(); });
+  document.getElementById('nextMonth').addEventListener('click',()=>{ adminMonth++; if(adminMonth>11){adminMonth=0;adminYear++;} renderAdminCalendar(); });
+
+  function showDateDetail(date){
+    const title=document.getElementById('selectedDateTitle'), list=document.getElementById('appointmentList');
+    if(!date){ title.innerText='點擊日期查看預約'; list.innerHTML=''; return; }
+    const day=bookings.filter(b=>b.date===date&&b.status==='pending').sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    if(!day.length){ title.innerText=`${date} 無待處理預約`; list.innerHTML='<div style="padding:10px;">當日尚無待處理預約</div>'; return; }
+    title.innerText=`${date} 待處理預約（${day.length} 人）`;
+    list.innerHTML=day.map(b=>{
+      const tag=b.type==='voucher'?'［券］':'';
+      return `<div class="appointment-item" data-id="${b.id}" data-date="${b.date}">
+        <span>${b.time} ${tag} ${b.name||''} ${b.gender||''} ／ ${b.service||''}<br><span style="color:#B45A2A;font-size:13px;">${b.email||''}｜師傅：${b.barber||'未指派'}</span></span>
+        <div class="actions"><button class="complete-btn" data-id="${b.id}">完成</button><button class="delete-btn" data-id="${b.id}">刪除</button></div>
+      </div>`;
+    }).join('');
+  }
+
+  function tableHtml(list,opts){
+    if(!list.length) return '<div style="padding:20px;text-align:center;">無記錄</div>';
+    const rec=config.showInRecords;
+    const heads=[];
+    if(rec.email) heads.push('Email');
+    if(rec.name) heads.push('姓名');
+    if(rec.gender) heads.push('性別');
+    if(rec.service) heads.push('服務');
+    if(rec.barber) heads.push('師傅');
+    heads.push('日期','時間');
+    if(opts.action) heads.push('操作');
+    let h='<table><thead><tr>'+heads.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
+    list.forEach(b=>{
+      h+='<tr>';
+      if(rec.email) h+=`<td>${b.email||''}</td>`;
+      if(rec.name) h+=`<td>${b.name||''}</td>`;
+      if(rec.gender) h+=`<td>${b.gender||''}</td>`;
+      if(rec.service) h+=`<td>${b.service||''}</td>`;
+      if(rec.barber) h+=`<td>${b.barber||''}</td>`;
+      h+=`<td>${b.date||''}</td><td>${b.time||''}</td>`;
+      if(opts.action){
+        let acts='';
+        if(opts.complete) acts+=`<button class="action-btn complete-btn" data-id="${b.id}">完成</button>`;
+        if(opts.revert) acts+=`<button class="action-btn revert-btn" data-id="${b.id}">返回</button>`;
+        if(opts.del) acts+=`<button class="action-btn delete-row-btn" data-id="${b.id}">刪除</button>`;
+        h+=`<td>${acts}</td>`;
+      }
+      h+='</tr>';
+    });
+    return h+'</tbody></table>';
+  }
+
+  function sortByUpdatedDesc(list,key){
+    return list.sort((a,b)=>{
+      const at=a.updatedAt||a[key]||'', bt=b.updatedAt||b[key]||'';
+      return bt.localeCompare(at);
+    });
+  }
+
+  function renderTables(){
+    const today=getTodayStr();
+    const pendN=normalBookings.filter(b=>b.status==='pending'&&b.date>=today).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    const compN=sortByUpdatedDesc(normalBookings.filter(b=>b.status==='completed'),'completedAt');
+    const noN=sortByUpdatedDesc(normalBookings.filter(b=>b.status==='no-show'),'noShowAt');
+    const pendV=voucherBookings.filter(b=>b.status==='pending'&&b.date>=today).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    const compV=sortByUpdatedDesc(voucherBookings.filter(b=>b.status==='completed'),'completedAt');
+    const noV=sortByUpdatedDesc(voucherBookings.filter(b=>b.status==='no-show'),'noShowAt');
+
+    document.getElementById('totalBookingsCount').innerText=`（總數: ${normalBookings.length}）`;
+    document.getElementById('completedTotal').innerText=compN.length;
+    document.getElementById('noshowTotal').innerText=noN.length;
+    document.getElementById('pendingTable').innerHTML=tableHtml(pendN,{action:true,complete:true});
+    document.getElementById('completedTable').innerHTML=tableHtml(compN,{action:true,revert:true});
+    document.getElementById('noshowTable').innerHTML=tableHtml(noN,{action:true,del:true});
+
+    document.getElementById('parentTotalBookingsCount').innerText=`（總數: ${voucherBookings.length}）`;
+    document.getElementById('parentCompletedTotal').innerText=compV.length;
+    document.getElementById('parentNoshowTotal').innerText=noV.length;
+    document.getElementById('parentPendingTable').innerHTML=tableHtml(pendV,{action:true,complete:true});
+    document.getElementById('parentCompletedTable').innerHTML=tableHtml(compV,{action:true,revert:true});
+    document.getElementById('parentNoshowTable').innerHTML=tableHtml(noV,{action:true,del:true});
+  }
+
+  let chartInstance=null;
+  function loadStats(){
+    const completed=bookings.filter(b=>b.status==='completed');
+    document.getElementById('totalCompleted').innerText=completed.length;
+    document.getElementById('totalVouchers').innerText=completed.filter(b=>b.voucherPurchased===true).length;
+
+    const stats={};
+    config.barbers.forEach(n=>stats[n]={services:0,vouchers:0});
+    completed.forEach(b=>{
+      if(b.barber&&stats[b.barber]){ stats[b.barber].services++; if(b.voucherPurchased) stats[b.barber].vouchers++; }
+    });
+    const ctx=document.getElementById('barberChart').getContext('2d');
+    if(chartInstance) chartInstance.destroy();
+    chartInstance=new Chart(ctx,{
+      type:'bar',
+      data:{labels:config.barbers,datasets:[
+        {label:'服務量（已剪）',data:config.barbers.map(n=>stats[n].services),backgroundColor:'#F25C0A',borderRadius:10},
+        {label:'優惠券售出',data:config.barbers.map(n=>stats[n].vouchers),backgroundColor:'#28a745',borderRadius:10}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+    });
+  }
+  document.getElementById('showStatsBtn').addEventListener('click',()=>document.getElementById('statsSection').classList.toggle('hidden'));
+  document.getElementById('unlockStatsBtn').addEventListener('click',()=>{
+    if(document.getElementById('ownerPass').value===OWNER_PASSWORD){
+      document.getElementById('statsContent').style.display='block'; loadStats();
+    }else alert('店主密碼錯誤');
+  });
+
+  function renderShadowCalendar(){
+    const y=shadowYear,m=shadowMonth;
+    const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+    document.getElementById('shadowMonthYear').innerText=`${y}年${m+1}月`;
+    let html='';
+    for(let i=0;i<first;i++) html+='<div class="shadow-cell empty-cell"></div>';
+    for(let d=1;d<=days;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const mark=shadowMarks[ds];
+      html+=`<div class="shadow-cell ${isHoliday(ds)?'holiday':''}" data-date="${ds}"><span class="day-number">${d}</span>${mark?`<span class="shadow-mark">${mark}</span>`:''}</div>`;
+    }
+    document.getElementById('shadowGrid').innerHTML=html;
+  }
+  document.getElementById('shadowGrid').addEventListener('click',function(e){
+    const cell=e.target.closest('.shadow-cell');
+    if(!cell||cell.classList.contains('empty-cell')) return;
+    const ds=cell.dataset.date;
+    const input=prompt('請輸入數字 (1-9)，留空或0可清除', shadowMarks[ds]||'');
+    if(input===null) return;
+    const n=parseInt(input,10);
+    if(isNaN(n)||n<1||n>9) delete shadowMarks[ds]; else shadowMarks[ds]=n;
+    saveShadowMarks(); renderShadowCalendar(); renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
+  });
+  document.getElementById('clearShadowMonth').addEventListener('click',function(){
+    const prefix=`${shadowYear}-${String(shadowMonth+1).padStart(2,'0')}`;
+    for(const k in shadowMarks) if(k.startsWith(prefix)) delete shadowMarks[k];
+    saveShadowMarks(); renderShadowCalendar(); renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
+  });
+  document.getElementById('shadowPrevMonth').addEventListener('click',()=>{ shadowMonth--; if(shadowMonth<0){shadowMonth=11;shadowYear--;} renderShadowCalendar(); });
+  document.getElementById('shadowNextMonth').addEventListener('click',()=>{ shadowMonth++; if(shadowMonth>11){shadowMonth=0;shadowYear++;} renderShadowCalendar(); });
+
+  let captchaNum1=0, captchaNum2=0;
+  function generateCaptcha(){
+    captchaNum1=Math.floor(Math.random()*10)+1; captchaNum2=Math.floor(Math.random()*10)+1;
+    document.getElementById('captchaQuestion').textContent=`${captchaNum1} + ${captchaNum2} = ?`;
+  }
+  function checkCaptcha(){ return parseInt(document.getElementById('captchaAnswer').value,10)===captchaNum1+captchaNum2; }
+  function refreshCaptcha(){ document.getElementById('captchaAnswer').value=''; generateCaptcha(); }
+  function toggleCaptcha(){
+    const box=document.getElementById('captchaContainer');
+    if(config.enableCaptcha){ box.style.display='block'; generateCaptcha(); } else box.style.display='none';
+  }
+
+  function isWithinTwoHours(b){
+    const now=new Date(), bt=new Date(`${b.date}T${b.time}:00`);
+    return (bt-now)/(3600000)<=2;
+  }
+
+  async function performModify(email,name){
+    hideFeedback();
+    if(!email&&!name){ showFeedback('請至少填寫 Email 或姓名以定位原預約'); return; }
+    const snap=await db.collection("appointments").where("type","==","voucher").get();
+    let found=null;
+    snap.forEach(doc=>{
+      const d=doc.data(); d.id=doc.id;
+      if(!found&&d.status==='pending'&&(!email||d.email===email)&&(!name||d.name===name)) found=d;
+    });
+    if(!found){ showFeedback('找不到匹配的待處理預約（請確認輸入資料與原預約一致）'); return; }
+
+    const today=getTodayStr();
+    if(found.date>=today&&isWithinTwoHours(found)){ showFeedback('預約時間前2小時內無法修改或取消'); return; }
+    if(found.date<today){ showFeedback('過期預約無法修改'); return; }
+    if(found.date===today&&!confirm('您今天的預約即將取消，需提前一日重新預約。確定繼續嗎？')) return;
+
+    if(!await deleteBookingById(found.id)){ showFeedback('刪除失敗，請稍後再試'); return; }
+    monthLoaded[found.date.slice(0,7)]=false;
+
+    currentSelectedDate=getTomorrowStr();
+    const tm=new Date(currentSelectedDate+'T12:00:00');
+    studentYear=tm.getFullYear(); studentMonth=tm.getMonth();
+    renderTimeSlots(currentSelectedDate); renderStudentCalendar(); renderAdminCalendar(); renderTables(); showDateDetail(null);
+
+    document.getElementById('studentInfoContent').innerHTML=
+      `<p style="color:#c00;">已取消下列預約：</p>
+       <p><strong>日期：</strong>${found.date}</p>
+       <p><strong>時間：</strong>${found.time}</p>
+       <p><strong>姓名：</strong>${found.name||''}</p>
+       <p><strong>Email：</strong>${found.email||''}</p>
+       <p><strong>服務：</strong>${found.service||''}</p>
+       <p>請重新選擇日期／時間並再次提交</p>`;
+    document.getElementById('studentInfoArea').style.display='block';
+    showFeedback('已取消您的預約，請重新選擇',false);
+  }
+  document.getElementById('modifyBookingBtn').addEventListener('click',function(){
+    performModify(document.getElementById('email').value.trim(), document.getElementById('name').value.trim());
+  });
+
+  let submitting=false;
+  document.getElementById('submitBooking').addEventListener('click',async function(){
+    if(submitting) return;
+    hideFeedback();
+
+    const email=document.getElementById('email').value.trim();
+    const name=document.getElementById('name').value.trim();
+    const gender=document.getElementById('gender').value;
+    const service=document.getElementById('service').value;
+    const date=currentSelectedDate;
+    const time=document.getElementById('timeSlot').value;
+    const confirmBoxes=Array.from(document.querySelectorAll('#confirmBoxesContainer .confirm-chk'));
+
+    if(config.visibleFields.email&&config.requiredFields.email&&!email){ showFeedback('請填寫 Email'); return; }
+    if(config.visibleFields.name&&config.requiredFields.name&&!name){ showFeedback('請填寫姓名'); return; }
+    if(config.visibleFields.gender&&config.requiredFields.gender&&!gender){ showFeedback('請選擇性別'); return; }
+    if(config.visibleFields.service&&config.requiredFields.service&&!service){ showFeedback('請選擇服務項目'); return; }
+    if(!date){ showFeedback('請選擇預約日期'); return; }
+    if(!time){ showFeedback('請選擇預約時間'); return; }
+    if(email&&!email.includes('@')){ showFeedback('請輸入有效的 Email'); return; }
+    for(const cb of confirmBoxes){ if(!cb.checked){ showFeedback('請勾選「'+(getActiveConfirmBoxes()[parseInt(cb.dataset.i,10)].label||'確認框')+'」'); return; } }
+    if(config.enableCaptcha&&!checkCaptcha()){ showFeedback('驗證碼錯誤，請重新輸入'); refreshCaptcha(); return; }
+
+    const today=getTodayStr();
+    if(date<=today){ showFeedback('只能預約明天或以後的日期'); return; }
+    if(config.dailyCutoff){
+      const t=new Date(date+'T00:00:00'), now=new Date();
+      if(t.toDateString()===new Date(now.getTime()+86400000).toDateString()){
+        const p=config.dailyCutoff.split(':'), cut=new Date();
+        cut.setHours(parseInt(p[0],10),parseInt(p[1],10),0,0);
+        if(now>cut){ showFeedback('今日預約已截止，請選擇其他日期'); return; }
+      }
+    }
+
+    const lastSubmit=parseInt(localStorage.getItem('hwLastSubmit')||'0',10);
+    if(Date.now()-lastSubmit<8000){ showFeedback('提交太頻密，請 8 秒後再試'); return; }
+
+    if(config.visibleFields.email&&!config.allowDuplicate.email&&email){
+      const snap=await db.collection("appointments").where("type","==",'voucher').get();
+      let dup=false;
+      snap.forEach(doc=>{ const d=doc.data(); if(d.status==='pending'&&d.email===email) dup=true; });
+      if(dup){
+        showFeedback(`您已經有一個有效預約（${email}），如要更改請點「修改我的預約」`);
+        return;
+      }
+    }
+
+    submitting=true;
+    this.disabled=true;
+    localStorage.setItem('hwLastSubmit',String(Date.now()));
+    const result=await createBooking({email,name,gender,service,date,time},'voucher');
+
+    if(result.success){
+      showFeedback('系統處理中，請稍候約5秒...',false);
+      setTimeout(()=>{
+        showFeedback('預約成功！',false);
+        monthLoaded[date.slice(0,7)]=false;
+        renderStudentCalendar(); renderTimeSlots(date);
+        document.getElementById('studentInfoContent').innerHTML=
+          `<p><strong>日期：</strong>${date} ${time}</p>
+           <p><strong>姓名：</strong>${name}</p>
+           <p><strong>Email：</strong>${email}</p>
+           <p><strong>性別：</strong>${gender}</p>
+           <p><strong>服務：</strong>${service}</p>
+           <p style="color:#28a745;">預約成功（優惠券）</p>`;
+        document.getElementById('studentInfoArea').style.display='block';
+        submitting=false; document.getElementById('submitBooking').disabled=false;
+      },REVIEW_WINDOW_MS);
+    }else if(result.error==='slot_taken'){
+      showFeedback('此時間段已被預約，請重新選擇',true);
+      await fetchDaySlots(date,true); renderTimeSlots(date); renderStudentCalendar();
+      submitting=false; this.disabled=false;
+    }else{
+      showFeedback('預約失敗：'+result.error,true);
+      submitting=false; this.disabled=false;
+    }
+  });
+
+  async function renderStaffPage(dateStr){
+    if(!dateStr) dateStr=getTodayStr();
+    document.getElementById('staffDatePicker').value=dateStr;
+    await autoMarkNoShow();
+
+    const pendN=bookings.filter(b=>b.date===dateStr&&b.status==='pending'&&b.type==='normal');
+    const pendV=bookings.filter(b=>b.date===dateStr&&b.status==='pending'&&b.type==='voucher');
+    const proc=bookings.filter(b=>b.date===dateStr&&b.status==='processing');
+
+    document.getElementById('studentPendingCount').innerText=pendN.length;
+    document.getElementById('parentPendingCount').innerText=pendV.length;
+    document.getElementById('processingCount').innerText=proc.length;
+
+    const pendBox=document.getElementById('studentPendingList');
+    pendBox.innerHTML=pendN.length?'' : '<div style="padding:10px;text-align:center;">無一般預約</div>';
+    pendN.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
+      const radios=config.barbers.map(x=>`<label><input type="radio" name="barber_n_${b.id}" value="${x}"> ${x}</label>`).join('');
+      const div=document.createElement('div'); div.className='record-item';
+      div.innerHTML=`<div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''}${b.email?'<br>'+b.email:''}</div>
+        <div class="barber-selector">${radios}</div>
+        <div class="record-actions">
+          <button class="btn-small btn-success mark-processing" data-id="${b.id}" data-type="normal">開始剪髮</button>
+          <button class="btn-small btn-warning mark-noshow" data-id="${b.id}">未到達</button>
+        </div>`;
+      pendBox.appendChild(div);
+    });
+
+    const pvBox=document.getElementById('parentPendingList');
+    pvBox.innerHTML=pendV.length?'' : '<div style="padding:10px;text-align:center;">無優惠券預約</div>';
+    pendV.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
+      const radios=config.barbers.map(x=>`<label><input type="radio" name="barber_v_${b.id}" value="${x}"> ${x}</label>`).join('');
+      const div=document.createElement('div'); div.className='record-item';
+      div.innerHTML=`<div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''} ［優惠券］</div>
+        <div class="barber-selector">${radios}</div>
+        <div class="record-actions">
+          <button class="btn-small btn-success mark-parent-complete" data-id="${b.id}">已完成</button>
+          <button class="btn-small btn-warning mark-noshow" data-id="${b.id}">未到達</button>
+        </div>`;
+      pvBox.appendChild(div);
+    });
+
+    const procBox=document.getElementById('processingList');
+    procBox.innerHTML=proc.length?'' : '<div style="padding:10px;text-align:center;">無處理中預約</div>';
+    proc.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
+      const div=document.createElement('div'); div.className='record-item';
+      div.innerHTML=`<div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''}｜師傅：${b.barber||'未指派'}</div>
+        <div class="record-actions">
+          <button class="btn-small btn-success mark-complete-with-voucher" data-id="${b.id}">買 $20 優惠券</button>
+          <button class="btn-small btn-secondary mark-complete-without-voucher" data-id="${b.id}">未買券</button>
+        </div>`;
+      procBox.appendChild(div);
+    });
+
+    const comp=sortByUpdatedDesc(bookings.filter(b=>b.status==='completed'),'completedAt');
+    const noshow=sortByUpdatedDesc(bookings.filter(b=>b.status==='no-show'),'noShowAt');
+    document.getElementById('completedCount').innerText=comp.length;
+    document.getElementById('noshowCount').innerText=noshow.length;
+    renderStaffList('completed',comp,true);
+    renderStaffList('noshow',noshow,false);
+    loadStats();
+  }
+
+  function renderStaffList(type,items,showRevert){
+    const box=document.getElementById(type==='completed'?'completedItems':'noshowItems');
+    if(!items.length){ box.innerHTML='<div style="padding:10px;text-align:center;">無記錄</div>'; return; }
+    box.innerHTML=items.map(b=>{
+      const ut=b.updatedAt||(type==='completed'?b.completedAt:b.noShowAt);
+      const t=ut?new Date(ut).toLocaleTimeString('zh-HK',{hour12:false,hour:'2-digit',minute:'2-digit'}):'';
+      const tag=b.type==='voucher'?'［券］':'';
+      const v=b.voucherPurchased?'✅':'❌';
+      let acts='';
+      if(showRevert&&(staffEditMode||staffCanEditDefault)) acts+=`<button class="btn-small revert-complete" data-id="${b.id}">返回</button>`;
+      if(staffEditMode||staffCanEditDefault) acts+=`<button class="btn-small delete-record" data-id="${b.id}">刪除</button>`;
+      return `<div class="record-item"><div class="record-info">[${t}] ${b.time||''} ${tag} ${b.name||''} ${b.gender||''}／${b.service||''}｜師傅：${b.barber||'-'}${b.email?'<br>'+b.email:''}</div>
+        <div style="min-width:24px;">${v}</div><div class="record-actions">${acts}</div></div>`;
+    }).join('');
+  }
+
+  document.addEventListener('click',async function(e){
+    const t=e.target;
+
+    if(t.classList.contains('complete-btn')&&!t.closest('#staffPage')){
+      if(!confirm('標記為已完成？')) return;
+      await updateBookingStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString()});
+      await fetchAllBookings(); renderAdminCalendar(); renderTables(); renderStudentCalendar();
+      return;
+    }
+    if(t.classList.contains('revert-btn')){
+      const b=bookings.find(x=>x.id===t.dataset.id); if(!b) return;
+      if(!confirm('返回待處理？')) return;
+      await updateBookingStatus(b.id,'pending',{completedAt:null});
+      await fetchAllBookings(); renderAdminCalendar(); renderTables(); renderStudentCalendar();
+      return;
+    }
+    if(t.classList.contains('delete-row-btn')){
+      if(!confirm('確定刪除此預約？')) return;
+      await deleteBookingById(t.dataset.id);
+      await fetchAllBookings(); renderAdminCalendar(); renderTables(); renderStudentCalendar();
+      return;
+    }
+    if(t.classList.contains('delete-btn')&&t.closest('#appointmentList')){
+      const item=t.closest('.appointment-item');
+      if(!confirm('確定刪除？')) return;
+      await deleteBookingById(item.dataset.id);
+      await fetchAllBookings(); renderAdminCalendar(); renderTables(); showDateDetail(item.dataset.date);
+      return;
+    }
+    if(t.classList.contains('mark-processing')){
+      const sel=document.querySelector(`input[name="barber_${t.dataset.type==='normal'?'n':'v'}_${t.dataset.id}"]:checked`);
+      if(!sel){ alert('請選擇一位師傅'); return; }
+      await updateBookingStatus(t.dataset.id,'processing',{barber:sel.value});
+      await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
+      return;
+    }
+    if(t.classList.contains('mark-parent-complete')){
+      const sel=document.querySelector(`input[name="barber_v_${t.dataset.id}"]:checked`);
+      if(!sel){ alert('請選擇一位師傅'); return; }
+      await updateBookingStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),barber:sel.value,voucherPurchased:false});
+      await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
+      return;
+    }
+    if(t.classList.contains('mark-noshow')){
+      await updateBookingStatus(t.dataset.id,'no-show',{noShowAt:new Date().toISOString()});
+      await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
+      return;
+    }
+    if(t.classList.contains('mark-complete-with-voucher')){
+      await updateBookingStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),voucherPurchased:true});
+      await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
+      return;
+    }
+    if(t.classList.contains('mark-complete-without-voucher')){
+      await updateBookingStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),voucherPurchased:false});
+      await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
+      return;
+    }
+    if(t.classList.contains('revert-complete')){
+      if(!staffEditMode&&!staffCanEditDefault){ alert('請先解鎖編輯模式'); return; }
+      await updateBookingStatus(t.dataset.id,'pending',{completedAt:null});
+      await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
+      return;
+    }
+    if(t.classList.contains('delete-record')){
+      if(!staffEditMode&&!staffCanEditDefault){ alert('無編輯權限'); return; }
+      if(!confirm('確定刪除此記錄？此操作無法復原')) return;
+      await deleteBookingById(t.dataset.id);
+      await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
+      return;
+    }
+  });
+
+  async function staffWalkin(type){
+    const name=document.getElementById('staffName').value.trim();
+    const email=document.getElementById('staffEmail').value.trim();
+    const gender=document.getElementById('staffGender').value;
+    const service=document.getElementById('staffService').value;
+    const barber=document.getElementById('staffBarber').value;
+
+    if(!name||!gender||!service||!barber){ alert('請填寫姓名、性別、服務項目、師傅'); return; }
+    if(email&&!email.includes('@')){ alert('Email 格式不正確'); return; }
+
+    await fetchAllBookings();
+    if(email&&bookings.find(b=>b.email===email&&(b.status==='pending'||b.status==='processing'||b.status==='completed'||b.status==='no-show'))){
+      alert(`此 Email 已有預約記錄，請勿重複登記。\nEmail：${email}`);
+      return;
+    }
+    if(!email&&bookings.find(b=>b.name===name&&b.date===getTodayStr()&&b.type===type)){
+      if(!confirm(`今日已有同名（${name}）的${type==='voucher'?'優惠券':'一般'}記錄，仍然登記？`)) return;
+    }
+
+    const now=new Date();
+    try{
+      await db.collection("appointments").add({
+        email:email, name:name, gender:gender, service:service,
+        date:getTodayStr(), time:now.toTimeString().slice(0,5), barber:barber,
+        status:'completed', type:type, voucherPurchased:false,
+        completedAt:now.toISOString(), updatedAt:now.toISOString(), source:'walkin'
+      });
+      await fetchAllBookings();
+      document.getElementById('staffName').value='';
+      document.getElementById('staffEmail').value='';
+      renderStaffPage(getTodayStr());
+      alert('登記成功');
+    }catch(err){ alert('登記失敗：'+err.message); }
+  }
+  document.getElementById('submitStaffWalkin').addEventListener('click',()=>staffWalkin('normal'));
+  document.getElementById('submitStaffWalkinVoucher').addEventListener('click',()=>staffWalkin('voucher'));
+
+  document.getElementById('unlockEditBtn').addEventListener('click',function(){
+    const pwd=prompt('請輸入編輯解鎖密碼');
+    if(pwd===staffEditPassword){
+      staffEditMode=true;
+      document.getElementById('editModeBadge').style.display='inline-block';
+      renderStaffPage(document.getElementById('staffDatePicker').value);
+    }else alert('密碼錯誤');
+  });
+  document.getElementById('staffRefreshBtn').addEventListener('click',()=>renderStaffPage(document.getElementById('staffDatePicker').value));
+  document.getElementById('staffDatePicker').addEventListener('change',function(){ renderStaffPage(this.value); });
+  document.getElementById('backFromStaffBtn').addEventListener('click',function(){
+    document.getElementById('staffPage').classList.add('hidden');
+    document.getElementById('bookingPage').classList.remove('hidden');
+    staffEditMode=false;
+  });
+
+  document.getElementById('viewCalendarBtn').addEventListener('click',async function(){
+    if(document.getElementById('adminPass').value!==adminPassword){ alert('密碼錯誤'); return; }
+    document.getElementById('bookingPage').classList.add('hidden');
+    document.getElementById('calendarPage').classList.remove('hidden');
+    await fetchAllBookings();
+    renderFieldSettings(); renderOptionSettings(); renderBarbersSettings(); renderTimeSlotSettings();
+    document.getElementById('noticeText').value=config.notice||'';
+    renderConfirmBoxSettings('confirmBoxesSettings',config.confirmBoxes);
+    renderConfirmBoxSettings('confirmBoxesVoucherSettings',config.voucherConfirmBoxes);
+    document.getElementById('parentNoticeText').value=config.parentNotice||'';
+    document.getElementById('voucherInfoText').value=config.voucherInfo||'';
+
+    document.getElementById('ntfyTopic').value=config.ntfyTopic||'';
+    document.getElementById('enableNotification').checked=!!config.ntfyEnabled;
+    document.getElementById('enableCaptcha').checked=!!config.enableCaptcha;
+    document.getElementById('staffPasswordInput').value=config.staffPassword||'';
+    document.getElementById('staffEditPasswordInput').value=config.staffEditPassword||'';
+    document.getElementById('staffCanEditDefault').checked=!!config.staffCanEditDefault;
+    document.getElementById('dailyCutoff').value=config.dailyCutoff||'';
+    await loadShadowMarks();
+    renderAdminCalendar(); showDateDetail(null); renderTables(); renderSuspiciousTable(); renderShadowCalendar();
+    renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
+  });
+
+  document.getElementById('enterStaffBtn').addEventListener('click',async function(){
+    if(document.getElementById('staffPass').value!==staffPassword){ alert('員工密碼錯誤'); return; }
+    document.getElementById('bookingPage').classList.add('hidden');
+    document.getElementById('staffPage').classList.remove('hidden');
+    await fetchAllBookings();
+    renderStaffOptionSelects();
+    renderStaffPage(getTodayStr());
+  });
+
+  document.getElementById('backToBookingBtn').addEventListener('click',function(){
+    document.getElementById('calendarPage').classList.add('hidden');
+    document.getElementById('bookingPage').classList.remove('hidden');
+  });
+
+  document.getElementById('cleanOldNoShow').addEventListener('click',async function(){
+    const y=new Date(); y.setDate(y.getDate()-1);
+    const ys=y.toISOString().slice(0,10);
+    for(const b of bookings.filter(b=>b.status==='no-show'&&b.date<=ys&&b.type==='normal')) await deleteBookingById(b.id);
+    await fetchAllBookings(); renderTables();
+  });
+  document.getElementById('cleanParentOldNoShow').addEventListener('click',async function(){
+    const y=new Date(); y.setDate(y.getDate()-1);
+    const ys=y.toISOString().slice(0,10);
+    for(const b of bookings.filter(b=>b.status==='no-show'&&b.date<=ys&&b.type==='voucher')) await deleteBookingById(b.id);
+    await fetchAllBookings(); renderTables();
+  });
+
+  document.getElementById('changePasswordBtn').addEventListener('click',async function(){
+    const np=document.getElementById('newPassword').value.trim();
+    const cp=document.getElementById('confirmPassword').value.trim();
+    if(!np){ alert('請輸入新密碼'); return; }
+    if(np!==cp){ alert('兩次密碼不一致'); return; }
+    config.adminPassword=np;
+    if(await updateConfig(config)){
+      adminPassword=np;
+      alert('密碼已更新並同步至所有裝置');
+      document.getElementById('newPassword').value='';
+      document.getElementById('confirmPassword').value='';
+    }else alert('密碼更新失敗，請稍後再試');
+  });
+
+  document.getElementById('saveSettingsBtn').addEventListener('click',async function(){
+    config.notice=document.getElementById('noticeText').value;
+    config.screenshotLabel=(config.confirmBoxes[0]&&config.confirmBoxes[0].label)||'';
+    config.studentCardLabel=(config.confirmBoxes[1]&&config.confirmBoxes[1].label)||'';
+    config.cardNoteLabel=(config.confirmBoxes[1]&&config.confirmBoxes[1].note)||'';
+    config.parentNotice=document.getElementById('parentNoticeText').value;
+    config.voucherInfo=document.getElementById('voucherInfoText').value;
+    config.parentScreenshotLabel=(config.voucherConfirmBoxes[0]&&config.voucherConfirmBoxes[0].label)||'';
+    config.parentCardLabel=(config.voucherConfirmBoxes[1]&&config.voucherConfirmBoxes[1].label)||'';
+    config.parentCardNoteLabel=(config.voucherConfirmBoxes[1]&&config.voucherConfirmBoxes[1].note)||'';
+    config.ntfyTopic=document.getElementById('ntfyTopic').value.trim();
+    config.ntfyEnabled=document.getElementById('enableNotification').checked;
+    config.enableCaptcha=document.getElementById('enableCaptcha').checked;
+    config.staffPassword=document.getElementById('staffPasswordInput').value.trim();
+    config.staffEditPassword=document.getElementById('staffEditPasswordInput').value.trim();
+    config.staffCanEditDefault=document.getElementById('staffCanEditDefault').checked;
+    config.dailyCutoff=document.getElementById('dailyCutoff').value.trim();
+    config.shadowMarks=shadowMarks;
+
+    if(await updateConfig(config)){
+      await fetchAllBookings();
+      applyFieldSettings(); toggleCaptcha(); renderBookingOptionSelects(); renderStaffOptionSelects();
+      alert('設定已儲存並同步至雲端');
+    }else alert('儲存失敗，請稍後再試');
+  });
+
+  document.getElementById('testNotificationBtn').addEventListener('click',function(){
+    const topic=document.getElementById('ntfyTopic').value.trim();
+    const div=document.getElementById('testResult');
+    if(!topic){ div.innerText='請輸入主題名稱'; return; }
+    if(location.protocol==='file:'){ div.innerText='本機檔案無法自動發送通知，請用 ntfy App 手動測試：'+topic; return; }
+    div.innerText='發送中...';
+    fetch(`https://ntfy.sh/${topic}`,{method:'POST',body:'這是一則測試通知',headers:{'Title':'Hair World 測試','Priority':'default','Tags':'scissors'}})
+      .then(r=>{ div.innerText=r.ok?'測試通知已送出，請檢查手機 ntfy App':'發送失敗 (HTTP '+r.status+')'; })
+      .catch(err=>{ div.innerText='發送失敗：'+err.message; });
+  });
+
+  (async function init(){
+    await auth.signInAnonymously();
+    await fetchConfig();
+    renderBookingOptionSelects();
+    renderStaffOptionSelects();
+    applyFieldSettings();
+    renderStudentCalendar();
+    renderTimeSlots(currentSelectedDate);
+    toggleCaptcha();
+  })();
+})();
 </script>
 </body>
 </html>

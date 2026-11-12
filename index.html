@@ -170,6 +170,13 @@ textarea{border-radius:28px;min-height:80px}
 .confirm-item .checkbox-note{margin-top:6px;margin-bottom:0;margin-left:42px}
 .cb-edit-row{background:#FFF9F2;border:1px solid #FFCDA5;border-radius:20px;padding:10px 12px;margin-bottom:8px}
 .cb-edit-row input{margin-bottom:6px}
+
+    .batch-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;padding:8px 12px;background:#FFF3E8;border:1px solid #FFB985;border-radius:14px;font-size:13px;}
+    .batch-bar .batch-count{color:#B45A2A;font-weight:600;}
+    .batch-chk{width:20px;height:20px;accent-color:#F25C0A;cursor:pointer;flex:none;}
+    .batch-all{width:18px;height:18px;accent-color:#F25C0A;cursor:pointer;}
+    .record-item.is-checked{background:#FFF3E8;}
+    .batch-th{width:38px;}
 </style>
 </head>
 <body>
@@ -406,28 +413,28 @@ textarea{border-radius:28px;min-height:80px}
 
     <div class="database-panel">
       <h4>一般預約 待處理（pending）<span id="totalBookingsCount" style="font-weight:normal;font-size:13px;">（總數: 0）</span></h4>
-      <div class="sortable-table" id="pendingTable"></div>
+      <div class="batch-bar" id="pendingTableBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="pendingTable"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="pendingTable" data-mode="revert" style="margin:0;display:none;">批次返回</button><button class="btn-small batch-action" data-scope="pendingTable" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="sortable-table" id="pendingTable"></div>
       <div class="completed-section">
         <h4>一般預約 已完成 <span class="total-badge" id="completedTotal">0</span></h4>
-        <div class="sortable-table" id="completedTable"></div>
+        <div class="batch-bar" id="completedTableBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="completedTable"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="completedTable" data-mode="revert" style="margin:0;display:inline-block;">批次返回</button><button class="btn-small batch-action" data-scope="completedTable" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="sortable-table" id="completedTable"></div>
       </div>
       <div class="noshow-section">
         <h4>一般預約 未到達 <span class="total-badge" id="noshowTotal">0</span></h4>
-        <div class="sortable-table" id="noshowTable"></div>
+        <div class="batch-bar" id="noshowTableBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="noshowTable"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="noshowTable" data-mode="revert" style="margin:0;display:inline-block;">批次返回</button><button class="btn-small batch-action" data-scope="noshowTable" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="sortable-table" id="noshowTable"></div>
         <button class="btn-small" id="cleanOldNoShow">清除昨日未到達</button>
       </div>
     </div>
 
     <div class="database-panel" style="border-color:#28a745;">
       <h4>優惠券預約 待處理（pending）<span id="parentTotalBookingsCount" style="font-weight:normal;font-size:13px;">（總數: 0）</span></h4>
-      <div class="sortable-table" id="parentPendingTable"></div>
+      <div class="batch-bar" id="parentPendingTableBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="parentPendingTable"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="parentPendingTable" data-mode="revert" style="margin:0;display:none;">批次返回</button><button class="btn-small batch-action" data-scope="parentPendingTable" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="sortable-table" id="parentPendingTable"></div>
       <div class="completed-section">
         <h4>優惠券預約 已完成 <span class="total-badge" id="parentCompletedTotal">0</span></h4>
-        <div class="sortable-table" id="parentCompletedTable"></div>
+        <div class="batch-bar" id="parentCompletedTableBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="parentCompletedTable"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="parentCompletedTable" data-mode="revert" style="margin:0;display:inline-block;">批次返回</button><button class="btn-small batch-action" data-scope="parentCompletedTable" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="sortable-table" id="parentCompletedTable"></div>
       </div>
       <div class="noshow-section">
         <h4>優惠券預約 未到達 <span class="total-badge" id="parentNoshowTotal">0</span></h4>
-        <div class="sortable-table" id="parentNoshowTable"></div>
+        <div class="batch-bar" id="parentNoshowTableBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="parentNoshowTable"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="parentNoshowTable" data-mode="revert" style="margin:0;display:inline-block;">批次返回</button><button class="btn-small batch-action" data-scope="parentNoshowTable" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="sortable-table" id="parentNoshowTable"></div>
         <button class="btn-small" id="cleanParentOldNoShow">清除昨日未到達</button>
       </div>
     </div>
@@ -452,13 +459,13 @@ textarea{border-radius:28px;min-height:80px}
     </div>
 
     <h4 class="h4-title">一般預約 待處理 <span class="total-badge" id="studentPendingCount">0</span></h4>
-    <div class="record-list" id="studentPendingList"></div>
+    <div class="batch-bar" id="studentPendingListBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="studentPendingList"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="studentPendingList" data-mode="revert" style="margin:0;display:none;">批次返回</button><button class="btn-small batch-action" data-scope="studentPendingList" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="record-list" id="studentPendingList"></div>
 
     <h4 class="h4-title">優惠券預約 待處理 <span class="total-badge" id="parentPendingCount">0</span></h4>
-    <div class="record-list" id="parentPendingList"></div>
+    <div class="batch-bar" id="parentPendingListBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="parentPendingList"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="parentPendingList" data-mode="revert" style="margin:0;display:none;">批次返回</button><button class="btn-small batch-action" data-scope="parentPendingList" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="record-list" id="parentPendingList"></div>
 
     <h4 class="h4-title">處理中 <span class="total-badge" id="processingCount">0</span></h4>
-    <div class="record-list" id="processingList"></div>
+    <div class="batch-bar" id="processingListBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="processingList"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="processingList" data-mode="revert" style="margin:0;display:none;">批次返回</button><button class="btn-small batch-action" data-scope="processingList" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="record-list" id="processingList"></div>
 
     <h4 class="h4-title">手動登記（現場）</h4>
     <div style="background:#FFF9F2;border:1px solid #FFB985;border-radius:24px;padding:14px;margin-bottom:20px;">
@@ -473,10 +480,10 @@ textarea{border-radius:28px;min-height:80px}
     </div>
 
     <h4 class="h4-title">已完成 <span class="total-badge" id="completedCount">0</span></h4>
-    <div class="record-list" id="completedItems"></div>
+    <div class="batch-bar" id="completedItemsBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="completedItems"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="completedItems" data-mode="revert" style="margin:0;display:inline-block;">批次返回</button><button class="btn-small batch-action" data-scope="completedItems" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="record-list" id="completedItems"></div>
 
     <h4 class="h4-title">未到達 <span class="total-badge" id="noshowCount">0</span></h4>
-    <div class="record-list" id="noshowItems"></div>
+    <div class="batch-bar" id="noshowItemsBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="noshowItems"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="noshowItems" data-mode="revert" style="margin:0;display:inline-block;">批次返回</button><button class="btn-small batch-action" data-scope="noshowItems" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="record-list" id="noshowItems"></div>
 
     <button class="back-btn" id="backFromStaffBtn">返回主頁</button>
   </div>
@@ -867,7 +874,6 @@ textarea{border-radius:28px;min-height:80px}
     renderChipGroup('genderChips','gender',config.genders);
     renderChipGroup('serviceChips','service',config.services);
   }
-
   function renderStaffOptionSelects(){
     const g=document.getElementById('staffGender');
     if(g) g.innerHTML='<option value="">請選擇</option>'+config.genders.map(v=>`<option value="${v}">${v}</option>`).join('');
@@ -1127,9 +1133,10 @@ textarea{border-radius:28px;min-height:80px}
     if(rec.barber) heads.push('師傅');
     heads.push('日期','時間');
     if(opts.action) heads.push('操作');
-    let h='<table><thead><tr>'+heads.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
+    let h='<table><thead><tr>'+(opts.scope?'<th class="batch-th"></th>':'')+heads.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
     list.forEach(b=>{
       h+='<tr>';
+      if(opts.scope) h+=`<td><input type="checkbox" class="batch-chk" data-scope="${opts.scope}" data-id="${b.id}"></td>`;
       if(rec.email) h+=`<td>${b.email||''}</td>`;
       if(rec.name) h+=`<td>${b.name||''}</td>`;
       if(rec.gender) h+=`<td>${b.gender||''}</td>`;
@@ -1167,16 +1174,17 @@ textarea{border-radius:28px;min-height:80px}
     document.getElementById('totalBookingsCount').innerText=`（總數: ${normalBookings.length}）`;
     document.getElementById('completedTotal').innerText=compN.length;
     document.getElementById('noshowTotal').innerText=noN.length;
-    document.getElementById('pendingTable').innerHTML=tableHtml(pendN,{action:true,complete:true});
-    document.getElementById('completedTable').innerHTML=tableHtml(compN,{action:true,revert:true});
-    document.getElementById('noshowTable').innerHTML=tableHtml(noN,{action:true,del:true});
+    document.getElementById('pendingTable').innerHTML=tableHtml(pendN,{action:true,complete:true,scope:'pendingTable'});
+    document.getElementById('completedTable').innerHTML=tableHtml(compN,{action:true,revert:true,scope:'completedTable'});
+    document.getElementById('noshowTable').innerHTML=tableHtml(noN,{action:true,del:true,scope:'noshowTable'});
 
     document.getElementById('parentTotalBookingsCount').innerText=`（總數: ${voucherBookings.length}）`;
     document.getElementById('parentCompletedTotal').innerText=compV.length;
     document.getElementById('parentNoshowTotal').innerText=noV.length;
-    document.getElementById('parentPendingTable').innerHTML=tableHtml(pendV,{action:true,complete:true});
-    document.getElementById('parentCompletedTable').innerHTML=tableHtml(compV,{action:true,revert:true});
-    document.getElementById('parentNoshowTable').innerHTML=tableHtml(noV,{action:true,del:true});
+    document.getElementById('parentPendingTable').innerHTML=tableHtml(pendV,{action:true,complete:true,scope:'parentPendingTable'});
+    document.getElementById('parentCompletedTable').innerHTML=tableHtml(compV,{action:true,revert:true,scope:'parentCompletedTable'});
+    document.getElementById('parentNoshowTable').innerHTML=tableHtml(noV,{action:true,del:true,scope:'parentNoshowTable'});
+    batchSyncAll();
   }
 
   let chartInstance=null;
@@ -1391,7 +1399,7 @@ textarea{border-radius:28px;min-height:80px}
     pendN.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
       const radios=config.barbers.map(x=>`<label><input type="radio" name="barber_n_${b.id}" value="${x}"> ${x}</label>`).join('');
       const div=document.createElement('div'); div.className='record-item';
-      div.innerHTML=`<div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''}${b.email?'<br>'+b.email:''}</div>
+      div.innerHTML=`<input type="checkbox" class="batch-chk" data-scope="studentPendingList" data-id="${b.id}"><div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''}${b.email?'<br>'+b.email:''}</div>
         <div class="barber-selector">${radios}</div>
         <div class="record-actions">
           <button class="btn-small btn-success mark-processing" data-id="${b.id}" data-type="normal">開始剪髮</button>
@@ -1405,7 +1413,7 @@ textarea{border-radius:28px;min-height:80px}
     pendV.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
       const radios=config.barbers.map(x=>`<label><input type="radio" name="barber_v_${b.id}" value="${x}"> ${x}</label>`).join('');
       const div=document.createElement('div'); div.className='record-item';
-      div.innerHTML=`<div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''} ［優惠券］</div>
+      div.innerHTML=`<input type="checkbox" class="batch-chk" data-scope="parentPendingList" data-id="${b.id}"><div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''} ［優惠券］</div>
         <div class="barber-selector">${radios}</div>
         <div class="record-actions">
           <button class="btn-small btn-success mark-parent-complete" data-id="${b.id}">已完成</button>
@@ -1418,7 +1426,7 @@ textarea{border-radius:28px;min-height:80px}
     procBox.innerHTML=proc.length?'' : '<div style="padding:10px;text-align:center;">無處理中預約</div>';
     proc.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
       const div=document.createElement('div'); div.className='record-item';
-      div.innerHTML=`<div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''}｜師傅：${b.barber||'未指派'}</div>
+      div.innerHTML=`<input type="checkbox" class="batch-chk" data-scope="processingList" data-id="${b.id}"><div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''}｜師傅：${b.barber||'未指派'}</div>
         <div class="record-actions">
           <button class="btn-small btn-success mark-complete-with-voucher" data-id="${b.id}">買 $20 優惠券</button>
           <button class="btn-small btn-secondary mark-complete-without-voucher" data-id="${b.id}">未買券</button>
@@ -1433,6 +1441,41 @@ textarea{border-radius:28px;min-height:80px}
     renderStaffList('completed',comp,true);
     renderStaffList('noshow',noshow,false);
     loadStats();
+    batchSyncAll();
+  }
+
+  function batchCheckboxes(scope){ return Array.from(document.querySelectorAll('.batch-chk[data-scope="'+scope+'"]')); }
+  function batchSyncBar(scope){
+    const bar=document.getElementById(scope+'BatchBar');
+    if(!bar) return;
+    const boxes=batchCheckboxes(scope), sel=boxes.filter(c=>c.checked);
+    bar.style.display=boxes.length?'flex':'none';
+    const cnt=bar.querySelector('.batch-count');
+    if(cnt) cnt.innerText='已選 '+sel.length+' 項';
+    const all=bar.querySelector('.batch-all');
+    if(all) all.checked=boxes.length>0&&sel.length===boxes.length;
+    boxes.forEach(c=>{ const row=c.closest('.record-item')||c.closest('tr'); if(row) row.classList.toggle('is-checked',c.checked); });
+  }
+  function batchSyncAll(){
+    ['pendingTable','completedTable','noshowTable','parentPendingTable','parentCompletedTable','parentNoshowTable',
+     'studentPendingList','parentPendingList','processingList','completedItems','noshowItems'].forEach(batchSyncBar);
+  }
+  async function batchDo(scope,mode){
+    const ids=batchCheckboxes(scope).filter(c=>c.checked).map(c=>c.dataset.id);
+    if(!ids.length){ alert('請先勾選資料'); return; }
+    if(mode==='delete'){
+      if(!confirm('確定刪除已選的 '+ids.length+' 筆記錄？此操作無法復原')) return;
+      for(const id of ids){ await deleteBookingById(id); }
+    }else{
+      if(!staffEditMode&&!staffCanEditDefault){ alert('請先解鎖編輯模式'); return; }
+      if(!confirm('確定把已選的 '+ids.length+' 筆改回「待處理」？')) return;
+      for(const id of ids){ await updateBookingStatus(id,'pending',{completedAt:null}); }
+    }
+    await fetchAllBookings();
+    renderAdminCalendar(); renderTables(); showDateDetail(null);
+    if(!document.getElementById('staffPage').classList.contains('hidden')) renderStaffPage(document.getElementById('staffDatePicker').value);
+    renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
+    batchSyncAll();
   }
 
   function renderStaffList(type,items,showRevert){
@@ -1446,14 +1489,26 @@ textarea{border-radius:28px;min-height:80px}
       let acts='';
       if(showRevert&&(staffEditMode||staffCanEditDefault)) acts+=`<button class="btn-small revert-complete" data-id="${b.id}">返回</button>`;
       if(staffEditMode||staffCanEditDefault) acts+=`<button class="btn-small delete-record" data-id="${b.id}">刪除</button>`;
-      return `<div class="record-item"><div class="record-info">[${t}] ${b.time||''} ${tag} ${b.name||''} ${b.gender||''}／${b.service||''}｜師傅：${b.barber||'-'}${b.email?'<br>'+b.email:''}</div>
+      const bScope=type==='completed'?'completedItems':'noshowItems';
+      return `<div class="record-item"><input type="checkbox" class="batch-chk" data-scope="${bScope}" data-id="${b.id}"><div class="record-info">[${t}] ${b.time||''} ${tag} ${b.name||''} ${b.gender||''}／${b.service||''}｜師傅：${b.barber||'-'}${b.email?'<br>'+b.email:''}</div>
         <div style="min-width:24px;">${v}</div><div class="record-actions">${acts}</div></div>`;
     }).join('');
   }
 
+  document.addEventListener('change',function(e){
+    const t=e.target;
+    if(t.classList&&t.classList.contains('batch-chk')){ batchSyncBar(t.dataset.scope); return; }
+    if(t.classList&&t.classList.contains('batch-all')){
+      const scope=t.dataset.scope;
+      batchCheckboxes(scope).forEach(c=>c.checked=t.checked);
+      batchSyncBar(scope);
+    }
+  });
+
   document.addEventListener('click',async function(e){
     const t=e.target;
 
+    if(t.classList.contains('batch-action')){ await batchDo(t.dataset.scope,t.dataset.mode); return; }
     if(t.classList.contains('complete-btn')&&!t.closest('#staffPage')){
       if(!confirm('標記為已完成？')) return;
       await updateBookingStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString()});

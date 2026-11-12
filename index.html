@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hair World 預約</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui,sans-serif}
+body{max-width:600px;margin:20px auto;padding:16px}
+.title{font-size:24px;font-weight:bold;text-align:center;margin-bottom:20px}
+.form-item{margin:12px 0}
+label{display:block;margin-bottom:6px;font-weight:500}
+input,select{width:100%;padding:10px;font-size:16px;border:1px solid #ccc;border-radius:6px}
+.btn{width:100%;padding:12px;background:#ff7700;color:white;border:none;border-radius:8px;font-size:17px;margin-top:16px}
+.alert{color:red}
+.success{color:green}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:16px 0}
+.calendar-day{padding:10px;text-align:center;border:1px solid #ddd;border-radius:6px}
+.calendar-day.available{background:#fff7e6}
+.calendar-day.block{background:#eee;color:#999}
+.time-slot{display:inline-block;padding:8px 10px;margin:4px;border:1px solid #ff7700;border-radius:6px}
+.time-slot.full{background:#eee;color:#888;border-color:#aaa}
+</style>
+</head>
+<body>
+<div class="title">Hair World 預約</div>
+<div id="calendarWrap"></div>
+<div id="timeWrap"></div>
+<form id="bookingForm">
+  <div class="form-item">
+    <label>Email</label>
+    <input type="email" id="email" required placeholder="example@mail.com">
+  </div>
+  <div class="form-item">
+    <label>姓名</label>
+    <input type="text" id="name" required placeholder="客人姓名">
+  </div>
+  <div class="form-item">
+    <label>性別</label>
+    <select id="gender" required>
+      <option value="">請選擇</option>
+      <option value="男">男</option>
+      <option value="女">女</option>
+    </select>
+  </div>
+  <div class="form-item">
+    <label>服務項目</label>
+    <select id="service" required>
+      <option value="">請選擇</option>
+      <option value="單剪">單剪</option>
+      <option value="剪髮+洗頭">剪髮+洗頭</option>
+    </select>
+  </div>
+  <div class="form-item">
+    <label><input type="checkbox" id="chk1" required>我已閱讀預約須知</label>
+  </div>
+  <div class="form-item">
+    <label><input type="checkbox" id="chk2" required>確認預約資料正確</label>
+  </div>
+  <div class="alert" id="msgBox"></div>
+  <button class="btn" type="submit">提交預約</button>
+</form>
+<script src="https://www.gstatic.com/firebasejs/10/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10/firebase-firestore.js"></script>
+<script>
+// ========= Firebase Config，記得替換成你自己嘅firebase資料 =========
+const firebaseConfig = {
+  apiKey:"YOUR_API_KEY",
+  authDomain:"YOUR_PROJECT.firebaseapp.com",
+  projectId:"YOUR_PROJECT_ID",
+  storageBucket:"YOUR_PROJECT.appspot.com",
+  messagingSenderId:"YOUR_SENDER_ID",
+  appId:"YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let selectedDate = null;
+let selectedTime = null;
+
+// 載入設定（自動清洗舊學生文字）
+async function loadSettings(){
+  const ref = db.doc("config/settings");
+  const snap = await ref.get();
+  let settings = {};
+  if(snap.exists) settings = snap.data();
+  const oldLabels = settings.fieldLabels || {};
+  let needSave = false;
+  const cleanMap = {
+    "學生 Email":"Email",
+    "學校":"",
+    "年級":"",
+    "班別":"",
+    "學號":"",
+    "學生證":""
+  };
+  for(const k in oldLabels){
+    if(cleanMap[oldLabels[k]]){
+      oldLabels[k] = cleanMap[oldLabels[k]];
+      needSave = true;
+    }
+  }
+  if(needSave) await ref.set({...settings,fieldLabels:oldLabels},{merge:true});
+  return settings;
+}
+
+// 渲染月曆、封鎖日期、時段、Email查重邏輯省略（同之前系統）
+document.getElementById("bookingForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const name = document.getElementById("name").value.trim();
+  const gender = document.getElementById("gender").value;
+  const service = document.getElementById("service").value;
+  const msgBox = document.getElementById("msgBox");
+  msgBox.textContent="";
+
+  // 同一Email不可有未完成預約
+  const exist = await db.collection("bookings").where("email","==",email).where("status","in",["pending","processing"]).get();
+  if(!exist.empty){
+    msgBox.textContent="你已經有一個有效預約，不可重複預約";
+    return;
+  }
+  await db.collection("bookings").add({
+    email,name,gender,service,
+    date:selectedDate,time:selectedTime,
+    type:"normal",
+    status:"pending",
+    couponBuy:false,
+    createAt:new Date()
+  });
+  msgBox.className="success";
+  msgBox.textContent="預約成功！";
+});
+loadSettings();
+</script>
+</body>
+</html>

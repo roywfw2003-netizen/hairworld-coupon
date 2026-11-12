@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hair World 員工工作台</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui}
+body{padding:16px;max-width:1000px;margin:0 auto}
+h2{text-align:center}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{border:1px solid #ddd;border-radius:10px;padding:14px}
+.item{border-bottom:1px solid #eee;padding:10px}
+.btn{padding:8px 10px;margin:3px;border-radius:6px;border:none}
+.btn-ok{background:#28a745;color:white}
+.btn-coupon{background:#ff7700;color:white}
+.stat{padding:10px;background:#f5f5f5;border-radius:8px;margin:8px 0}
+.admin-section{background:#f8f8f8;padding:12px;border-radius:8px;margin-top:20px}
+.hidden-block{display:none}
+</style>
+</head>
+<body>
+<h2>Hair World｜員工預約管理</h2>
+<div class="stat">
+  已完成訂單：<span id="cntDone">0</span>｜已購買$20優惠券：<span id="cntCoupon">0</span>
+</div>
+<div class="two-col">
+<div class="card">
+  <h3>一般預約待處理</h3>
+  <div id="listNormal"></div>
+</div>
+<div class="card">
+  <h3>優惠券預約待處理</h3>
+  <div id="listVoucher"></div>
+</div>
+</div>
+
+<div class="admin-section">
+<h3>管理員設定</h3>
+<div>密碼登入 <input id="staffPwd" type="password"><button onclick="loginStaff()">登入</button></div>
+<div id="adminPanel" class="hidden-block">
+  <p>欄位標籤設定：可直接修改文字，儲存到雲端</p>
+  <div>Email標籤：<input id="labelEmail"></div>
+  <div>姓名標籤：<input id="labelName"></div>
+  <button onclick="saveLabels()">儲存標籤</button>
+
+  <h4>指定日子封鎖時段（第二個月曆）</h4>
+  <div id="blockCalendar"></div>
+  <div style="margin-top:16px;color:#777">舊版設定區（已停用，預設隱藏）</div>
+  <div id="oldSchoolPanel" class="hidden-block">舊學校/班別設定，保留唔刪除</div>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10/firebase-firestore.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey:"YOUR_API_KEY",
+  authDomain:"YOUR_PROJECT.firebaseapp.com",
+  projectId:"YOUR_PROJECT_ID",
+  storageBucket:"YOUR_PROJECT.appspot.com",
+  messagingSenderId:"YOUR_SENDER_ID",
+  appId:"YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const staffPwd = "staff123";
+const adminPwd = "admin123";
+
+function loginStaff(){
+  const p = document.getElementById("staffPwd").value;
+  if(p===staffPwd || p===adminPwd){
+    document.getElementById("adminPanel").style.display="block";
+    if(p===adminPwd) document.getElementById("oldSchoolPanel").style.display="block";
+    loadBookings();
+  }
+}
+
+async function loadBookings(){
+  const snap = await db.collection("bookings").where("date","==",new Date().toISOString().slice(0,10)).get();
+  let normalHtml="",voucherHtml="",done=0,coupon=0;
+  snap.forEach(doc=>{
+    const d = doc.data();
+    if(d.status==="done") done++;
+    if(d.couponBuy===true) coupon++;
+    const html = `
+    <div class="item">
+      ${d.name}｜${d.email}｜${d.gender}｜${d.service}
+      <br>狀態：${d.status}
+      <br><button class="btn btn-ok" onclick="markDone('${doc.id}',${d.couponBuy})">確認完成</button>
+      <button class="btn btn-coupon" onclick="setCoupon('${doc.id}')">記錄購買$20券</button>
+    </div>`;
+    if(d.type==="normal") normalHtml+=html;
+    else voucherHtml+=html;
+  });
+  document.getElementById("listNormal").innerHTML = normalHtml;
+  document.getElementById("listVoucher").innerHTML = voucherHtml;
+  document.getElementById("cntDone").textContent=done;
+  document.getElementById("cntCoupon").textContent=coupon;
+}
+async function markDone(id,currentCoupon){
+  await db.collection("bookings").doc(id).update({status:"done"});
+  loadBookings();
+}
+async function setCoupon(id){
+  await db.collection("bookings").doc(id).update({couponBuy:true});
+  loadBookings();
+}
+async function saveLabels(){
+  const fieldLabels = {
+    email:document.getElementById("labelEmail").value,
+    name:document.getElementById("labelName").value
+  };
+  await db.doc("config/settings").set({fieldLabels},{merge:true});
+  alert("標籤已儲存到雲端");
+}
+</script>
+</body>
+</html>

@@ -346,6 +346,22 @@ textarea{border-radius:28px;min-height:80px}
       </div>
     </details>
 
+    <details class="settings-section" id="section-gsheet">
+      <summary>Google Sheets 儲存設定</summary>
+      <div class="section-content">
+        <div class="form-group" style="margin:10px 0 0;">
+          <label>Apps Script 網址（結尾 /exec）</label>
+          <input type="text" id="googleSheetUrl" placeholder="https://script.google.com/macros/s/xxxx/exec">
+          <small style="color:#B45A2A;">留空＝只用 Firestore；填入後，新增／改狀態／刪除都會同步寫入 Google Sheets</small>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+          <button class="btn-small" id="testGSheetBtn" style="margin:0;">測試連線</button>
+          <button class="btn-small" id="gSheetPullBtn" style="margin:0;">從 Sheets 拉回狀態</button>
+        </div>
+        <div style="color:#B45A2A;font-size:12px;margin-top:5px;" id="gsTestResult"></div>
+      </div>
+    </details>
+
     <details class="settings-section" id="section-notice">
       <summary>預約頁面文字設定（一般版）</summary>
       <div class="section-content">
@@ -412,7 +428,7 @@ textarea{border-radius:28px;min-height:80px}
     </details>
 
     <div class="database-panel">
-      <h4>一般預約 待處理（pending）<span id="totalBookingsCount" style="font-weight:normal;font-size:13px;">（總數: 0）</span></h4>
+      <h4>一般預約 待處理<span id="totalBookingsCount" style="font-weight:normal;font-size:13px;">（總數: 0）</span></h4>
       <div class="batch-bar" id="pendingTableBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="pendingTable"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="pendingTable" data-mode="revert" style="margin:0;display:none;">批次返回</button><button class="btn-small batch-action" data-scope="pendingTable" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="sortable-table" id="pendingTable"></div>
       <div class="completed-section">
         <h4>一般預約 已完成 <span class="total-badge" id="completedTotal">0</span></h4>
@@ -426,7 +442,7 @@ textarea{border-radius:28px;min-height:80px}
     </div>
 
     <div class="database-panel" style="border-color:#28a745;">
-      <h4>優惠券預約 待處理（pending）<span id="parentTotalBookingsCount" style="font-weight:normal;font-size:13px;">（總數: 0）</span></h4>
+      <h4>優惠券預約 待處理<span id="parentTotalBookingsCount" style="font-weight:normal;font-size:13px;">（總數: 0）</span></h4>
       <div class="batch-bar" id="parentPendingTableBatchBar" style="display:none;"><label style="display:flex;align-items:center;gap:6px;margin:0;"><input type="checkbox" class="batch-all" data-scope="parentPendingTable"> 全選</label><span class="batch-count">已選 0 項</span><button class="btn-small batch-action" data-scope="parentPendingTable" data-mode="revert" style="margin:0;display:none;">批次返回</button><button class="btn-small batch-action" data-scope="parentPendingTable" data-mode="delete" style="margin:0;background:#ff6b6b;color:#fff;">批次刪除</button></div><div class="sortable-table" id="parentPendingTable"></div>
       <div class="completed-section">
         <h4>優惠券預約 已完成 <span class="total-badge" id="parentCompletedTotal">0</span></h4>
@@ -616,6 +632,7 @@ textarea{border-radius:28px;min-height:80px}
     weekdaySlots:['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'],
     holidaySlots:['10:30','11:30','12:30'],
     dailyCutoff:'',
+    googleSheetUrl:"https://script.google.com/macros/s/AKfycbzCHY_0pNufKWEBTiXUZ4-oLHNEeuHqv7w4EC9bRyS6J-FM0ac5VutFCM08fZDGU3m4/exec",
     visibleFields:{email:true,name:true,gender:true,service:true},
     requiredFields:{email:true,name:true,gender:true,service:true},
     allowDuplicate:{email:false,name:true,gender:true,service:true},
@@ -641,14 +658,41 @@ textarea{border-radius:28px;min-height:80px}
   }
   function hideFeedback(){ document.getElementById('formFeedback').style.display='none'; }
 
-  const LEGACY_WORDS=['學生證','學生','學校','年級','班別','班級','學號','家長'];
+  const LEGACY_WORDS=['學生證','學生','學校','年級','班別','班級','學號','家長','同學','小朋友'];
   function stripLegacy(s){
     if(typeof s!=='string') return s;
     let out=s;
     LEGACY_WORDS.forEach(w=>{ out=out.split(w).join(''); });
     return out.replace(/[ \t　]+/g,' ').replace(/^ +| +$/g,'');
   }
+  function hasLegacy(x){ if(typeof x!=='string') return false; return LEGACY_WORDS.some(function(w){ return x.indexOf(w)>=0; }); }
   function normalizeType(t){ return t==='student' ? 'normal' : (t||'normal'); }
+
+  /* ===== Google Sheets 同步（Apps Script Web App） ===== */
+  function gsUrl(){ return (config.googleSheetUrl||'').trim(); }
+  function gsPost(payload){
+    const u=gsUrl(); if(!u) return;
+    try{ fetch(u,{method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'text/plain;charset=utf-8'}}).catch(function(){}); }catch(e){}
+  }
+  function gsRecord(o){
+    o=o||{};
+    function nz(v){ return (v===null)?null:(v===undefined?'':v); }
+    return {id:o.id||'',type:normalizeType(o.type),email:nz(o.email),name:nz(o.name),gender:nz(o.gender),service:nz(o.service),
+      barber:nz(o.barber),date:nz(o.date),time:nz(o.time),status:nz(o.status||'pending'),
+      voucherPurchased:!!o.voucherPurchased,createdAt:nz(o.createdAt),completedAt:nz(o.completedAt),
+      noShowAt:nz(o.noShowAt),updatedAt:nz(o.updatedAt),source:nz(o.source)};
+  }
+  function gsJsonp(action,cb){
+    const u=gsUrl();
+    if(!u){ cb({ok:false,error:'未設定 Apps Script 網址'}); return; }
+    const name='gsCb'+Math.floor(Math.random()*1e9);
+    let finished=false;
+    window[name]=function(d){ finished=true; try{delete window[name];}catch(e){} cb(d); };
+    const s=document.createElement('script');
+    s.src=u+(u.indexOf('?')>=0?'&':'?')+'action='+encodeURIComponent(action)+'&callback='+name+'&_='+Date.now();
+    s.onerror=function(){ if(!finished){ cb({ok:false,error:'無法連線（請確認部署權限為「任何人」）'}); } };
+    document.body.appendChild(s);
+  }
 
   async function fetchAllBookings(){
     try{
@@ -699,10 +743,18 @@ textarea{border-radius:28px;min-height:80px}
         ['email','name','gender','service','barber'].forEach(k=>{ if(config.showInRecords[k]===undefined) config.showInRecords[k]=true; });
         if(!Array.isArray(config.confirmBoxes)||!config.confirmBoxes.length)
           config.confirmBoxes=[{label:config.screenshotLabel||'確定已截圖預約記錄',note:''},{label:config.studentCardLabel||'我已準時到店',note:config.cardNoteLabel||''}];
+        if(config.confirmBoxes.some(c=>c&&(hasLegacy(c.label)||hasLegacy(c.note||'')))){
+          config.confirmBoxes=[{label:"確定已截圖預約記錄",note:""},{label:"我已準時到店",note:"(請準時到達，逾時可能需重新輪候)"}];
+          legacyFixed=true;
+        }
         config.confirmBoxes=config.confirmBoxes.filter(c=>c&&typeof c.label==='string'&&c.label.trim());
         if(!config.confirmBoxes.length) config.confirmBoxes=[{label:'我確認資料正確',note:''}];
         if(!Array.isArray(config.voucherConfirmBoxes)||!config.voucherConfirmBoxes.length)
           config.voucherConfirmBoxes=[{label:config.parentScreenshotLabel||'確定已使用優惠券預約',note:''},{label:config.parentCardLabel||'我已準備好出示優惠券核對',note:config.parentCardNoteLabel||''}];
+        if(config.voucherConfirmBoxes.some(c=>c&&(hasLegacy(c.label)||hasLegacy(c.note||'')))){
+          config.voucherConfirmBoxes=[{label:"確定已使用優惠券預約",note:""},{label:"我已準備好出示優惠券核對",note:"(需出示優惠券核對)"}];
+          legacyFixed=true;
+        }
         config.voucherConfirmBoxes=config.voucherConfirmBoxes.filter(c=>c&&typeof c.label==='string'&&c.label.trim());
         if(!config.voucherConfirmBoxes.length) config.voucherConfirmBoxes=[{label:'我確認資料正確',note:''}];
         if(!Array.isArray(config.genders)||!config.genders.length) config.genders=['男','女'];
@@ -711,6 +763,7 @@ textarea{border-radius:28px;min-height:80px}
         if(!Array.isArray(config.weekdaySlots)) config.weekdaySlots=['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'];
         if(!Array.isArray(config.holidaySlots)) config.holidaySlots=['10:30','11:30','12:30'];
         if(config.dailyCutoff===undefined) config.dailyCutoff='';
+        if(config.googleSheetUrl===undefined) config.googleSheetUrl='';
         if(!config.cardNoteLabel) config.cardNoteLabel="(請準時到達，逾時可能需重新輪候)";
         if(!config.parentNotice) config.parentNotice="• 每位客人只可有一個有效預約。\n• 預約時間前2小時內無法修改或取消。\n• 使用優惠券需出示相關證明。";
         if(!config.parentScreenshotLabel) config.parentScreenshotLabel="確定已使用優惠券預約";
@@ -761,6 +814,7 @@ textarea{border-radius:28px;min-height:80px}
       daySlotsCache[booking.date]={times:cur.concat([booking.time]),ts:0};
       availabilityCache.delete(booking.date);
       addActivity(booking);
+      gsPost({action:'upsert',record:gsRecord({id:apptRef.id,type:type,email:booking.email,name:booking.name,gender:booking.gender,service:booking.service,date:booking.date,time:booking.time,status:'pending',voucherPurchased:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),source:'online'})});
       return {success:true,id:apptRef.id};
     }catch(e){ console.error('建立預約失敗',e); return {success:false,error:e.message}; }
   }
@@ -788,6 +842,8 @@ textarea{border-radius:28px;min-height:80px}
   async function updateBookingStatus(id,status,extra={}){
     try{
       await db.collection("appointments").doc(id).update({status:status,updatedAt:new Date().toISOString(),...extra});
+      const gsBase=bookings.find(x=>x.id===id)||{};
+      gsPost({action:'upsert',record:gsRecord(Object.assign({},gsBase,extra,{id:id,status:status,updatedAt:new Date().toISOString()}))});
       if(status==='completed'||status==='no-show'){
         let b=bookings.find(x=>x.id===id);
         if(!b){ const d=await db.collection("appointments").doc(id).get(); if(d.exists){ const x=d.data(); b={date:x.date,time:x.time}; } }
@@ -800,7 +856,9 @@ textarea{border-radius:28px;min-height:80px}
     try{
       const doc=await db.collection("appointments").doc(id).get();
       if(doc.exists){ const d=doc.data(); if(d.date&&d.time) await releaseSlot(d.date,d.time); }
-      await db.collection("appointments").doc(id).delete(); return true;
+      await db.collection("appointments").doc(id).delete();
+      gsPost({action:'delete',id:id});
+      return true;
     }catch(e){ console.error('刪除失敗',e); return false; }
   }
 
@@ -874,6 +932,7 @@ textarea{border-radius:28px;min-height:80px}
     renderChipGroup('genderChips','gender',config.genders);
     renderChipGroup('serviceChips','service',config.services);
   }
+
   function renderStaffOptionSelects(){
     const g=document.getElementById('staffGender');
     if(g) g.innerHTML='<option value="">請選擇</option>'+config.genders.map(v=>`<option value="${v}">${v}</option>`).join('');
@@ -1651,6 +1710,7 @@ textarea{border-radius:28px;min-height:80px}
     document.getElementById('staffEditPasswordInput').value=config.staffEditPassword||'';
     document.getElementById('staffCanEditDefault').checked=!!config.staffCanEditDefault;
     document.getElementById('dailyCutoff').value=config.dailyCutoff||'';
+    document.getElementById('googleSheetUrl').value=config.googleSheetUrl||'';
     await loadShadowMarks();
     renderAdminCalendar(); showDateDetail(null); renderTables(); renderSuspiciousTable(); renderShadowCalendar();
     renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
@@ -1714,6 +1774,7 @@ textarea{border-radius:28px;min-height:80px}
     config.staffEditPassword=document.getElementById('staffEditPasswordInput').value.trim();
     config.staffCanEditDefault=document.getElementById('staffCanEditDefault').checked;
     config.dailyCutoff=document.getElementById('dailyCutoff').value.trim();
+    config.googleSheetUrl=document.getElementById('googleSheetUrl').value.trim();
     config.shadowMarks=shadowMarks;
 
     if(await updateConfig(config)){
@@ -1734,8 +1795,46 @@ textarea{border-radius:28px;min-height:80px}
       .catch(err=>{ div.innerText='發送失敗：'+err.message; });
   });
 
-  (async function init(){
-    await auth.signInAnonymously();
+  document.getElementById('testGSheetBtn').addEventListener('click',function(){
+    const div=document.getElementById('gsTestResult');
+    config.googleSheetUrl=document.getElementById('googleSheetUrl').value.trim();
+    div.innerText='測試中...';
+    gsJsonp('ping',function(res){
+      div.innerText=(res&&res.ok)?('連線成功｜工作表「'+(res.sheet||'')+'」現有 '+(res.rows||0)+' 筆記錄'):('連線失敗：'+((res&&res.error)||'未知錯誤'));
+    });
+  });
+
+  document.getElementById('gSheetPullBtn').addEventListener('click',async function(){
+    const div=document.getElementById('gsTestResult');
+    config.googleSheetUrl=document.getElementById('googleSheetUrl').value.trim();
+    if(!gsUrl()){ div.innerText='請先輸入 Apps Script 網址'; return; }
+    div.innerText='讀取中...';
+    gsJsonp('list',async function(res){
+      if(!res||!res.ok){ div.innerText='讀取失敗：'+((res&&res.error)||'未知錯誤'); return; }
+      const rows=res.rowsData||[];
+      let n=0;
+      for(const r of rows){
+        if(!r||!r.id) continue;
+        const b=bookings.find(x=>x.id===r.id);
+        if(!b) continue;
+        const st=r.status;
+        if(st&&st!==b.status&&['pending','processing','completed','no-show','cancelled'].indexOf(st)>=0){
+          await updateBookingStatus(r.id,st,{
+            completedAt:(st==='completed'?((r.completedAt||b.completedAt)||new Date().toISOString()):null),
+            noShowAt:(st==='no-show'?((r.noShowAt||b.noShowAt)||new Date().toISOString()):null),
+            barber:r.barber||b.barber||''
+          });
+          n++;
+        }
+      }
+      await fetchAllBookings();
+      renderTables(); renderAdminCalendar();
+      if(!document.getElementById('staffPage').classList.contains('hidden')) renderStaffPage(document.getElementById('staffDatePicker').value);
+      div.innerText='已同步 '+n+' 筆狀態改動（共讀取 '+rows.length+' 筆）';
+    });
+  });
+
+  (async function init(){    await auth.signInAnonymously();
     await fetchConfig();
     renderBookingOptionSelects();
     renderStaffOptionSelects();

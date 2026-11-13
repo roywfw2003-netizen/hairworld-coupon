@@ -158,12 +158,28 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
     barbers:['師傅A','師傅B','師傅C','師傅D'],
     genders:['男','女'],
     services:['單剪','剪髮+洗頭'],
-    staffEditPassword:'edit123'
+    staffEditPassword:'edit123',
+    googleSheetUrl:"https://script.google.com/macros/s/AKfycbzCHY_0pNufKWEBTiXUZ4-oLHNEeuHqv7w4EC9bRyS6J-FM0ac5VutFCM08fZDGU3m4/exec"
   };
   let staffEditMode=false;
 
   function getTodayStr(){ const d=new Date(); return d.toISOString().slice(0,10); }
   function normalizeType(t){ return t==='student'?'normal':(t||'normal'); }
+
+  /* ===== Google Sheets 同步（Apps Script Web App） ===== */
+  function gsUrl(){ return (config.googleSheetUrl||'').trim(); }
+  function gsPost(payload){
+    const u=gsUrl(); if(!u) return;
+    try{ fetch(u,{method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'text/plain;charset=utf-8'}}).catch(function(){}); }catch(e){}
+  }
+  function gsRecord(o){
+    o=o||{};
+    function nz(v){ return (v===null)?null:(v===undefined?'':v); }
+    return {id:o.id||'',type:normalizeType(o.type),email:nz(o.email),name:nz(o.name),gender:nz(o.gender),service:nz(o.service),
+      barber:nz(o.barber),date:nz(o.date),time:nz(o.time),status:nz(o.status||'pending'),
+      voucherPurchased:!!o.voucherPurchased,createdAt:nz(o.createdAt),completedAt:nz(o.completedAt),
+      noShowAt:nz(o.noShowAt),updatedAt:nz(o.updatedAt),source:nz(o.source)};
+  }
 
   async function fetchAllBookings(){
     try{
@@ -190,6 +206,7 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
         if(!Array.isArray(config.genders)||!config.genders.length) config.genders=['男','女'];
         if(!Array.isArray(config.services)||!config.services.length) config.services=['單剪','剪髮+洗頭'];
         if(!config.staffEditPassword) config.staffEditPassword='edit123';
+        if(!config.googleSheetUrl) config.googleSheetUrl='';
       }
       renderOptionSelects();
     }catch(e){ console.error('讀取設定失敗',e); }
@@ -343,11 +360,16 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
   }
 
   async function updateStatus(id,status,extra){
-    try{ await db.collection("appointments").doc(id).update({status:status,updatedAt:new Date().toISOString(),...extra}); return true; }
+    try{ await db.collection("appointments").doc(id).update({status:status,updatedAt:new Date().toISOString(),...extra});
+      const gsBase=bookings.find(x=>x.id===id)||{};
+      gsPost({action:'upsert',record:gsRecord(Object.assign({},gsBase,extra,{id:id,status:status,updatedAt:new Date().toISOString()}))});
+      return true; }
     catch(e){ console.error(e); return false; }
   }
   async function deleteById(id){
-    try{ await db.collection("appointments").doc(id).delete(); return true; }
+    try{ await db.collection("appointments").doc(id).delete();
+      gsPost({action:'delete',id:id});
+      return true; }
     catch(e){ console.error(e); return false; }
   }
 
@@ -429,12 +451,13 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
 
     const now=new Date();
     try{
-      await db.collection("appointments").add({
+      const gsRef=await db.collection("appointments").add({
         email:email, name:name, gender:gender, service:service,
         date:getTodayStr(), time:now.toTimeString().slice(0,5), barber:barber,
         status:'completed', type:type, voucherPurchased:false,
         completedAt:now.toISOString(), updatedAt:now.toISOString(), source:'walkin'
       });
+      gsPost({action:'upsert',record:gsRecord({id:gsRef.id,type:type,email:email,name:name,gender:gender,service:service,barber:barber,date:getTodayStr(),time:now.toTimeString().slice(0,5),status:'completed',voucherPurchased:false,completedAt:now.toISOString(),updatedAt:now.toISOString(),source:'walkin'})});
       document.getElementById('staffName').value='';
       document.getElementById('staffEmail').value='';
       await renderStaffPage(getTodayStr());

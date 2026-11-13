@@ -404,6 +404,14 @@ textarea{border-radius:28px;min-height:80px}
       <summary>防惡意設定</summary>
       <div class="section-content">
         <label style="display:flex;align-items:center;gap:8px;margin:8px 0;"><input type="checkbox" id="enableCaptcha"> 啟用算術驗證碼</label>
+        <div class="form-group"><label>每日每裝置預約上限（0＝不限）</label><input type="number" id="maxPerDevicePerDay" min="0" step="1"></div>
+        <div class="form-group"><label>每日每 Email 預約上限（0＝不限）</label><input type="number" id="maxPerEmailPerDay" min="0" step="1"></div>
+        <div class="form-group"><label>兩次提交最短間隔（秒）</label><input type="number" id="submitCooldownSec" min="5" step="1"></div>
+        <div class="form-group"><label>停用 Email 名單（每行一個，留空＝不啟用）</label><textarea id="blockEmails" rows="4" placeholder="abc@example.com"></textarea></div>
+        <div class="form-group"><label>測試白名單（名單內裝置不受上述限制）</label>
+          <div id="testDeviceList" style="font-size:12px;color:#666;margin-bottom:6px;"></div>
+          <button class="btn-small" id="addTestDeviceBtn" style="margin:0;">把本機加入白名單</button>
+        </div>
       </div>
     </details>
 
@@ -632,7 +640,7 @@ textarea{border-radius:28px;min-height:80px}
     parentCardLabel:"我已準備好出示優惠券核對",
     parentCardNoteLabel:"(需出示優惠券核對)",
     voucherInfo:"• 本頁只供已購買 $20 優惠券的客人預約。\n• 到店時請出示優惠券（電子或實體均可）。\n• 優惠券可寄存於店舖，使用時請通知店員。\n• 每位客人同一時間只可保留一個有效預約。",
-    ntfyTopic:"hairworld_demo", ntfyEnabled:true, enableCaptcha:true,
+    ntfyTopic:"hairworld_demo", ntfyEnabled:true, enableCaptcha:true, maxPerDevicePerDay:2, maxPerEmailPerDay:1, submitCooldownSec:30, testDevices:[], blockEmails:[],
     adminPassword:"admin123", staffPassword:"staff123", staffEditPassword:"edit123",
     staffCanEditDefault:false,
     weekdaySlots:['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'],
@@ -770,6 +778,11 @@ textarea{border-radius:28px;min-height:80px}
         if(!Array.isArray(config.holidaySlots)) config.holidaySlots=['10:30','11:30','12:30'];
         if(config.dailyCutoff===undefined) config.dailyCutoff='';
         if(config.googleSheetUrl===undefined) config.googleSheetUrl='';
+        if(config.maxPerDevicePerDay===undefined) config.maxPerDevicePerDay=2;
+        if(config.maxPerEmailPerDay===undefined) config.maxPerEmailPerDay=1;
+        if(config.submitCooldownSec===undefined) config.submitCooldownSec=30;
+        if(!Array.isArray(config.testDevices)) config.testDevices=[];
+        if(!Array.isArray(config.blockEmails)) config.blockEmails=[];
         if(!config.cardNoteLabel) config.cardNoteLabel="(請準時到達，逾時可能需重新輪候)";
         if(!config.parentNotice) config.parentNotice="• 每位客人只可有一個有效預約。\n• 預約時間前2小時內無法修改或取消。\n• 使用優惠券需出示相關證明。";
         if(!config.parentScreenshotLabel) config.parentScreenshotLabel="確定已使用優惠券預約";
@@ -796,6 +809,55 @@ textarea{border-radius:28px;min-height:80px}
       return true;
     }catch(e){ console.error('更新設定失敗',e); return false; }
   }
+
+
+  const TEST_HINT_KEY='hwTestModeHint';
+  function isTestDevice(){ return Array.isArray(config.testDevices)&&config.testDevices.indexOf(deviceId)>=0; }
+  function isBlockedEmail(e){
+    const list=Array.isArray(config.blockEmails)?config.blockEmails:[];
+    return !!e && list.indexOf(String(e).trim().toLowerCase())>=0;
+  }
+  async function checkDailyLimits(email){
+    try{
+      const d=new Date(); d.setHours(0,0,0,0);
+      const iso=d.toISOString();
+      const snap=await db.collection('appointments').where('createdAt','>=',iso).get();
+      let devCount=0, emailCount=0;
+      snap.forEach(doc=>{ const x=doc.data(); if(x.status==='cancelled') return;
+        if(x.deviceId===deviceId) devCount++;
+        if(email && String(x.email||'').toLowerCase()===String(email).toLowerCase()) emailCount++;
+      });
+      const devMax=Number(config.maxPerDevicePerDay||0);
+      const emailMax=Number(config.maxPerEmailPerDay||0);
+      if(devMax>0 && devCount>=devMax) return {ok:false,msg:'此裝置今日預約已達上限（'+devMax+' 次），請明日再試或聯絡店舖'};
+      if(emailMax>0 && email && emailCount>=emailMax) return {ok:false,msg:'此 Email 今日預約已達上限（'+emailMax+' 次）'};
+    }catch(e){ console.error('限額檢查失敗',e); }
+    return {ok:true};
+  }
+  function renderTestDevices(){
+    const div=document.getElementById('testDeviceList'); if(!div) return;
+    const list=Array.isArray(config.testDevices)?config.testDevices:[];
+    if(!list.length){ div.textContent='（名單空白：所有裝置均受限）'; return; }
+    div.innerHTML=list.map(function(d,i){
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 0;">'+
+             '<span>'+(d===deviceId?'本機（'+d.slice(0,8)+'…）':d)+'</span>'+
+             '<button class="btn-small" style="margin:0;padding:2px 8px;" onclick="removeTestDevice('+i+')">移除</button></div>';
+    }).join('');
+  }
+  window.removeTestDevice=async function(i){
+    const list=(config.testDevices||[]).slice(); list.splice(i,1); config.testDevices=list;
+    renderTestDevices(); await updateConfig(config); alert('已移除');
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    const btn=document.getElementById('addTestDeviceBtn');
+    if(btn) btn.addEventListener('click',async function(){
+      const list=(config.testDevices||[]).slice();
+      if(list.indexOf(deviceId)<0) list.push(deviceId);
+      config.testDevices=list; renderTestDevices();
+      const ok=await updateConfig(config);
+      alert(ok?'本機已加入測試白名單，此機不再受每日上限及提交間隔限制。':'已加入名單，但雲端儲存失敗，請再按「儲存設定」。');
+    });
+  });
 
   async function createBooking(booking,type){
     try{
@@ -1405,7 +1467,9 @@ textarea{border-radius:28px;min-height:80px}
     }
 
     const lastSubmit=parseInt(localStorage.getItem('hwLastSubmit')||'0',10);
-    if(Date.now()-lastSubmit<8000){ showFeedback('提交太頻密，請 8 秒後再試'); return; }
+    const cooldownMs=(Number(config.submitCooldownSec)||30)*1000;
+    if(!isTestDevice() && Date.now()-lastSubmit<cooldownMs){ showFeedback('提交太頻密，請 '+Math.ceil(cooldownMs/1000)+' 秒後再試'); return; }
+    if(isBlockedEmail(email)){ showFeedback('此 Email 已被停用，請聯絡店舖',true); return; }
 
     if(config.visibleFields.email&&!config.allowDuplicate.email&&email){
       const snap=await db.collection("appointments").where("type","==",'voucher').get();
@@ -1415,6 +1479,11 @@ textarea{border-radius:28px;min-height:80px}
         showFeedback(`您已經有一個有效預約（${email}），如要更改請點「修改我的預約」`);
         return;
       }
+    }
+
+    if(!isTestDevice()){
+      const lim=await checkDailyLimits(email);
+      if(!lim.ok){ showFeedback(lim.msg,true); return; }
     }
 
     submitting=true;
@@ -1714,6 +1783,11 @@ textarea{border-radius:28px;min-height:80px}
     document.getElementById('ntfyTopic').value=config.ntfyTopic||'';
     document.getElementById('enableNotification').checked=!!config.ntfyEnabled;
     document.getElementById('enableCaptcha').checked=!!config.enableCaptcha;
+    document.getElementById('maxPerDevicePerDay').value=(config.maxPerDevicePerDay===undefined?'2':config.maxPerDevicePerDay);
+    document.getElementById('maxPerEmailPerDay').value=(config.maxPerEmailPerDay===undefined?'1':config.maxPerEmailPerDay);
+    document.getElementById('submitCooldownSec').value=(config.submitCooldownSec===undefined?'30':config.submitCooldownSec);
+    document.getElementById('blockEmails').value=(config.blockEmails||[]).join('\n');
+    renderTestDevices();
     document.getElementById('staffPasswordInput').value=config.staffPassword||'';
     document.getElementById('staffEditPasswordInput').value=config.staffEditPassword||'';
     document.getElementById('staffCanEditDefault').checked=!!config.staffCanEditDefault;
@@ -1778,6 +1852,11 @@ textarea{border-radius:28px;min-height:80px}
     config.ntfyTopic=document.getElementById('ntfyTopic').value.trim();
     config.ntfyEnabled=document.getElementById('enableNotification').checked;
     config.enableCaptcha=document.getElementById('enableCaptcha').checked;
+    config.maxPerDevicePerDay=Number(document.getElementById('maxPerDevicePerDay').value)||0;
+    config.maxPerEmailPerDay=Number(document.getElementById('maxPerEmailPerDay').value)||0;
+    config.submitCooldownSec=Math.max(5,Number(document.getElementById('submitCooldownSec').value)||30);
+    config.blockEmails=document.getElementById('blockEmails').value.split('\n').map(s=>s.trim().toLowerCase()).filter(Boolean);
+    config.testDevices=(config.testDevices||[]);
     config.staffPassword=document.getElementById('staffPasswordInput').value.trim();
     config.staffEditPassword=document.getElementById('staffEditPasswordInput').value.trim();
     config.staffCanEditDefault=document.getElementById('staffCanEditDefault').checked;

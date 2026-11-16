@@ -820,7 +820,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     weekdaySlots:['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'],
     holidaySlots:['10:30','11:30','12:30'],
     dailyCutoff:'',
-    googleSheetUrl:"https://script.google.com/macros/s/AKfycbwSHHBO6gH1H2tKJ-QkvrXBAMQfplZHpyTVFiD6prSYuMrJkqojOAaNVFrJSD66M8a1/exec",
+    googleSheetUrl:"https://script.google.com/macros/s/AKfycbwlg8XBKhiGEhQmeLXH2X7Jd6iADbzcERdDET0-ZbITVdwzRPGYvPrQzQyfqDjPHOLI/exec",
     instagramUrl:"https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr",
     mapUrl:"https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic",
     bgPhoto:"none",
@@ -876,6 +876,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   /* ===== 密碼：由 Apps Script 驗證，只回傳 ok／session，絕不下載任何密碼 ===== */
   const GS_TOKEN='hw9Kq2Zx-7pLmR4vT';
   const AUTH={admin:false, staff:false, staffEdit:false, owner:false};
+  // 角色 → Google Sheet「設定」分頁的欄位名（Apps Script 以此比對）
+  const ROLE_KEY={admin:'adminPassword', staff:'staffPassword', staffEdit:'staffEditPassword', owner:'ownerPassword'};
   let ADMIN_SESSION='';
   function gsJsonpParams(params, cb){
     const u=gsUrl();
@@ -900,7 +902,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     return new Promise(async function(res){
       if(AUTH[role]){ res(true); return; }
       if(!gsUrl()){ alert('未設定 Google Sheets 網址，無法驗證密碼'); res(false); return; }
-      const d=await waitJson({action:'auth', role:role, p:pwd===null||pwd===undefined?'':String(pwd)});
+      const d=await waitJson({action:'auth', role:ROLE_KEY[role]||role, p:pwd===null||pwd===undefined?'':String(pwd)});
       if(d && d.ok){ AUTH[role]=true; if(role==='admin') ADMIN_SESSION=d.session||''; res(true); return; }
       if(d && d.error==='not configured'){ alert('Google Sheets「設定」分頁尚未填寫該密碼'); res(false); return; }
       alert('密碼不正確，或未能連線 Google Sheets');
@@ -909,7 +911,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   }
   async function setAdminPassword(np){
     if(!ADMIN_SESSION){ alert('請先以管理員密碼解鎖後台，再修改密碼'); return false; }
-    const d=await waitJson({action:'setPassword', role:'admin', session:ADMIN_SESSION, value:np});
+    const d=await waitJson({action:'setPassword', role:'adminPassword', session:ADMIN_SESSION, value:np});
     return !!(d && d.ok);
   }
   function gsRecord(o){
@@ -1011,8 +1013,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         if(!Array.isArray(config.weekdaySlots)) config.weekdaySlots=['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'];
         if(!Array.isArray(config.holidaySlots)) config.holidaySlots=['10:30','11:30','12:30'];
         if(config.dailyCutoff===undefined) config.dailyCutoff='';
-        if(config.googleSheetUrl===undefined) config.googleSheetUrl='https://script.google.com/macros/s/AKfycbwSHHBO6gH1H2tKJ-QkvrXBAMQfplZHpyTVFiD6prSYuMrJkqojOAaNVFrJSD66M8a1/exec';
-        if(config.googleSheetUrl && (config.googleSheetUrl.indexOf('AKfycbzCHY_0pNufKWEBTiXUZ4')>=0 || config.googleSheetUrl.indexOf('AKfycbxq27SZWedI9ulZKrmNAldImHw2GmSIGrEtcfJPcoHg25QY-9hu94yK7CW1-5djuyfn')>=0)){ config.googleSheetUrl='https://script.google.com/macros/s/AKfycbwSHHBO6gH1H2tKJ-QkvrXBAMQfplZHpyTVFiD6prSYuMrJkqojOAaNVFrJSD66M8a1/exec'; legacyFixed=true; }
+        if(config.googleSheetUrl===undefined) config.googleSheetUrl='https://script.google.com/macros/s/AKfycbwlg8XBKhiGEhQmeLXH2X7Jd6iADbzcERdDET0-ZbITVdwzRPGYvPrQzQyfqDjPHOLI/exec';
+                if(config.googleSheetUrl && (config.googleSheetUrl.indexOf('AKfycbzCHY_0pNufKWEBTiXUZ4')>=0 || config.googleSheetUrl.indexOf('AKfycbxq27SZWedI9ulZKrmNAldImHw2GmSIGrEtcfJPcoHg25QY')>=0 || config.googleSheetUrl.indexOf('AKfycbwSHHBO6gH1H2tKJ-QkvrXBAMQfplZHpyTVFiD6prSYuMrJkqojOAaNVFrJSD66M8a1')>=0)){ config.googleSheetUrl='https://script.google.com/macros/s/AKfycbwlg8XBKhiGEhQmeLXH2X7Jd6iADbzcERdDET0-ZbITVdwzRPGYvPrQzQyfqDjPHOLI/exec'; legacyFixed=true; }
         if(config.instagramUrl===undefined) config.instagramUrl='https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr';
         if(config.mapUrl===undefined) config.mapUrl='https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic';
         if(config.bgPhoto===undefined) config.bgPhoto='none';

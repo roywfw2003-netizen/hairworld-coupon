@@ -37,6 +37,8 @@ h3{color:#F25C0A;font-size:1.4rem;margin:15px 0 10px;display:flex;align-items:ce
 .barber-selector{flex:1;min-width:170px;display:flex;flex-wrap:wrap;gap:6px;background:#FFE6D3;padding:10px;border-radius:40px}
 .barber-selector label{display:flex;align-items:center;gap:4px;font-size:.85rem;background:#fff;padding:5px 10px;border-radius:40px;border:1px solid #FFB985;cursor:pointer}
 .barber-selector input[type=radio]{width:16px;height:16px;accent-color:#F25C0A;margin:0}
+.barber-chip{background:#fff;color:#B04400;border:1.5px solid #FFB985;border-radius:40px;padding:6px 12px;font-size:.85rem;font-weight:600;cursor:pointer;line-height:1.4;transition:all .15s;box-sizing:border-box}
+.barber-chip.active{background:#F25C0A;color:#fff;border-color:#F25C0A}
 .record-actions{display:flex;gap:8px;flex-wrap:wrap}
 .total-badge{background:#F25C0A;color:#fff;padding:4px 12px;border-radius:40px;font-size:1rem;margin-left:8px}
 .section-block{background:#FFF9F2;border-radius:30px;padding:20px;margin-bottom:30px;border:2px solid #FFB985}
@@ -154,6 +156,7 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
   auth.signInAnonymously().catch(console.error);
 
   let bookings=[];
+  let barberPicks={};
   let config={
     barbers:['師傅A','師傅B','師傅C','師傅D'],
     genders:['男','女'],
@@ -219,7 +222,7 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
   }
 
   function barberRadios(b,prefix){
-    return config.barbers.map(x=>`<label><input type="radio" name="${prefix}_${b.id}" value="${x}"> ${x}</label>`).join('');
+    return config.barbers.map(x=>`<button type="button" class="barber-chip" data-booking="${b.id}" data-value="${x}">${x}</button>`).join('');
   }
 
   function infoHtml(b,icon){
@@ -388,16 +391,25 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
     const date=document.getElementById('staffDatePicker').value;
     if(t.classList.contains('batch-action')){ await batchDo(t.dataset.scope,t.dataset.mode); return; }
 
+    if(t.classList.contains('barber-chip')){
+      const bid=t.dataset.booking, val=t.dataset.value;
+      barberPicks[bid]=val;
+      const box=t.closest('.barber-selector');
+      if(box){ box.querySelectorAll('.barber-chip').forEach(function(x){ x.classList.toggle('active', x===t); }); }
+      return;
+    }
     if(t.classList.contains('mark-processing')){
-      const sel=document.querySelector(`input[name="barber_${t.dataset.type==='normal'?'n':'v'}_${t.dataset.id}"]:checked`);
-      if(!sel){ alert('請選擇師傅'); return; }
-      await updateStatus(t.dataset.id,'processing',{barber:sel.value});
+      const pick=barberPicks[t.dataset.id];
+      if(!pick){ alert('請先點選師傅名字'); return; }
+      delete barberPicks[t.dataset.id];
+      await updateStatus(t.dataset.id,'processing',{barber:pick});
       renderStaffPage(date); return;
     }
     if(t.classList.contains('mark-parent-complete')){
-      const sel=document.querySelector(`input[name="barber_v_${t.dataset.id}"]:checked`);
-      if(!sel){ alert('請選擇師傅'); return; }
-      await updateStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),barber:sel.value,voucherPurchased:false});
+      const pick=barberPicks[t.dataset.id];
+      if(!pick){ alert('請先點選師傅名字'); return; }
+      delete barberPicks[t.dataset.id];
+      await updateStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),barber:pick,voucherPurchased:false});
       renderStaffPage(date); return;
     }
     if(t.classList.contains('mark-noshow')){

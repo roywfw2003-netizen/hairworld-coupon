@@ -67,11 +67,39 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
     .batch-chk{width:26px;height:26px;accent-color:#F25C0A;cursor:pointer;flex:none;margin-right:10px;}
     .batch-all{width:24px;height:24px;accent-color:#F25C0A;cursor:pointer;}
     .record-item.is-checked{background:#FFF3E8;}
+
+/* ===== 夜間模式（只覆蓋配色，不改任何邏輯） ===== */
+.theme-toggle{margin-left:auto;background:#fff;color:#B04400;border:1.5px solid #FFB985;border-radius:40px;padding:8px 16px;font-size:.9rem;font-weight:600;cursor:pointer;line-height:1.2;white-space:nowrap}
+body.dark{background:#0B0D10;color:#E8EAED}
+body.dark .staff-container{background:#12151A;border-color:#2A2F36;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+body.dark .theme-toggle{background:#1A1F26;color:#E8EAED;border-color:#2F353D}
+body.dark h1,body.dark h3{color:#FF7A2F}
+body.dark .date-bar,body.dark .pending-col,body.dark .section-block,body.dark .edit-section{background:#171B21;border-color:#2F353D}
+body.dark .date-bar label,body.dark .form-group label{color:#C3CAD2}
+body.dark .note{color:#A8B1BB}
+body.dark input,body.dark select{background:#1A1F26;border-color:#2F353D;color:#E8EAED}
+body.dark .record-list{background:#151920;border-color:#2F353D}
+body.dark .record-item{background:#171B21;border-left-color:#FF7A2F}
+body.dark .record-item.voucher{border-left-color:#2FBF71}
+body.dark .record-info .sub{color:#A8B1BB}
+body.dark .barber-selector{background:#221A14}
+body.dark .barber-chip{background:#1A1F26;border-color:#3A4048;color:#C3CAD2}
+body.dark .barber-chip.active{background:#F25C0A;border-color:#F25C0A;color:#fff}
+body.dark .btn-small{background:#2C2119;color:#FFB27F}
+body.dark .batch-bar{background:#232A32;border-color:#2F353D;color:#C3CAD2}
+body.dark .summary-card{background:#1F252C}
+body.dark .stats-container{background:#171B21;border-color:#FF7A2F}
+body.dark [style*="#e6f3ff"]{background:#121A20!important;border-color:#2A3F4A!important}
+body.dark [style*="8FD3A2"]{border-color:#2A4A34!important}
+body.dark .date-bar input[type=date]{background:#1A1F26;border-color:#2F353D;color:#E8EAED}
+body.dark .barber-selector label{background:#1A1F26;border-color:#3A4048;color:#C3CAD2}
+body.dark .record-item.is-checked{background:#232A32}
+
 </style>
 </head>
 <body>
 <div class="staff-container">
-  <h1><i class="fa-solid fa-scissors"></i> Hair World 員工工作台 <span class="ver">iPad版 v11.0</span><span class="edit-mode-badge" id="editModeBadge">編輯模式已啟用</span></h1>
+  <h1><i class="fa-solid fa-scissors"></i> Hair World 員工工作台 <span class="ver">iPad版 v11.0</span><span class="edit-mode-badge" id="editModeBadge">編輯模式已啟用</span><button type="button" id="themeToggle" class="theme-toggle">夜間模式</button></h1>
 
   <div class="edit-section">
     <div style="display:flex;align-items:center;gap:10px;">
@@ -491,6 +519,26 @@ select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px soli
       alert('編輯模式已啟用');
     }else alert('密碼錯誤');
   });
+
+  /* ===== 夜間模式（只記在本機，不影響任何預約資料） ===== */
+  const THEME_KEY='hwThemeMode';
+  function applyTheme(mode){
+    const dark=(mode==='dark');
+    document.body.classList.toggle('dark',dark);
+    const btn=document.getElementById('themeToggle');
+    if(btn) btn.textContent=dark?'日間模式':'夜間模式';
+    if(window.Chart){ try{ Chart.defaults.color=dark?'#B9C2CC':'#5B4A3A'; }catch(e){} }
+  }
+  applyTheme(localStorage.getItem(THEME_KEY)||'light');
+  (function(){
+    const btn=document.getElementById('themeToggle');
+    if(!btn) return;
+    btn.addEventListener('click',function(){
+      const next=(localStorage.getItem(THEME_KEY)==='dark')?'light':'dark';
+      localStorage.setItem(THEME_KEY,next);
+      applyTheme(next);
+    });
+  })();
 
   (async function init(){
     await auth.signInAnonymously();

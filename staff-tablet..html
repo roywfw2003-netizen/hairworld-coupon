@@ -224,7 +224,7 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,.93)}
     barbers:['師傅A','師傅B','師傅C','師傅D'],
     genders:['男','女'],
     services:['單剪','剪髮+洗頭'],
-    googleSheetUrl:"https://script.google.com/macros/s/AKfycbwSHHBO6gH1H2tKJ-QkvrXBAMQfplZHpyTVFiD6prSYuMrJkqojOAaNVFrJSD66M8a1/exec"
+    googleSheetUrl:"https://script.google.com/macros/s/AKfycbwlg8XBKhiGEhQmeLXH2X7Jd6iADbzcERdDET0-ZbITVdwzRPGYvPrQzQyfqDjPHOLI/exec"
   };
   let staffEditMode=false;
 
@@ -235,6 +235,7 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,.93)}
   function gsUrl(){ return (config.googleSheetUrl||'').trim(); }
   const GS_TOKEN='hw9Kq2Zx-7pLmR4vT';
   let STAFF_EDIT_OK=false;
+  const ROLE_KEY={staffEdit:'staffEditPassword'};
   function gsJsonpParams(params, cb){
     const u=gsUrl();
     if(!u){ cb({ok:false,error:'未設定 Apps Script 網址'}); return; }
@@ -257,7 +258,7 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,.93)}
   async function authRole(role, pwd){
     if(STAFF_EDIT_OK) return true;
     if(!gsUrl()){ alert('未設定 Google Sheets 網址，無法驗證密碼'); return false; }
-    const d=await waitJson({action:'auth', role:role, p:pwd===null||pwd===undefined?'':String(pwd)});
+    const d=await waitJson({action:'auth', role:ROLE_KEY[role]||role, p:pwd===null||pwd===undefined?'':String(pwd)});
     if(d && d.ok){ STAFF_EDIT_OK=true; return true; }
     if(d && d.error==='not configured'){ alert('Google Sheets「設定」分頁尚未填寫該密碼'); return false; }
     alert('密碼不正確，或未能連線 Google Sheets');

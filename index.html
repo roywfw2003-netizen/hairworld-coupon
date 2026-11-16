@@ -180,11 +180,57 @@ textarea{border-radius:28px;min-height:80px}
     .batch-all{width:18px;height:18px;accent-color:#F25C0A;cursor:pointer;}
     .record-item.is-checked{background:#FFF3E8;}
     .batch-th{width:38px;}
+
+/* ===== 夜間模式（只覆蓋配色，不改任何邏輯） ===== */
+.brand{flex-wrap:wrap;gap:8px}
+.theme-toggle{margin-left:auto;background:#fff;color:#B04400;border:1.5px solid #FFB985;border-radius:40px;padding:7px 15px;font-size:13px;font-weight:700;cursor:pointer;line-height:1.2;white-space:nowrap}
+body.dark{background:#0B0D10;color:#E8EAED}
+body.dark .app-container{background:#12151A;border-color:#2A2F36;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+body.dark .brand h1{background:transparent;color:#FF7A2F}
+body.dark .theme-toggle{background:#1A1F26;color:#E8EAED;border-color:#2F353D}
+body.dark h2,body.dark h3,body.dark h4,body.dark .h4-title,body.dark .info-card h4,body.dark .detail-panel h3,body.dark .stats-header h3,body.dark .cal-header h4,body.dark .shadow-header h5,body.dark .settings-section h4,body.dark .database-panel h4{color:#FF7A2F}
+body.dark label,body.dark .field-setting-row .field-label,body.dark .checkbox-wrapper label{color:#C3CAD2}
+body.dark .note,body.dark .list-header,body.dark small{color:#A8B1BB}
+body.dark .weekdays span,body.dark .cal-weekdays span{color:#98A2AC}
+body.dark input,body.dark select,body.dark textarea{background:#1A1F26;border-color:#2F353D;color:#E8EAED}
+body.dark input::placeholder,body.dark textarea::placeholder{color:#69737D}
+body.dark .checkbox-wrapper,body.dark .student-calendar,body.dark .detail-panel,body.dark .info-card,body.dark .footer-note,body.dark .social-links,body.dark .field-setting-row,body.dark .cb-edit-row,body.dark .sync-switch,body.dark .time-slot-item,body.dark .cal-cell,body.dark .calendar-cell,body.dark .shadow-cell,body.dark .record-list,body.dark .appointment-item,body.dark .sortable-table,body.dark .suspicious-table,body.dark .settings-section,body.dark .batch-bar,body.dark .summary-card,body.dark .captcha-group{background:#1A1F26;border-color:#2F353D}
+body.dark .cal-cell,body.dark .calendar-cell,body.dark .shadow-cell{color:#D6DCE3}
+body.dark .cal-cell.unavailable{background:#15181D;color:#5D666F}
+body.dark .cal-cell.holiday,body.dark .calendar-cell.holiday,body.dark .shadow-cell.holiday{background:#2A1A1A;border-color:#7A3B3B}
+body.dark .cal-cell.selected,body.dark .cal-cell.selected .day-number{background:#F25C0A;color:#fff!important}
+body.dark .chip-btn{background:#1A1F26;border-color:#2F353D;color:#C3CAD2}
+body.dark .chip-btn:hover{background:#232A32}
+body.dark .chip-btn.active{background:#F25C0A;border-color:#F25C0A;color:#fff}
+body.dark .staff-date-picker input{background:#1A1F26;border-color:#2F353D;color:#E8EAED}
+body.dark .record-item{background:#171B21;border-left-color:#FF7A2F}
+body.dark .record-item.is-checked{background:#232A32}
+body.dark .settings-section summary{color:#FF7A2F}
+body.dark .deprecated-box{background:#1A1D22;border-color:#3A4048;color:#9AA3AD}
+body.dark .database-panel{background:#171B21;border-color:#FF7A2F}
+body.dark .stats-container{background:#171B21;border-color:#FF7A2F}
+body.dark .summary-card{background:#1F252C}
+body.dark .sortable-table th,body.dark .suspicious-table th{background:#232A32;color:#FFB27F}
+body.dark .sortable-table td{border-bottom-color:#2A3038;color:#D6DCE3}
+body.dark .suspicious-panel{background:#221A1A;border-color:#7A3B3B}
+body.dark .form-feedback{background:#33241A;color:#FFB27F}
+body.dark .form-feedback.error{background:#3A1E1E;color:#FF9E9E;border-color:#7A3B3B}
+body.dark .form-feedback.success{background:#16301F;color:#83E0A5}
+body.dark .btn-secondary,body.dark .back-btn{background:#1A1F26;color:#FF7A2F;border-color:#FF7A2F}
+body.dark .btn-small{background:#2C2119;color:#FFB27F}
+body.dark .social-link{background:#232A32;color:#FF7A2F;box-shadow:none}
+body.dark .barber-selector{background:#221A14}
+body.dark .barber-chip{background:#1A1F26;border-color:#3A4048;color:#C3CAD2}
+body.dark .barber-chip.active{background:#F25C0A;border-color:#F25C0A;color:#fff}
+body.dark .cal-nav button,body.dark .month-nav button,body.dark .shadow-nav button{background:#2C2119;color:#FF7A2F;box-shadow:none}
+body.dark [style*="FFF2E3"]{background:#221A14!important;border-color:#3A2A1C!important;color:#FFB27F!important}
+body.dark [style*="FFF9F2"]{background:#171B21!important;border-color:#2F353D!important}
+body.dark [style*="B45A2A"]{color:#A8B1BB!important}
 </style>
 </head>
 <body>
 <div class="app-container">
-  <div class="brand"><h1>Hair World</h1><span id="brandTag">預約</span></div>
+  <div class="brand"><h1>Hair World</h1><span id="brandTag">預約</span><button type="button" id="themeToggle" class="theme-toggle">夜間模式</button></div>
 
   <!-- ===== 客人預約頁 ===== -->
   <div id="bookingPage" class="page">
@@ -228,8 +274,8 @@ textarea{border-radius:28px;min-height:80px}
       <div id="confirmBoxesContainer"></div>
 
       <div class="social-links">
-        <a href="https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-brands fa-instagram"></i> Instagram</a>
-        <a href="https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-solid fa-location-dot"></i> 井財街店</a>
+        <a id="igLink" href="https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-brands fa-instagram"></i> Instagram</a>
+        <a id="mapLink" href="https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-solid fa-location-dot"></i> 井財街店</a>
       </div>
 
       <button type="button" class="btn" id="submitBooking">提交預約</button>
@@ -362,6 +408,21 @@ textarea{border-radius:28px;min-height:80px}
           <button class="btn-small" id="gSheetPullBtn" style="margin:0;">從 Sheets 拉回狀態</button>
         </div>
         <div style="color:#B45A2A;font-size:12px;margin-top:5px;" id="gsTestResult"></div>
+      </div>
+    </details>
+
+    <details class="settings-section" id="section-links">
+      <summary>連結設定（Instagram／地圖）</summary>
+      <div class="section-content">
+        <div class="form-group" style="margin:10px 0 0;">
+          <label>Instagram 連結</label>
+          <input type="text" id="instagramUrl" placeholder="https://www.instagram.com/...">
+        </div>
+        <div class="form-group">
+          <label>地圖連結</label>
+          <input type="text" id="mapUrl" placeholder="https://maps.app.goo.gl/...">
+        </div>
+        <small style="color:#B45A2A;">留空＝隱藏該按鈕；改完請按「儲存所有設定」</small>
       </div>
     </details>
 
@@ -645,6 +706,8 @@ textarea{border-radius:28px;min-height:80px}
     holidaySlots:['10:30','11:30','12:30'],
     dailyCutoff:'',
     googleSheetUrl:"https://script.google.com/macros/s/AKfycbzCHY_0pNufKWEBTiXUZ4-oLHNEeuHqv7w4EC9bRyS6J-FM0ac5VutFCM08fZDGU3m4/exec",
+    instagramUrl:"https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr",
+    mapUrl:"https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic",
     visibleFields:{email:true,name:true,gender:true,service:true},
     requiredFields:{email:true,name:true,gender:true,service:true},
     allowDuplicate:{email:false,name:true,gender:true,service:true},
@@ -776,6 +839,8 @@ textarea{border-radius:28px;min-height:80px}
         if(!Array.isArray(config.holidaySlots)) config.holidaySlots=['10:30','11:30','12:30'];
         if(config.dailyCutoff===undefined) config.dailyCutoff='';
         if(config.googleSheetUrl===undefined) config.googleSheetUrl='';
+        if(config.instagramUrl===undefined) config.instagramUrl='https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr';
+        if(config.mapUrl===undefined) config.mapUrl='https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic';
         if(config.maxPerDevicePerDay===undefined) config.maxPerDevicePerDay=2;
         if(config.maxPerEmailPerDay===undefined) config.maxPerEmailPerDay=1;
         if(config.submitCooldownSec===undefined) config.submitCooldownSec=30;
@@ -939,6 +1004,13 @@ textarea{border-radius:28px;min-height:80px}
   const FIELDS=['email','name','gender','service'];
   const FIELD_DEFAULT={email:'Email',name:'姓名',gender:'性別',service:'服務項目'};
 
+  function applySocialLinks(){
+    const ig=document.getElementById('igLink'), map=document.getElementById('mapLink');
+    const iu=(config.instagramUrl||'').trim(), mu=(config.mapUrl||'').trim();
+    if(ig){ if(iu){ ig.href=iu; ig.style.display=''; } else { ig.style.display='none'; } }
+    if(map){ if(mu){ map.href=mu; map.style.display=''; } else { map.style.display='none'; } }
+  }
+
   function applyFieldSettings(){
     FIELDS.forEach(f=>{
       const group=document.getElementById('group-'+f);
@@ -953,6 +1025,7 @@ textarea{border-radius:28px;min-height:80px}
     });
     renderConfirmBoxes();
     document.getElementById('bookingNoticeContent').innerHTML=(config.notice||'').replace(/\n/g,'<br>');
+    applySocialLinks();
   }
 
   const PAGE_TYPE='normal';
@@ -1805,6 +1878,8 @@ textarea{border-radius:28px;min-height:80px}
     document.getElementById('staffCanEditDefault').checked=!!config.staffCanEditDefault;
     document.getElementById('dailyCutoff').value=config.dailyCutoff||'';
     document.getElementById('googleSheetUrl').value=config.googleSheetUrl||'';
+    document.getElementById('instagramUrl').value=config.instagramUrl||'';
+    document.getElementById('mapUrl').value=config.mapUrl||'';
     await loadShadowMarks();
     renderAdminCalendar(); showDateDetail(null); renderTables(); renderSuspiciousTable(); renderShadowCalendar();
     renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
@@ -1874,6 +1949,8 @@ textarea{border-radius:28px;min-height:80px}
     config.staffCanEditDefault=document.getElementById('staffCanEditDefault').checked;
     config.dailyCutoff=document.getElementById('dailyCutoff').value.trim();
     config.googleSheetUrl=document.getElementById('googleSheetUrl').value.trim();
+    config.instagramUrl=document.getElementById('instagramUrl').value.trim();
+    config.mapUrl=document.getElementById('mapUrl').value.trim();
     config.shadowMarks=shadowMarks;
 
     if(await updateConfig(config)){
@@ -1932,6 +2009,26 @@ textarea{border-radius:28px;min-height:80px}
       div.innerText='已同步 '+n+' 筆狀態改動（共讀取 '+rows.length+' 筆）';
     });
   });
+
+  /* ===== 夜間模式（只記在本機，不影響任何預約資料） ===== */
+  const THEME_KEY='hwThemeMode';
+  function applyTheme(mode){
+    const dark=(mode==='dark');
+    document.body.classList.toggle('dark',dark);
+    const btn=document.getElementById('themeToggle');
+    if(btn) btn.textContent=dark?'日間模式':'夜間模式';
+    if(window.Chart){ try{ Chart.defaults.color=dark?'#B9C2CC':'#5B4A3A'; }catch(e){} }
+  }
+  applyTheme(localStorage.getItem(THEME_KEY)||'light');
+  (function(){
+    const btn=document.getElementById('themeToggle');
+    if(!btn) return;
+    btn.addEventListener('click',function(){
+      const next=(localStorage.getItem(THEME_KEY)==='dark')?'light':'dark';
+      localStorage.setItem(THEME_KEY,next);
+      applyTheme(next);
+    });
+  })();
 
   (async function init(){    await auth.signInAnonymously();
     await fetchConfig();

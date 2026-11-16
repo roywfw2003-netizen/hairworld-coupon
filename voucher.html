@@ -509,6 +509,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     <details class="settings-section" id="section-theme">
       <summary>底色與介面顏色</summary>
       <div class="section-content">
+        <h4 style="margin-top:12px;">① 主頁面／優惠券版</h4>
         <div class="form-group" style="margin:10px 0 0;">
           <label>底色圖選擇</label>
           <select id="bgPhotoSelect">
@@ -518,8 +519,37 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
           </select>
         </div>
         <div class="form-group">
-          <label>按鈕底色透明度：<span id="surfaceAlphaVal">90%</span></label>
+          <label>按鈕／文字框底色透明度：<span id="surfaceAlphaVal">90%</span></label>
           <input type="range" id="surfaceAlpha" class="hw-range" min="0" max="100" step="5" value="90">
+        </div>
+
+        <h4>② 員工頁面（staff-tablet.html）獨立設定</h4>
+        <div class="form-group" style="margin:10px 0 0;">
+          <label>員工頁底色圖</label>
+          <select id="staffBgPhotoSelect">
+            <option value="0">沒有（純色底）</option>
+            <option value="1">一（理髮椅）</option>
+            <option value="2">二（店面全景）</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>員工頁按鈕／框底色透明度：<span id="staffSurfaceAlphaVal">90%</span></label>
+          <input type="range" id="staffSurfaceAlpha" class="hw-range" min="0" max="100" step="5" value="90">
+        </div>
+        <small style="color:#B45A2A;">①與②互不影響；改①不會動到員工頁，反之亦然</small>
+
+        <h4>③ 管理員頁面（這個後台本身）</h4>
+        <div class="form-group" style="margin:10px 0 0;">
+          <label>管理員頁底色圖</label>
+          <select id="adminBgPhotoSelect">
+            <option value="none">沒有（純色底）</option>
+            <option value="1">一（理髮椅）</option>
+            <option value="2">二（店面全景）</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>管理員頁按鈕／框底色透明度：<span id="adminSurfaceAlphaVal">90%</span></label>
+          <input type="range" id="adminSurfaceAlpha" class="hw-range" min="0" max="100" step="5" value="90">
         </div>
         <small style="color:#B45A2A;">透明度越低＝底圖越明顯；改完按「儲存所有設定」</small>
       </div>
@@ -830,6 +860,10 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     instagramUrl:"https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr",
     mapUrl:"https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic",
     bgPhoto:"none",
+    pageBg:"0",
+    pageBgAlpha:90,
+    adminBgPhoto:"none",
+    adminSurfaceAlpha:90,
     noticeEn:"• Each guest may hold only one active booking.\n• Bookings cannot be changed or cancelled within 2 hours of the slot.\n• Booking only spreads the flow; you still queue in the shop.",
     parentNoticeEn:"• Each guest may hold only one active booking.\n• Bookings cannot be changed or cancelled within 2 hours of the slot.\n• Proof must be shown when using a voucher.",
     voucherInfoEn:"• This page is for guests who have bought the $20 voucher.\n• Show your voucher on arrival (digital or paper).\n• Vouchers can be stored at the shop; tell the staff when you use one.\n• Each guest may hold only one active booking at a time.",
@@ -1025,6 +1059,10 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         if(config.mapUrl===undefined) config.mapUrl='https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic';
         if(config.bgPhoto===undefined) config.bgPhoto='none';
         if(config.surfaceAlpha===undefined) config.surfaceAlpha=90;
+        if(config.pageBg===undefined) config.pageBg='0';
+        if(config.pageBgAlpha===undefined) config.pageBgAlpha=90;
+        if(config.adminBgPhoto===undefined) config.adminBgPhoto='none';
+        if(config.adminSurfaceAlpha===undefined) config.adminSurfaceAlpha=90;
         if(config.langEnabled===undefined) config.langEnabled=true;
         if(!config.langDict||typeof config.langDict!=="object") config.langDict={};
         if(config.maxPerDevicePerDay===undefined) config.maxPerDevicePerDay=2;
@@ -1195,26 +1233,51 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(map){ if(mu){ map.href=mu; map.style.display=''; } else { map.style.display='none'; } }
   }
 
+  let ADMIN_MODE=false;
   function applyBackground(){
-    const sel=config.bgPhoto||'none';
-    const alpha=(config.surfaceAlpha===undefined?90:Number(config.surfaceAlpha))/100;
+    const mainSel=config.bgPhoto||'none';
+    const mainAlpha=(config.surfaceAlpha===undefined?90:Number(config.surfaceAlpha))/100;
+    const adSel=config.adminBgPhoto||'none';
+    const adAlpha=(config.adminSurfaceAlpha===undefined?90:Number(config.adminSurfaceAlpha))/100;
+    const sel=ADMIN_MODE?adSel:mainSel;
+    const alpha=ADMIN_MODE?adAlpha:mainAlpha;
     document.body.classList.toggle('hw-bg1', sel==='1');
     document.body.classList.toggle('hw-bg2', sel==='2');
     document.body.classList.toggle('hw-photo', sel==='1'||sel==='2');
     document.body.style.setProperty('--hw-surf', String(alpha));
     const lab=document.getElementById('surfaceAlphaVal');
-    if(lab) lab.textContent=Math.round(alpha*100)+'%';
+    if(lab) lab.textContent=Math.round(mainAlpha*100)+'%';
+    const lab2=document.getElementById('adminSurfaceAlphaVal');
+    if(lab2) lab2.textContent=Math.round(adAlpha*100)+'%';
   }
   (function(){
     const b=document.getElementById('bgPhotoSelect');
     if(b) b.addEventListener('change',function(){ config.bgPhoto=this.value; applyBackground(); });
+    const a=document.getElementById('adminBgPhotoSelect');
+    if(a) a.addEventListener('change',function(){ config.adminBgPhoto=this.value; applyBackground(); });
+    const st=document.getElementById('staffBgPhotoSelect');
+    if(st) st.addEventListener('change',function(){ config.pageBg=this.value; });
   })();
   (function(){
     const r=document.getElementById('surfaceAlpha');
     if(r) r.addEventListener('input',function(){
       const lab=document.getElementById('surfaceAlphaVal');
       if(lab) lab.textContent=this.value+'%';
-      document.body.style.setProperty('--hw-surf', String(Number(this.value)/100));
+      config.surfaceAlpha=Number(this.value);
+      if(!ADMIN_MODE) document.body.style.setProperty('--hw-surf', String(Number(this.value)/100));
+    });
+    const a=document.getElementById('adminSurfaceAlpha');
+    if(a) a.addEventListener('input',function(){
+      const lab=document.getElementById('adminSurfaceAlphaVal');
+      if(lab) lab.textContent=this.value+'%';
+      config.adminSurfaceAlpha=Number(this.value);
+      if(ADMIN_MODE) document.body.style.setProperty('--hw-surf', String(Number(this.value)/100));
+    });
+    const st=document.getElementById('staffSurfaceAlpha');
+    if(st) st.addEventListener('input',function(){
+      const lab=document.getElementById('staffSurfaceAlphaVal');
+      if(lab) lab.textContent=this.value+'%';
+      config.pageBgAlpha=Number(this.value);
     });
   })();
 
@@ -2540,6 +2603,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(!(await authRole('admin', document.getElementById('adminPass').value))) return;
     document.getElementById('bookingPage').classList.add('hidden');
     document.getElementById('calendarPage').classList.remove('hidden');
+    ADMIN_MODE=true; applyBackground();
     await fetchAllBookings();
     renderFieldSettings(); renderOptionSettings(); renderBarbersSettings(); renderTimeSlotSettings();
     document.getElementById('noticeText').value=config.notice||'';
@@ -2566,7 +2630,12 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     document.getElementById('mapUrl').value=config.mapUrl||'';
     document.getElementById('bgPhotoSelect').value=config.bgPhoto||'none';
     document.getElementById('surfaceAlpha').value=(config.surfaceAlpha===undefined?90:config.surfaceAlpha);
-    applyBackground();
+    document.getElementById('staffBgPhotoSelect').value=String(config.pageBg===undefined?'0':config.pageBg);
+    document.getElementById('staffSurfaceAlpha').value=(config.pageBgAlpha===undefined?90:config.pageBgAlpha);
+    document.getElementById('staffSurfaceAlphaVal').textContent=(config.pageBgAlpha===undefined?90:config.pageBgAlpha)+'%';
+    document.getElementById('adminBgPhotoSelect').value=config.adminBgPhoto||'none';
+    document.getElementById('adminSurfaceAlpha').value=(config.adminSurfaceAlpha===undefined?90:config.adminSurfaceAlpha);
+    ADMIN_MODE=true; applyBackground();
     renderLangSettings();
     await loadShadowMarks();
     renderAdminCalendar(); showDateDetail(null); renderTables(); renderSuspiciousTable(); renderShadowCalendar();
@@ -2585,6 +2654,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   document.getElementById('backToBookingBtn').addEventListener('click',function(){
     document.getElementById('calendarPage').classList.add('hidden');
     document.getElementById('bookingPage').classList.remove('hidden');
+    ADMIN_MODE=false; applyBackground();
   });
 
   document.getElementById('cleanOldNoShow').addEventListener('click',async function(){
@@ -2639,6 +2709,10 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     config.mapUrl=document.getElementById('mapUrl').value.trim();
     config.bgPhoto=document.getElementById('bgPhotoSelect').value;
     config.surfaceAlpha=Number(document.getElementById('surfaceAlpha').value);
+    config.pageBg=document.getElementById('staffBgPhotoSelect').value;
+    config.pageBgAlpha=Number(document.getElementById('staffSurfaceAlpha').value);
+    config.adminBgPhoto=document.getElementById('adminBgPhotoSelect').value;
+    config.adminSurfaceAlpha=Number(document.getElementById('adminSurfaceAlpha').value);
     config.langEnabled=document.getElementById('langEnabled').checked;
     const __ld={};
     document.querySelectorAll('#langTableBody .lang-en-input').forEach(function(inp){ if(inp.dataset.zh) __ld[inp.dataset.zh]=inp.value; });

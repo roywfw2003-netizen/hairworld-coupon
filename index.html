@@ -145,6 +145,9 @@ textarea{border-radius:28px;min-height:80px}
 .barber-selector{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
 .barber-selector label{font-size:13px;margin:0;display:flex;align-items:center;gap:3px}
 .barber-selector input[type=radio]{width:auto;margin:0}
+.barber-chip{background:#fff;color:#B04400;border:1.5px solid #FFB985;border-radius:20px;padding:5px 14px;font-size:13px;font-weight:600;cursor:pointer;line-height:1.5;transition:all .15s;box-sizing:border-box}
+.barber-chip:hover{background:#FFF2E3}
+.barber-chip.active{background:#F25C0A;color:#fff;border-color:#F25C0A;box-shadow:0 3px 8px rgba(242,92,10,.25)}
 .list-header{display:flex;justify-content:space-between;font-weight:bold;padding:5px 0;border-bottom:1px solid #FFB985;margin-bottom:5px;font-size:12px;color:#B04400}
 .list-header span{flex:1}
 .stats-container{margin-top:20px;padding:15px;background:#fff;border-radius:28px;border:2px solid #F25C0A}
@@ -621,6 +624,7 @@ textarea{border-radius:28px;min-height:80px}
   });
 
   let bookings=[], normalBookings=[], voucherBookings=[];
+  let barberPicks={};
 
   let config={
     barbers:['師傅A','師傅B','師傅C','師傅D'],
@@ -1421,7 +1425,11 @@ textarea{border-radius:28px;min-height:80px}
     showFeedback('已取消您的預約，請重新選擇',false);
   }
   document.getElementById('modifyBookingBtn').addEventListener('click',function(){
-    performModify(document.getElementById('email').value.trim(), document.getElementById('name').value.trim());
+    const formEmail=document.getElementById('email').value.trim();
+    const lastEmail=localStorage.getItem('hwLastEmail')||'';
+    const input=prompt('請輸入預約時使用的 Email', formEmail||lastEmail||'');
+    if(input===null) return;
+    performModify(input.trim(), document.getElementById('name').value.trim());
   });
 
   let submitting=false;
@@ -1458,6 +1466,8 @@ textarea{border-radius:28px;min-height:80px}
       }
     }
 
+    showFeedback('提交預約中，請稍候約5秒...',false);
+
     const lastSubmit=parseInt(localStorage.getItem('hwLastSubmit')||'0',10);
     const cooldownMs=(Number(config.submitCooldownSec)||30)*1000;
     if(!isTestDevice() && Date.now()-lastSubmit<cooldownMs){ showFeedback('提交太頻密，請 '+Math.ceil(cooldownMs/1000)+' 秒後再試'); return; }
@@ -1484,6 +1494,7 @@ textarea{border-radius:28px;min-height:80px}
     const result=await createBooking({email,name,gender,service,date,time},'normal');
 
     if(result.success){
+      localStorage.setItem('hwLastEmail',email);
       showFeedback('系統處理中，請稍候約5秒...',false);
       setTimeout(()=>{
         showFeedback('預約成功！',false);
@@ -1525,7 +1536,7 @@ textarea{border-radius:28px;min-height:80px}
     const pendBox=document.getElementById('studentPendingList');
     pendBox.innerHTML=pendN.length?'' : '<div style="padding:10px;text-align:center;">無一般預約</div>';
     pendN.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
-      const radios=config.barbers.map(x=>`<label><input type="radio" name="barber_n_${b.id}" value="${x}"> ${x}</label>`).join('');
+      const radios=config.barbers.map(x=>`<button type="button" class="barber-chip" data-booking="${b.id}" data-value="${x}">${x}</button>`).join('');
       const div=document.createElement('div'); div.className='record-item';
       div.innerHTML=`<input type="checkbox" class="batch-chk" data-scope="studentPendingList" data-id="${b.id}"><div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''}${b.email?'<br>'+b.email:''}</div>
         <div class="barber-selector">${radios}</div>
@@ -1539,7 +1550,7 @@ textarea{border-radius:28px;min-height:80px}
     const pvBox=document.getElementById('parentPendingList');
     pvBox.innerHTML=pendV.length?'' : '<div style="padding:10px;text-align:center;">無優惠券預約</div>';
     pendV.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(b=>{
-      const radios=config.barbers.map(x=>`<label><input type="radio" name="barber_v_${b.id}" value="${x}"> ${x}</label>`).join('');
+      const radios=config.barbers.map(x=>`<button type="button" class="barber-chip" data-booking="${b.id}" data-value="${x}">${x}</button>`).join('');
       const div=document.createElement('div'); div.className='record-item';
       div.innerHTML=`<input type="checkbox" class="batch-chk" data-scope="parentPendingList" data-id="${b.id}"><div class="record-info">${b.time} ${b.name||''} ${b.gender||''}／${b.service||''} ［優惠券］</div>
         <div class="barber-selector">${radios}</div>
@@ -1663,17 +1674,26 @@ textarea{border-radius:28px;min-height:80px}
       await fetchAllBookings(); renderAdminCalendar(); renderTables(); showDateDetail(item.dataset.date);
       return;
     }
+    if(t.classList.contains('barber-chip')){
+      const bid=t.dataset.booking, val=t.dataset.value;
+      barberPicks[bid]=val;
+      const box=t.closest('.barber-selector');
+      if(box){ box.querySelectorAll('.barber-chip').forEach(function(x){ x.classList.toggle('active', x===t); }); }
+      return;
+    }
     if(t.classList.contains('mark-processing')){
-      const sel=document.querySelector(`input[name="barber_${t.dataset.type==='normal'?'n':'v'}_${t.dataset.id}"]:checked`);
-      if(!sel){ alert('請選擇一位師傅'); return; }
-      await updateBookingStatus(t.dataset.id,'processing',{barber:sel.value});
+      const pick=barberPicks[t.dataset.id];
+      if(!pick){ alert('請先點選師傅名字'); return; }
+      delete barberPicks[t.dataset.id];
+      await updateBookingStatus(t.dataset.id,'processing',{barber:pick});
       await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
       return;
     }
     if(t.classList.contains('mark-parent-complete')){
-      const sel=document.querySelector(`input[name="barber_v_${t.dataset.id}"]:checked`);
-      if(!sel){ alert('請選擇一位師傅'); return; }
-      await updateBookingStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),barber:sel.value,voucherPurchased:false});
+      const pick=barberPicks[t.dataset.id];
+      if(!pick){ alert('請先點選師傅名字'); return; }
+      delete barberPicks[t.dataset.id];
+      await updateBookingStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString(),barber:pick,voucherPurchased:false});
       await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
       return;
     }

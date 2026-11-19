@@ -325,6 +325,19 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         <div class="chip-group" id="serviceChips"></div>
       </div>
 
+      <div class="form-group" id="group-voucherCode">
+        <label id="label-voucherCode">優惠券號碼</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="voucherPrefix" style="max-width:110px;"></select>
+          <input type="text" id="voucherNumber" inputmode="numeric" placeholder="號碼" style="flex:1;">
+        </div>
+        <div class="note" id="voucherCodeNote"></div>
+      </div>
+      <div class="form-group" id="group-phone">
+        <label id="label-phone">電話號碼</label>
+        <input type="tel" id="phone" placeholder="例如 9123 4567">
+      </div>
+
       <div class="student-calendar">
         <div class="cal-title"><span>預約人數</span><div class="help-icon" title="紅色數字為管理員設定的影子標記或當日預約人數">?</div></div>
         <div class="cal-header"><h4 id="studentCalMonthYear"></h4><div class="cal-nav"><button type="button" id="studentPrevMonth">←</button><button type="button" id="studentNextMonth">→</button></div></div>
@@ -417,6 +430,16 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     <details class="settings-section" id="section-field" open>
       <summary>欄位顯示、必填、可重複與記錄開關</summary>
       <div class="section-content"><div id="fieldSettingsContainer"></div></div>
+    </details>
+
+    <details class="settings-section" id="section-vouchercodes">
+      <summary>優惠券號碼管理</summary>
+      <div class="section-content">
+        <p style="font-size:13px;color:#B45A2A;line-height:1.6;margin-bottom:8px;">每行三格：<strong>前綴</strong> / <strong>起始號碼</strong> / <strong>結束號碼</strong>，勾「顯示」＝客人可在預約頁選用該前綴。<br>例如 A / 1 / 1000 → 可填 A1 至 A1000。可新增多行。</p>
+        <div id="voucherRulesContainer"></div>
+        <button type="button" class="btn-small" id="addVoucherRule" style="margin-top:8px;">＋ 新增一行</button>
+        <small style="color:#B45A2A;display:block;margin-top:6px;">改完按「儲存所有設定」</small>
+      </div>
     </details>
 
     <details class="settings-section" id="section-options">
@@ -833,6 +856,15 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   let bookings=[], normalBookings=[], voucherBookings=[];
   let barberPicks={};
 
+  /* 每個頁面各自一套欄位設定：index 用 config.visibleFields…；voucher 用 config.voucherVisibleFields… */
+  const VARIANT='index';
+  function FC(name){
+    if(VARIANT!=='voucher') return config[name];
+    const k='voucher'+name.charAt(0).toUpperCase()+name.slice(1);
+    if(!config[k]||typeof config[k]!=='object') config[k]=JSON.parse(JSON.stringify(config[name]||{}));
+    return config[k];
+  }
+  function pageTag(){ return VARIANT==='voucher'?'優惠券版':'主頁'; }
   let config={
     barbers:['師傅A','師傅B','師傅C','師傅D'],
     genders:['男','女'],
@@ -850,7 +882,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     weekdaySlots:['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'],
     holidaySlots:['10:30','11:30','12:30'],
     dailyCutoff:'',
-    googleSheetUrl:"https://script.google.com/macros/s/AKfycbwlg8XBKhiGEhQmeLXH2X7Jd6iADbzcERdDET0-ZbITVdwzRPGYvPrQzQyfqDjPHOLI/exec",
+    googleSheetUrl:"https://script.google.com/macros/s/AKfycbzBLSOJ5SVb8Qn5PeBj_9ujQfVo19LvyAuFV5tJLejQGuR9r21y2OvU78qWFwfvnnNq/exec",
     instagramUrl:"https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr",
     mapUrl:"https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic",
     bgPhoto:"none",
@@ -866,14 +898,25 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     surfaceAlpha:90,
     langEnabled:true,
     langDict:{},
-    visibleFields:{email:true,name:true,gender:true,service:true},
-    requiredFields:{email:true,name:true,gender:true,service:true},
-    allowDuplicate:{email:false,name:true,gender:true,service:true},
-    fieldLabels:{email:"Email",name:"姓名",gender:"性別",service:"服務項目"},
+    visibleFields:{email:true,name:true,gender:true,service:true,voucherCode:true,phone:true},
+    requiredFields:{email:true,name:true,gender:true,service:true,voucherCode:true,phone:false},
+    allowDuplicate:{email:false,name:false,gender:true,service:true,voucherCode:false,phone:false},
+    fieldLabels:{email:"Email",name:"姓名",gender:"性別",service:"服務項目",voucherCode:"優惠券號碼",phone:"電話號碼"},
+    voucherCodeRules:[{prefix:"A",from:1,to:1000,show:true}],
     confirmBoxes:[{label:"確定已截圖預約記錄",note:"",labelEn:"I have screenshotted my booking record",noteEn:""},{label:"我已準時到店",note:"(請準時到達，逾時可能需重新輪候)",labelEn:"I will arrive on time",noteEn:"(Please arrive on time; arriving late may mean re-queuing)"}],
     voucherConfirmBoxes:[{label:"確定已使用優惠券預約",note:"",labelEn:"I am booking with my $20 voucher",noteEn:""},{label:"我已準備好出示優惠券核對",note:"(需出示優惠券核對)",labelEn:"I am ready to show my voucher",noteEn:"(Voucher must be shown for checking)"}],
-    showInRecords:{email:true,name:true,gender:true,service:true,barber:true}
+    showInRecords:{email:true,name:true,gender:true,service:true,barber:true,voucherCode:true,phone:true}
   };
+  if(VARIANT==='voucher'){
+    config.voucherVisibleFields={email:true,name:true,gender:true,service:true,voucherCode:false,phone:true};
+    config.voucherRequiredFields={email:true,name:true,gender:true,service:true,voucherCode:false,phone:false};
+    config.voucherAllowDuplicate={email:false,name:false,gender:true,service:true,voucherCode:false,phone:false};
+    config.voucherFieldLabels={email:"Email",name:"姓名",gender:"性別",service:"服務項目",voucherCode:"優惠券號碼",phone:"電話號碼"};
+    config.voucherShowInRecords={email:true,name:true,gender:true,service:true,barber:true,voucherCode:false,phone:true};
+  } else {
+    config.visibleFields.name=false;
+    config.requiredFields.name=false;
+  }
   let staffCanEditDefault=config.staffCanEditDefault,
       staffEditMode=false;
 
@@ -952,6 +995,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     o=o||{};
     function nz(v){ return (v===null)?null:(v===undefined?'':v); }
     return {id:o.id||'',type:normalizeType(o.type),email:nz(o.email),name:nz(o.name),gender:nz(o.gender),service:nz(o.service),
+      voucherCode:nz(o.voucherCode),phone:nz(o.phone),
       barber:nz(o.barber),date:nz(o.date),time:nz(o.time),status:nz(o.status||'pending'),
       voucherPurchased:!!o.voucherPurchased,createdAt:nz(o.createdAt),completedAt:nz(o.completedAt),
       noShowAt:nz(o.noShowAt),updatedAt:nz(o.updatedAt),source:nz(o.source)};
@@ -1012,7 +1056,38 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         const LB={email:"Email",name:"姓名",gender:"性別",service:"服務項目"};
         ['email','name','gender','service'].forEach(k=>{ if(!config.fieldLabels[k]) config.fieldLabels[k]=LB[k]; });
         if(!config.showInRecords) config.showInRecords={email:true,name:true,gender:true,service:true,barber:true};
-        ['email','name','gender','service','barber'].forEach(k=>{ if(config.showInRecords[k]===undefined) config.showInRecords[k]=true; });
+        (function(){
+          const ALLF=['email','name','gender','service','voucherCode','phone'];
+          const LB2={email:"Email",name:"姓名",gender:"性別",service:"服務項目",voucherCode:"優惠券號碼",phone:"電話號碼"};
+          const DEF={visibleFields:{email:true,name:true,gender:true,service:true,voucherCode:true,phone:true},
+                     requiredFields:{email:true,name:true,gender:true,service:true,voucherCode:false,phone:false},
+                     allowDuplicate:{email:false,name:false,gender:true,service:true,voucherCode:false,phone:false},
+                     showInRecords:{email:true,name:true,gender:true,service:true,barber:true,voucherCode:true,phone:true},
+                     fieldLabels:{}};
+          const sets=['visibleFields','requiredFields','allowDuplicate','showInRecords','fieldLabels'];
+          function norm(obj,defName){
+            if(!obj||typeof obj!=='object') obj={};
+            ALLF.forEach(function(f){ if(obj[f]===undefined) obj[f]=DEF[defName][f]; });
+            if(obj.barber===undefined) obj.barber=true;
+            return obj;
+          }
+          config.visibleFields=norm(config.visibleFields,'visibleFields');
+          config.requiredFields=norm(config.requiredFields,'requiredFields');
+          config.allowDuplicate=norm(config.allowDuplicate,'allowDuplicate');
+          config.showInRecords=norm(config.showInRecords,'showInRecords');
+          if(!config.fieldLabels||typeof config.fieldLabels!=='object') config.fieldLabels={};
+          ALLF.forEach(function(f){ if(!config.fieldLabels[f]) config.fieldLabels[f]=LB2[f]; });
+          if(VARIANT==='voucher'){
+            config.voucherVisibleFields=norm(config.voucherVisibleFields,'visibleFields');
+            config.voucherRequiredFields=norm(config.voucherRequiredFields,'requiredFields');
+            config.voucherAllowDuplicate=norm(config.voucherAllowDuplicate,'allowDuplicate');
+            config.voucherShowInRecords=norm(config.voucherShowInRecords,'showInRecords');
+            if(!config.voucherFieldLabels||typeof config.voucherFieldLabels!=='object') config.voucherFieldLabels={};
+            ALLF.forEach(function(f){ if(!config.voucherFieldLabels[f]) config.voucherFieldLabels[f]=LB2[f]; });
+          }
+          if(!Array.isArray(config.voucherCodeRules)||!config.voucherCodeRules.length)
+            config.voucherCodeRules=[{prefix:'A',from:1,to:1000,show:true}];
+        })();
         if(!Array.isArray(config.confirmBoxes)||!config.confirmBoxes.length)
           config.confirmBoxes=[{label:config.screenshotLabel||'確定已截圖預約記錄',note:''},{label:config.studentCardLabel||'我已準時到店',note:config.cardNoteLabel||''}];
         if(config.confirmBoxes.some(c=>c&&(hasLegacy(c.label)||hasLegacy(c.note||'')))){
@@ -1047,8 +1122,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         if(!Array.isArray(config.weekdaySlots)) config.weekdaySlots=['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'];
         if(!Array.isArray(config.holidaySlots)) config.holidaySlots=['10:30','11:30','12:30'];
         if(config.dailyCutoff===undefined) config.dailyCutoff='';
-        if(config.googleSheetUrl===undefined) config.googleSheetUrl='https://script.google.com/macros/s/AKfycbwlg8XBKhiGEhQmeLXH2X7Jd6iADbzcERdDET0-ZbITVdwzRPGYvPrQzQyfqDjPHOLI/exec';
-                if(config.googleSheetUrl && (config.googleSheetUrl.indexOf('AKfycbzCHY_0pNufKWEBTiXUZ4')>=0 || config.googleSheetUrl.indexOf('AKfycbxq27SZWedI9ulZKrmNAldImHw2GmSIGrEtcfJPcoHg25QY')>=0 || config.googleSheetUrl.indexOf('AKfycbwSHHBO6gH1H2tKJ-QkvrXBAMQfplZHpyTVFiD6prSYuMrJkqojOAaNVFrJSD66M8a1')>=0)){ config.googleSheetUrl='https://script.google.com/macros/s/AKfycbwlg8XBKhiGEhQmeLXH2X7Jd6iADbzcERdDET0-ZbITVdwzRPGYvPrQzQyfqDjPHOLI/exec'; legacyFixed=true; }
+        if(config.googleSheetUrl===undefined) config.googleSheetUrl='https://script.google.com/macros/s/AKfycbzBLSOJ5SVb8Qn5PeBj_9ujQfVo19LvyAuFV5tJLejQGuR9r21y2OvU78qWFwfvnnNq/exec';
+                if(config.googleSheetUrl && (config.googleSheetUrl.indexOf('AKfycbwlg8XBKhi')>=0 || config.googleSheetUrl.indexOf('AKfycbzCHY_0pNufKWEBTiXUZ4')>=0 || config.googleSheetUrl.indexOf('AKfycbxq27SZWedI9ulZKrmNAldImHw2GmSIGrEtcfJPcoHg25QY')>=0 || config.googleSheetUrl.indexOf('AKfycbwSHHBO6gH1H2tKJ-QkvrXBAMQfplZHpyTVFiD6prSYuMrJkqojOAaNVFrJSD66M8a1')>=0)){ config.googleSheetUrl='https://script.google.com/macros/s/AKfycbzBLSOJ5SVb8Qn5PeBj_9ujQfVo19LvyAuFV5tJLejQGuR9r21y2OvU78qWFwfvnnNq/exec'; legacyFixed=true; }
         if(config.instagramUrl===undefined) config.instagramUrl='https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr';
         if(config.mapUrl===undefined) config.mapUrl='https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic';
         if(config.bgPhoto===undefined) config.bgPhoto='none';
@@ -1152,6 +1227,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         tx.set(slotRef,{date:booking.date,time:booking.time,type:type,status:'pending',appointmentId:apptRef.id,email:booking.email||'',name:booking.name||'',createdAt:nowIso});
         tx.set(dayRef,{times:times.concat([booking.time]),updatedAt:nowIso},{merge:true});
         tx.set(apptRef,{email:booking.email||'',name:booking.name||'',gender:booking.gender||'',service:booking.service||'',
+          voucherCode:booking.voucherCode||'',phone:booking.phone||'',
           date:booking.date,time:booking.time,status:'pending',type:type,voucherPurchased:false,
           createdAt:nowIso,updatedAt:nowIso,deviceId:deviceId,authUid:(auth.currentUser&&auth.currentUser.uid)||''});
       });
@@ -1160,7 +1236,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       daySlotsCache[booking.date]={times:cur.concat([booking.time]),ts:0};
       availabilityCache.delete(booking.date);
       addActivity(booking);
-      gsPost({action:'upsert',record:gsRecord({id:apptRef.id,type:type,email:booking.email,name:booking.name,gender:booking.gender,service:booking.service,date:booking.date,time:booking.time,status:'pending',voucherPurchased:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),source:'online'})});
+      gsPost({action:'upsert',record:gsRecord({id:apptRef.id,type:type,email:booking.email,name:booking.name,gender:booking.gender,service:booking.service,voucherCode:booking.voucherCode||'',phone:booking.phone||'',date:booking.date,time:booking.time,status:'pending',voucherPurchased:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),source:'online'})});
       return {success:true,id:apptRef.id};
     }catch(e){ console.error('建立預約失敗',e); return {success:false,error:e.message}; }
   }
@@ -1216,8 +1292,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     }
   }
 
-  const FIELDS=['email','name','gender','service'];
-  const FIELD_DEFAULT={email:'Email',name:'姓名',gender:'性別',service:'服務項目'};
+  const FIELDS=['email','name','gender','service','voucherCode','phone'];
+  const FIELD_DEFAULT={email:'Email',name:'姓名',gender:'性別',service:'服務項目',voucherCode:'優惠券號碼',phone:'電話號碼'};
 
   function applySocialLinks(){
     const ig=document.getElementById('igLink'), map=document.getElementById('mapLink');
@@ -1715,15 +1791,18 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   function applyFieldSettings(){
     FIELDS.forEach(f=>{
       const group=document.getElementById('group-'+f);
-      if(group) group.style.display=config.visibleFields[f]?'block':'none';
+      if(group) group.style.display=FC('visibleFields')[f]?'block':'none';
       const label=document.getElementById('label-'+f);
       if(label){
-        label.textContent=config.fieldLabels[f]||FIELD_DEFAULT[f];
-        label.classList.toggle('required', !!(config.visibleFields[f]&&config.requiredFields[f]));
+        label.textContent=FC('fieldLabels')[f]||FIELD_DEFAULT[f];
+        label.classList.toggle('required', !!(FC('visibleFields')[f]&&FC('requiredFields')[f]));
       }
       const input=document.getElementById(f);
-      if(input) input.required=!!(config.visibleFields[f]&&config.requiredFields[f]);
+      if(input) input.required=!!(FC('visibleFields')[f]&&FC('requiredFields')[f]);
     });
+    const vn=document.getElementById('voucherNumber');
+    if(vn) vn.required=!!(FC('visibleFields').voucherCode&&FC('requiredFields').voucherCode);
+    renderVoucherPrefix();
     renderConfirmBoxes();
     document.getElementById('bookingNoticeContent').innerHTML=noticeText().replace(/\n/g,'<br>');
     applySocialLinks();
@@ -1816,16 +1895,103 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(b) b.innerHTML='<option value="">請選擇師傅</option>'+config.barbers.map(v=>`<option value="${v}">${v}</option>`).join('');
   }
 
+  function renderVoucherRules(){
+    const box=document.getElementById('voucherRulesContainer');
+    if(!box) return;
+    if(!Array.isArray(config.voucherCodeRules)) config.voucherCodeRules=[];
+    const rules=config.voucherCodeRules;
+    box.innerHTML=rules.map(function(r,i){
+      return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">'+
+        '<input type="text" class="vr-prefix" data-i="'+i+'" value="'+(r.prefix||'')+'" placeholder="前綴" style="width:80px;">'+
+        '<input type="number" class="vr-from" data-i="'+i+'" value="'+(r.from===undefined?1:r.from)+'" placeholder="由" style="width:90px;">'+
+        '<input type="number" class="vr-to" data-i="'+i+'" value="'+(r.to===undefined?1000:r.to)+'" placeholder="到" style="width:90px;">'+
+        '<label style="display:inline-flex;gap:4px;align-items:center;"><input type="checkbox" class="vr-show" data-i="'+i+'" '+(r.show!==false?'checked':'')+'> 顯示</label>'+
+        '<button type="button" class="btn-small vr-del" data-i="'+i+'">刪除</button>'+
+      '</div>';
+    }).join('') || '<div style="color:#B45A2A;">（未設定任何券號）</div>';
+    box.querySelectorAll('.vr-prefix').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].prefix=this.value.trim().toUpperCase(); }); });
+    box.querySelectorAll('.vr-from').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].from=Number(this.value)||1; }); });
+    box.querySelectorAll('.vr-to').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].to=Number(this.value)||1000; }); });
+    box.querySelectorAll('.vr-show').forEach(function(el){ el.addEventListener('change',function(){ config.voucherCodeRules[this.dataset.i].show=this.checked; }); });
+    box.querySelectorAll('.vr-del').forEach(function(el){ el.addEventListener('click',function(){ config.voucherCodeRules.splice(Number(this.dataset.i),1); renderVoucherRules(); }); });
+  }
+  (function(){
+    document.addEventListener('DOMContentLoaded',function(){
+      const b=document.getElementById('addVoucherRule');
+      if(b) b.addEventListener('click',function(){
+        config.voucherCodeRules=config.voucherCodeRules||[];
+        config.voucherCodeRules.push({prefix:'',from:1,to:1000,show:true});
+        renderVoucherRules();
+      });
+    });
+  })();
+
+  function renderVoucherPrefix(){
+    const sel=document.getElementById('voucherPrefix');
+    if(!sel) return;
+    const rules=(config.voucherCodeRules||[]).filter(function(r){ return r&&r.show!==false&&r.prefix; });
+    const prev=sel.value;
+    sel.innerHTML=rules.length?rules.map(function(r){ return '<option value="'+r.prefix+'">'+r.prefix+'</option>'; }).join(''):'<option value="">—</option>';
+    if(prev&&rules.some(function(r){ return r.prefix===prev; })) sel.value=prev;
+    updateVoucherNote();
+  }
+  function updateVoucherNote(){
+    const sel=document.getElementById('voucherPrefix'), note=document.getElementById('voucherCodeNote');
+    if(!sel||!note) return;
+    const rules=(config.voucherCodeRules||[]);
+    const cur=rules.find(function(r){ return r.prefix===sel.value; });
+    note.textContent=cur?('可用範圍：'+cur.prefix+cur.from+' 至 '+cur.prefix+cur.to):'請輸入優惠券號碼';
+  }
+  (function(){
+    document.addEventListener('DOMContentLoaded',function(){
+      const sel=document.getElementById('voucherPrefix');
+      if(sel) sel.addEventListener('change',updateVoucherNote);
+    });
+  })();
+
+  async function checkVoucherCode(code){
+    const rules=config.voucherCodeRules||[];
+    const rule=rules.find(function(r){ return r.prefix&&code.indexOf(r.prefix)===0; });
+    if(!rule) return {ok:false,msg:'優惠券號碼格式不正確，請確認前綴'};
+    const num=parseInt(String(code).slice(rule.prefix.length),10);
+    if(!isFinite(num)||num<Number(rule.from)||num>Number(rule.to))
+      return {ok:false,msg:'此號碼不在可用範圍（'+rule.prefix+rule.from+' 至 '+rule.prefix+rule.to+'）'};
+    try{
+      const snap=await db.collection('appointments').where('voucherCode','==',code).get();
+      let used=false;
+      snap.forEach(function(doc){ if((doc.data().status||'')!=='cancelled') used=true; });
+      if(used) return {ok:false,msg:'此優惠券號碼（'+code+'）已使用過，不能重複使用'};
+    }catch(e){ console.error('券號檢查失敗',e); }
+    return {ok:true};
+  }
+
+  async function checkDuplicates(vals){
+    const pairs=[['email','Email'],['name','姓名'],['phone','電話號碼'],['voucherCode','優惠券號碼']];
+    try{
+      const snap=await db.collection('appointments').where('status','==','pending').get();
+      const list=[]; snap.forEach(function(doc){ list.push(doc.data()); });
+      for(const p of pairs){
+        const k=p[0], label=p[1];
+        if(!FC('visibleFields')[k]) continue;
+        if(FC('allowDuplicate')[k]) continue;
+        const v=String(vals[k]||'').trim(); if(!v) continue;
+        const hit=list.find(function(d){ return String(d[k]||'').trim().toLowerCase()===v.toLowerCase(); });
+        if(hit) return '已有相同'+label+'（'+v+'）的未完成預約，不能重複提交';
+      }
+    }catch(e){ console.error('重複檢查失敗',e); }
+    return '';
+  }
+
   function renderFieldSettings(){
     const box=document.getElementById('fieldSettingsContainer');
-    let html='';
+    let html='<div style="font-size:13px;color:#B45A2A;margin-bottom:8px;">目前設定的是 <strong>'+pageTag()+'</strong> 的欄位（只影響這一頁）</div>';
     FIELDS.forEach(f=>{
-      const visible=config.visibleFields[f]?'checked':'';
-      const required=config.requiredFields[f]?'checked':'';
-      const dup=config.allowDuplicate[f]?'checked':'';
-      const rec=config.showInRecords[f]?'checked':'';
+      const visible=FC('visibleFields')[f]?'checked':'';
+      const required=FC('requiredFields')[f]?'checked':'';
+      const dup=FC('allowDuplicate')[f]?'checked':'';
+      const rec=FC('showInRecords')[f]?'checked':'';
       html+=`<div class="field-setting-row" data-field="${f}">
-        <input type="text" class="label-input" data-field="${f}" value="${config.fieldLabels[f]||FIELD_DEFAULT[f]}">
+        <input type="text" class="label-input" data-field="${f}" value="${FC('fieldLabels')[f]||FIELD_DEFAULT[f]}">
         <label><input type="checkbox" class="visible-chk" data-field="${f}" ${visible}> 顯示</label>
         <label><input type="checkbox" class="required-chk" data-field="${f}" ${required} ${!visible?'disabled':''}> 必填</label>
         <label><input type="checkbox" class="allow-duplicate-chk" data-field="${f}" ${dup} ${!visible?'disabled':''}> 可重複</label>
@@ -1837,16 +2003,16 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     box.querySelectorAll('.visible-chk').forEach(c=>c.addEventListener('change',function(){
       const f=this.dataset.field, row=this.closest('.field-setting-row');
       const req=row.querySelector('.required-chk'), dup=row.querySelector('.allow-duplicate-chk');
-      config.visibleFields[f]=this.checked;
-      if(!this.checked){ config.requiredFields[f]=false; config.allowDuplicate[f]=false; req.checked=false; dup.checked=false; req.disabled=true; dup.disabled=true; }
+      FC('visibleFields')[f]=this.checked;
+      if(!this.checked){ FC('requiredFields')[f]=false; FC('allowDuplicate')[f]=false; req.checked=false; dup.checked=false; req.disabled=true; dup.disabled=true; }
       else { req.disabled=false; dup.disabled=false; }
     }));
-    box.querySelectorAll('.required-chk').forEach(c=>c.addEventListener('change',function(){ config.requiredFields[this.dataset.field]=this.checked; }));
-    box.querySelectorAll('.allow-duplicate-chk').forEach(c=>c.addEventListener('change',function(){ config.allowDuplicate[this.dataset.field]=this.checked; }));
-    box.querySelectorAll('.show-record-chk').forEach(c=>c.addEventListener('change',function(){ config.showInRecords[this.dataset.field]=this.checked; }));
+    box.querySelectorAll('.required-chk').forEach(c=>c.addEventListener('change',function(){ FC('requiredFields')[this.dataset.field]=this.checked; }));
+    box.querySelectorAll('.allow-duplicate-chk').forEach(c=>c.addEventListener('change',function(){ FC('allowDuplicate')[this.dataset.field]=this.checked; }));
+    box.querySelectorAll('.show-record-chk').forEach(c=>c.addEventListener('change',function(){ FC('showInRecords')[this.dataset.field]=this.checked; }));
     box.querySelectorAll('.label-input').forEach(inp=>inp.addEventListener('change',function(){
       const f=this.dataset.field, v=this.value.trim();
-      config.fieldLabels[f]=v||FIELD_DEFAULT[f];
+      FC('fieldLabels')[f]=v||FIELD_DEFAULT[f];
       this.value=config.fieldLabels[f];
       applyFieldSettings();
     }));
@@ -2065,6 +2231,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(rec.name) heads.push('姓名');
     if(rec.gender) heads.push('性別');
     if(rec.service) heads.push('服務');
+    if(rec.voucherCode) heads.push('優惠券號碼');
+    if(rec.phone) heads.push('電話');
     if(rec.barber) heads.push('師傅');
     heads.push('日期','時間');
     if(opts.action) heads.push('操作');
@@ -2076,7 +2244,10 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       if(rec.name) h+=`<td>${b.name||''}</td>`;
       if(rec.gender) h+=`<td>${escHtml(optLabel(b.gender)||'')}</td>`;
       if(rec.service) h+=`<td>${escHtml(optLabel(b.service)||'')}</td>`;
+      if(rec.voucherCode) h+=`<td>${b.voucherCode||''}</td>`;
+      if(rec.phone) h+=`<td>${b.phone||''}</td>`;
       if(rec.barber) h+=`<td>${b.barber||''}</td>`;
+      if(rec.phone) h+=`<td>${b.phone||''}</td>`;
       h+=`<td>${b.date||''}</td><td>${b.time||''}</td>`;
       if(opts.action){
         let acts='';
@@ -2251,14 +2422,24 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     const name=document.getElementById('name').value.trim();
     const gender=document.getElementById('gender').value;
     const service=document.getElementById('service').value;
+    const phone=(document.getElementById('phone')?document.getElementById('phone').value.trim():'');
+    const vPrefix=(document.getElementById('voucherPrefix')?document.getElementById('voucherPrefix').value:'');
+    const vNum=(document.getElementById('voucherNumber')?document.getElementById('voucherNumber').value.trim():'');
+    const voucherCode=(vPrefix&&vNum)?(vPrefix+vNum):'';
     const date=currentSelectedDate;
     const time=document.getElementById('timeSlot').value;
     const confirmBoxes=Array.from(document.querySelectorAll('#confirmBoxesContainer .confirm-chk'));
 
-    if(config.visibleFields.email&&config.requiredFields.email&&!email){ showFeedback('請填寫 Email'); return; }
-    if(config.visibleFields.name&&config.requiredFields.name&&!name){ showFeedback('請填寫姓名'); return; }
-    if(config.visibleFields.gender&&config.requiredFields.gender&&!gender){ showFeedback('請選擇性別'); return; }
-    if(config.visibleFields.service&&config.requiredFields.service&&!service){ showFeedback('請選擇服務項目'); return; }
+    if(FC('visibleFields').email&&FC('requiredFields').email&&!email){ showFeedback('請填寫 Email'); return; }
+    if(FC('visibleFields').name&&FC('requiredFields').name&&!name){ showFeedback('請填寫姓名'); return; }
+    if(FC('visibleFields').gender&&FC('requiredFields').gender&&!gender){ showFeedback('請選擇性別'); return; }
+    if(FC('visibleFields').service&&FC('requiredFields').service&&!service){ showFeedback('請選擇服務項目'); return; }
+    if(FC('visibleFields').phone&&FC('requiredFields').phone&&!phone){ showFeedback('請填寫電話號碼'); return; }
+    if(FC('visibleFields').voucherCode&&FC('requiredFields').voucherCode&&!voucherCode){ showFeedback('請填寫優惠券號碼'); return; }
+    if(voucherCode&&FC('visibleFields').voucherCode){
+      const vc=await checkVoucherCode(voucherCode);
+      if(!vc.ok){ showFeedback(vc.msg,true); return; }
+    }
     if(!date){ showFeedback('請選擇預約日期'); return; }
     if(!time){ showFeedback('請選擇預約時間'); return; }
     if(email&&!email.includes('@')){ showFeedback('請輸入有效的 Email'); return; }
@@ -2283,14 +2464,9 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(!isTestDevice() && Date.now()-lastSubmit<cooldownMs){ showFeedback('提交太頻密，請 '+Math.ceil(cooldownMs/1000)+' 秒後再試'); return; }
     if(isBlockedEmail(email)){ showFeedback('此 Email 已被停用，請聯絡店舖',true); return; }
 
-    if(config.visibleFields.email&&!config.allowDuplicate.email&&email){
-      const snap=await db.collection("appointments").where("type","==",'normal').get();
-      let dup=false;
-      snap.forEach(doc=>{ const d=doc.data(); if(d.status==='pending'&&d.email===email) dup=true; });
-      if(dup){
-        showFeedback(`您已經有一個有效預約（${email}），如要更改請點「修改我的預約」`);
-        return;
-      }
+    {
+      const dupMsg=await checkDuplicates({email:email,name:name,phone:phone,voucherCode:voucherCode});
+      if(dupMsg){ showFeedback(dupMsg,true); return; }
     }
 
     if(!isTestDevice()){
@@ -2301,7 +2477,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     submitting=true;
     this.disabled=true;
     localStorage.setItem('hwLastSubmit',String(Date.now()));
-    const result=await createBooking({email,name,gender,service,date,time},'normal');
+    const result=await createBooking({email,name,gender,service,phone,voucherCode,date,time},'normal');
 
     if(result.success){
       localStorage.setItem('hwLastEmail',email);
@@ -2597,7 +2773,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     document.getElementById('calendarPage').classList.remove('hidden');
     ADMIN_MODE=true; applyBackground();
     await fetchAllBookings();
-    renderFieldSettings(); renderOptionSettings(); renderBarbersSettings(); renderTimeSlotSettings();
+    renderFieldSettings(); renderVoucherRules(); renderOptionSettings(); renderBarbersSettings(); renderTimeSlotSettings();
     document.getElementById('noticeText').value=config.notice||'';
     if(document.getElementById('noticeTextEn')) document.getElementById('noticeTextEn').value=config.noticeEn||'';
     renderConfirmBoxSettings('confirmBoxesSettings',config.confirmBoxes);
@@ -2777,7 +2953,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(btn) btn.textContent=dark?'日間模式':'夜間模式';
     if(window.Chart){ try{ Chart.defaults.color=dark?'#B9C2CC':'#5B4A3A'; }catch(e){} }
   }
-  applyTheme(localStorage.getItem(THEME_KEY)||'light');
+  applyTheme(localStorage.getItem(THEME_KEY)||'dark');
   (function(){
     const btn=document.getElementById('themeToggle');
     if(!btn) return;

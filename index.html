@@ -1360,6 +1360,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
 "夜間模式": "Night mode",
 "日間模式": "Day mode",
 "姓名": "Name",
+"優惠券號碼": "Voucher No.",
+"電話號碼": "Phone No.",
 "性別": "Gender",
 "服務項目": "Service",
 "預約人數": "Booked",
@@ -1954,10 +1956,12 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   }
   function updateVoucherNote(){
     const sel=document.getElementById('voucherPrefix'), note=document.getElementById('voucherCodeNote');
-    if(!sel||!note) return;
+    const num=document.getElementById('voucherNumber');
+    if(!sel) return;
     const rules=(config.voucherCodeRules||[]);
     const cur=rules.find(function(r){ return r.prefix===sel.value; });
-    note.textContent=cur?('可用範圍：'+cur.prefix+cur.from+' 至 '+cur.prefix+cur.to):'請輸入優惠券號碼';
+    if(num) num.placeholder=cur?(Number(cur.from)+'-'+Number(cur.to)):'號碼';
+    if(note) note.textContent='';
   }
   (function(){
     document.addEventListener('DOMContentLoaded',function(){
@@ -2001,7 +2005,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
 
   function renderFieldSettings(){
     const box=document.getElementById('fieldSettingsContainer');
-    let html='<div style="font-size:13px;color:#B45A2A;margin-bottom:8px;">目前設定的是 <strong>'+pageTag()+'</strong> 的欄位（只影響這一頁）</div>';
+    let html='<div style="font-size:13px;color:#B45A2A;margin-bottom:8px;line-height:1.6;">目前設定的是 <strong>'+pageTag()+'</strong> 的欄位（只影響這一頁）。<br>按每行右邊的「↑ 上移 / ↓ 下移」可調客人表單的先後次序。</div>';
     FIELDS.forEach(f=>{
       const visible=FC('visibleFields')[f]?'checked':'';
       const required=FC('requiredFields')[f]?'checked':'';
@@ -2009,8 +2013,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       const rec=FC('showInRecords')[f]?'checked':'';
       html+=`<div class="field-setting-row" data-field="${f}">
         <input type="text" class="label-input" data-field="${f}" value="${FC('fieldLabels')[f]||FIELD_DEFAULT[f]}">
-        <button type="button" class="btn-small move-up" data-field="${f}" title="上移">↑</button>
-        <button type="button" class="btn-small move-down" data-field="${f}" title="下移">↓</button>
+        <button type="button" class="btn-small move-up" data-field="${f}" style="padding:8px 12px;font-size:14px;">↑ 上移</button>
+        <button type="button" class="btn-small move-down" data-field="${f}" style="padding:8px 12px;font-size:14px;">↓ 下移</button>
         <label><input type="checkbox" class="visible-chk" data-field="${f}" ${visible}> 顯示</label>
         <label><input type="checkbox" class="required-chk" data-field="${f}" ${required} ${!visible?'disabled':''}> 必填</label>
         <label><input type="checkbox" class="allow-duplicate-chk" data-field="${f}" ${dup} ${!visible?'disabled':''}> 可重複</label>

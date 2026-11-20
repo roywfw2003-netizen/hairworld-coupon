@@ -909,6 +909,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     allowDuplicate:{email:false,name:false,gender:true,service:true,voucherCode:false,phone:false},
     fieldLabels:{email:"Email",name:"姓名",gender:"性別",service:"服務項目",voucherCode:"優惠券號碼",phone:"電話號碼"},
     voucherCodeRules:[{prefix:"A",from:1,to:1000,show:true}],
+    fieldOrder:["email","voucherCode","gender","service","name","phone"],
     confirmBoxes:[{label:"確定已截圖預約記錄",note:"",labelEn:"I have screenshotted my booking record",noteEn:""},{label:"我已準時到店",note:"(請準時到達，逾時可能需重新輪候)",labelEn:"I will arrive on time",noteEn:"(Please arrive on time; arriving late may mean re-queuing)"}],
     voucherConfirmBoxes:[{label:"確定已使用優惠券預約",note:"",labelEn:"I am booking with my $20 voucher",noteEn:""},{label:"我已準備好出示優惠券核對",note:"(需出示優惠券核對)",labelEn:"I am ready to show my voucher",noteEn:"(Voucher must be shown for checking)"}],
     showInRecords:{email:true,name:true,gender:true,service:true,barber:true,voucherCode:true,phone:true}
@@ -1093,6 +1094,9 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
           }
           if(!Array.isArray(config.voucherCodeRules)||!config.voucherCodeRules.length)
             config.voucherCodeRules=[{prefix:'A',from:1,to:1000,show:true}];
+          function normOrder(o){ o=Array.isArray(o)?o.slice():[]; ALLF.forEach(function(k){ if(o.indexOf(k)<0) o.push(k); }); return o.filter(function(k){ return ALLF.indexOf(k)>=0; }); }
+          config.fieldOrder=normOrder(config.fieldOrder);
+          if(VARIANT==='voucher') config.voucherFieldOrder=normOrder(config.voucherFieldOrder);
         })();
         if(!Array.isArray(config.confirmBoxes)||!config.confirmBoxes.length)
           config.confirmBoxes=[{label:config.screenshotLabel||'確定已截圖預約記錄',note:''},{label:config.studentCardLabel||'我已準時到店',note:config.cardNoteLabel||''}];
@@ -1809,6 +1813,19 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     });
     const vn=document.getElementById('voucherNumber');
     if(vn) vn.required=!!(FC('visibleFields').voucherCode&&FC('requiredFields').voucherCode);
+    (function(){
+      let wrap=document.getElementById('fieldOrderWrap');
+      const first=document.getElementById('group-email');
+      if(!first) return;
+      if(!wrap){
+        wrap=document.createElement('div');
+        wrap.id='fieldOrderWrap';
+        first.parentNode.insertBefore(wrap,first);
+      }
+      const order=(FC('fieldOrder')||[]).slice();
+      FIELDS.forEach(function(f){ if(order.indexOf(f)<0) order.push(f); });
+      order.forEach(function(f){ const g=document.getElementById('group-'+f); if(g) wrap.appendChild(g); });
+    })();
     renderVoucherPrefix();
     renderConfirmBoxes();
     document.getElementById('bookingNoticeContent').innerHTML=noticeText().replace(/\n/g,'<br>');
@@ -2000,6 +2017,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       const rec=FC('showInRecords')[f]?'checked':'';
       html+=`<div class="field-setting-row" data-field="${f}">
         <input type="text" class="label-input" data-field="${f}" value="${FC('fieldLabels')[f]||FIELD_DEFAULT[f]}">
+        <button type="button" class="btn-small move-up" data-field="${f}" title="上移">↑</button>
+        <button type="button" class="btn-small move-down" data-field="${f}" title="下移">↓</button>
         <label><input type="checkbox" class="visible-chk" data-field="${f}" ${visible}> 顯示</label>
         <label><input type="checkbox" class="required-chk" data-field="${f}" ${required} ${!visible?'disabled':''}> 必填</label>
         <label><input type="checkbox" class="allow-duplicate-chk" data-field="${f}" ${dup} ${!visible?'disabled':''}> 可重複</label>
@@ -2015,6 +2034,17 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       if(!this.checked){ FC('requiredFields')[f]=false; FC('allowDuplicate')[f]=false; req.checked=false; dup.checked=false; req.disabled=true; dup.disabled=true; }
       else { req.disabled=false; dup.disabled=false; }
     }));
+    function move(f,dir){
+      const order=(FC('fieldOrder')||[]).slice();
+      const i=order.indexOf(f);
+      const j=i+dir;
+      if(i<0||j<0||j>=order.length) return;
+      order[i]=order[j]; order[j]=f;
+      if(VARIANT==='voucher') config.voucherFieldOrder=order; else config.fieldOrder=order;
+      renderFieldSettings();
+    }
+    box.querySelectorAll('.move-up').forEach(c=>c.addEventListener('click',function(){ move(this.dataset.field,-1); }));
+    box.querySelectorAll('.move-down').forEach(c=>c.addEventListener('click',function(){ move(this.dataset.field,1); }));
     box.querySelectorAll('.required-chk').forEach(c=>c.addEventListener('change',function(){ FC('requiredFields')[this.dataset.field]=this.checked; }));
     box.querySelectorAll('.allow-duplicate-chk').forEach(c=>c.addEventListener('change',function(){ FC('allowDuplicate')[this.dataset.field]=this.checked; }));
     box.querySelectorAll('.show-record-chk').forEach(c=>c.addEventListener('change',function(){ FC('showInRecords')[this.dataset.field]=this.checked; }));

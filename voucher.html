@@ -1994,6 +1994,18 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     return {ok:true};
   }
 
+  function recordHtml(b){
+    const vis=FC('visibleFields'), lab=FC('fieldLabels');
+    let h='<p><strong>日期：</strong>'+(b.date||'')+(b.time?(' '+b.time):'')+'</p>';
+    if(vis.name)        h+='<p><strong>'+(lab.name||'姓名')+'：</strong>'+(b.name||'')+'</p>';
+    if(vis.email)       h+='<p><strong>'+(lab.email||'Email')+'：</strong>'+(b.email||'')+'</p>';
+    if(vis.gender)      h+='<p><strong>'+(lab.gender||'性別')+'：</strong>'+(b.gender||'')+'</p>';
+    if(vis.service)     h+='<p><strong>'+(lab.service||'服務項目')+'：</strong>'+(b.service||'')+'</p>';
+    if(vis.voucherCode) h+='<p><strong>'+(lab.voucherCode||'優惠券號碼')+'：</strong>'+(b.voucherCode||'')+'</p>';
+    if(vis.phone)       h+='<p><strong>'+(lab.phone||'電話號碼')+'：</strong>'+(b.phone||'')+'</p>';
+    return h;
+  }
+
   async function checkDuplicates(vals){
     const pairs=[['email','Email'],['name','姓名'],['phone','電話號碼'],['voucherCode','優惠券號碼']];
     try{
@@ -2437,13 +2449,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     renderTimeSlots(currentSelectedDate); renderStudentCalendar(); renderAdminCalendar(); renderTables(); showDateDetail(null);
 
     document.getElementById('studentInfoContent').innerHTML=
-      `<p style="color:#c00;">已取消下列預約：</p>
-       <p><strong>日期：</strong>${found.date}</p>
-       <p><strong>時間：</strong>${found.time}</p>
-       <p><strong>姓名：</strong>${found.name||''}</p>
-       <p><strong>Email：</strong>${found.email||''}</p>
-       <p><strong>服務：</strong>${found.service||''}</p>
-       <p>請重新選擇日期／時間並再次提交</p>`;
+      '<p style="color:#c00;">已取消下列預約：</p>'+recordHtml(found)+'<p>請重新選擇日期／時間並再次提交</p>';
     document.getElementById('studentInfoArea').style.display='block';
     showFeedback('已取消您的預約，請重新選擇',false);
   }
@@ -2529,12 +2535,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         monthLoaded[date.slice(0,7)]=false;
         renderStudentCalendar(); renderTimeSlots(date);
         document.getElementById('studentInfoContent').innerHTML=
-          `<p><strong>日期：</strong>${date} ${time}</p>
-           <p><strong>姓名：</strong>${name}</p>
-           <p><strong>Email：</strong>${email}</p>
-           <p><strong>性別：</strong>${gender}</p>
-           <p><strong>服務：</strong>${service}</p>
-           <p style="color:#28a745;">預約成功（優惠券）</p>`;
+          recordHtml({date:date,time:time,name:name,email:email,gender:gender,service:service,voucherCode:voucherCode,phone:phone})+'<p style="color:#28a745;">預約成功（優惠券）</p>';
         document.getElementById('studentInfoArea').style.display='block';
         submitting=false; document.getElementById('submitBooking').disabled=false;
       },REVIEW_WINDOW_MS);

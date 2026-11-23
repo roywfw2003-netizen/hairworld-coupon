@@ -1470,8 +1470,16 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     const mainAlpha=(config.surfaceAlpha===undefined?90:Number(config.surfaceAlpha))/100;
     const adSel=config.adminBgPhoto||'none';
     const adAlpha=(config.adminSurfaceAlpha===undefined?90:Number(config.adminSurfaceAlpha))/100;
-    const sel=ADMIN_MODE?adSel:mainSel;
-    const alpha=ADMIN_MODE?adAlpha:mainAlpha;
+    const staffSel=String(config.pageBg===undefined?'0':config.pageBg);
+    const staffAlpha=(config.pageBgAlpha===undefined?90:Number(config.pageBgAlpha))/100;
+    const calEl=document.getElementById('calendarPage');
+    const staffEl=document.getElementById('staffPage');
+    const inStaff=!!(staffEl && !staffEl.classList.contains('hidden'));
+    const inAdmin=ADMIN_MODE || !!(calEl && !calEl.classList.contains('hidden') && !inStaff);
+    let sel=mainSel, alpha=mainAlpha;
+    if(inAdmin){ sel=adSel; alpha=adAlpha; }
+    else if(inStaff){ sel=staffSel; alpha=staffAlpha; }
+    if(sel==='0') sel='none';
     document.body.classList.toggle('hw-bg1', sel==='1');
     document.body.classList.toggle('hw-bg2', sel==='2');
     document.body.classList.toggle('hw-photo', sel==='1'||sel==='2');
@@ -1480,6 +1488,8 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     if(lab) lab.textContent=Math.round(mainAlpha*100)+'%';
     const lab2=document.getElementById('adminSurfaceAlphaVal');
     if(lab2) lab2.textContent=Math.round(adAlpha*100)+'%';
+    const lab3=document.getElementById('staffSurfaceAlphaVal');
+    if(lab3) lab3.textContent=Math.round(staffAlpha*100)+'%';
     applyLineColors();
   }
   function hexToRgba(hex,a){
@@ -1513,7 +1523,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     const a=document.getElementById('adminBgPhotoSelect');
     if(a) a.addEventListener('change',function(){ config.adminBgPhoto=this.value; applyBackground(); });
     const st=document.getElementById('staffBgPhotoSelect');
-    if(st) st.addEventListener('change',function(){ config.pageBg=this.value; });
+    if(st) st.addEventListener('change',function(){ config.pageBg=this.value; applyBackground(); });
   })();
   (function(){
     const r=document.getElementById('surfaceAlpha');
@@ -1521,20 +1531,21 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       const lab=document.getElementById('surfaceAlphaVal');
       if(lab) lab.textContent=this.value+'%';
       config.surfaceAlpha=Number(this.value);
-      if(!ADMIN_MODE) document.body.style.setProperty('--hw-surf', String(Number(this.value)/100));
+      applyBackground();
     });
     const a=document.getElementById('adminSurfaceAlpha');
     if(a) a.addEventListener('input',function(){
       const lab=document.getElementById('adminSurfaceAlphaVal');
       if(lab) lab.textContent=this.value+'%';
       config.adminSurfaceAlpha=Number(this.value);
-      if(ADMIN_MODE) document.body.style.setProperty('--hw-surf', String(Number(this.value)/100));
+      applyBackground();
     });
     const st=document.getElementById('staffSurfaceAlpha');
     if(st) st.addEventListener('input',function(){
       const lab=document.getElementById('staffSurfaceAlphaVal');
       if(lab) lab.textContent=this.value+'%';
       config.pageBgAlpha=Number(this.value);
+      applyBackground();
     });
   })();
 
@@ -3430,6 +3441,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     document.getElementById('staffPage').classList.add('hidden');
     document.getElementById('bookingPage').classList.remove('hidden');
     staffEditMode=false;
+    applyBackground();
   });
 
   document.getElementById('viewCalendarBtn').addEventListener('click',async function(){
@@ -3488,6 +3500,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     if(!(await authRole('staff', document.getElementById('staffPass').value))) return;
     document.getElementById('bookingPage').classList.add('hidden');
     document.getElementById('staffPage').classList.remove('hidden');
+    applyBackground();
     await fetchAllBookings();
     renderStaffOptionSelects();
     renderStaffPage(getTodayStr());

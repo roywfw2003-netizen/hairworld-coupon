@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -297,15 +297,90 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
 .bi-row input{flex:1 1 0;min-width:0}
 .item-row input{flex:1 1 0;min-width:0}
 
+
+<style>
+.hw-brand{justify-content:space-between;gap:10px;flex-wrap:nowrap;padding-left:6px}
+.hw-brand-left{display:flex;align-items:center;gap:8px;min-width:0}
+.hw-brand-right{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.hw-topbtn{margin-left:0!important;height:36px;padding:0 14px;border-radius:18px;font-size:13px;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.hw-lockbtn{margin:0;width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:18px;border:1.5px solid #FFB985;background:#fff;color:#B04400;cursor:pointer}
+body.dark .hw-lockbtn{background:#1A1F26;color:#E8EAED;border-color:#2F353D}
+#stepBar{display:flex;align-items:center;gap:8px;margin:0 0 14px;font-size:13px;font-weight:700;color:#B45A2A}
+#stepBar .dot{width:22px;height:22px;border-radius:50%;background:#F25C0A;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+#stepBar .rest{color:#C9946E;font-weight:500}
+body.dark #stepBar{color:#FFB27F}
+.form-group.hw-invalid input,.form-group.hw-invalid select{border-color:#E5484D!important}
+.hw-field-err{display:none;color:#E5484D;font-size:13px;margin-top:6px;font-weight:600}
+.form-group.hw-invalid .hw-field-err{display:block}
+#stepNav{margin:14px 0 4px}
+#nextStepBtn{width:100%;padding:15px;border-radius:40px;border:none;background:#F25C0A;color:#fff;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 5px 0 #B04400}
+.step-nav{display:flex;gap:10px;margin:14px 0 4px}
+.step-nav .btn-back{flex:0 0 34%;padding:15px;border-radius:40px;border:1.5px solid #F25C0A;background:transparent;color:#F25C0A;font-size:16px;font-weight:700;cursor:pointer}
+.step-nav .btn-next{flex:1;padding:15px;border-radius:40px;border:none;background:#F25C0A;color:#fff;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 5px 0 #B04400}
+body.dark .step-nav .btn-back{background:#1A1F26;border-color:#FF7A2F;color:#FFB27F}
+.stub-back{margin-top:14px;padding:10px 16px;border-radius:30px;border:1.5px solid #FFB985;background:transparent;color:inherit;font-weight:700;cursor:pointer}
+body.dark .stub-back{border-color:#3A4048}
+#step2 .student-calendar{margin-top:2px}
+#stepBarLeft{display:inline-flex;align-items:center;gap:8px}
+.my-bookings-btn{margin-left:auto;padding:6px 14px;border-radius:20px;border:none;background:#F25C0A;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 3px 8px rgba(242,92,10,.3)}
+body.dark .my-bookings-btn{background:#F25C0A;color:#fff}
+#bookingForm > .form-group + .form-group{border-top:1.5px solid var(--hw-line-day,#000000);padding-top:16px}
+body.dark #bookingForm > .form-group + .form-group{border-top:1.5px solid var(--hw-line-night,#FFFFFF)}
+#bookingForm .form-group > label{color:#F25C0A}
+body.dark #bookingForm .form-group > label{color:#FF7A2F}
+#bookingForm .form-group > label .required-star{color:#F25C0A}
+body.dark #bookingForm .form-group > label .required-star{color:#FF7A2F}
+#brandTag{background:transparent!important;color:#F25C0A;font-size:18px;font-weight:700;padding:0;border-radius:0;margin-left:6px;letter-spacing:1px}
+body.dark #brandTag{color:#FF7A2F}
+.btn-back-line{width:100%;padding:10px;margin:0 0 12px;border-radius:30px;border:1.5px solid #F25C0A;background:transparent;color:#F25C0A;font-weight:700;font-size:14px;cursor:pointer}
+body.dark .btn-back-line{background:#1A1F26;border-color:#FF7A2F;color:#FFB27F}
+.brand-ico{width:18px;height:18px;flex:0 0 18px;vertical-align:-3px;margin-right:6px;display:inline-block}
+.my-confirm{border:1.5px solid #E5484D;border-radius:18px;padding:12px;margin:8px 0;background:rgba(229,72,77,.06)}
+.hw-toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;pointer-events:none;max-width:86%;padding:12px 18px;border-radius:18px;background:#2A2F36;color:#fff;font-size:14px;line-height:1.65;z-index:9500;transition:.25s;box-shadow:0 8px 24px rgba(0,0,0,.4);text-align:center}
+.hw-toast.show{opacity:1;transform:translate(-50%,0)}
+.hw-co{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9600;padding:18px}
+.hw-co.show{display:flex}
+.hw-co-card{background:#fff;border-radius:22px;padding:20px;max-width:360px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+body.dark .hw-co-card{background:#1A1F26;color:#E6EAF0}
+.hw-co-card p{margin:0 0 16px;line-height:1.7;font-size:15px;white-space:pre-wrap}
+.hw-co-row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+#pwdPanel .my-row input{flex:1;padding:14px 16px;border-radius:30px}
+#pwdPanel .pwd-err{color:#E5484D;font-size:13px;margin:6px 0 0}
+.my-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9000}
+.my-card{width:100%;max-width:420px;max-height:86vh;overflow:auto;background:#FFF9F2;border-radius:22px;padding:16px;border:1px solid #FFD8B2}
+body.dark .my-card{background:#171B21;border-color:#2F353D;color:#E8EAED}
+.my-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.my-head h3{margin:0;font-size:17px}
+.my-close{border:none;background:transparent;font-size:20px;cursor:pointer;color:inherit}
+.my-row{display:flex;gap:8px;margin:10px 0}
+.my-row input{flex:1}
+.my-hint{font-size:13px;color:#B45A2A;line-height:1.6;margin:6px 0}
+body.dark .my-hint{color:#FFB27F}
+.my-msg{font-size:13px;margin:6px 0}
+.staff-link{display:block;text-align:center;margin:16px 0 4px;font-size:12px;color:#C9946E;text-decoration:underline;cursor:pointer}
+
+
+#stepStub{margin:14px 0 4px;padding:18px;border-radius:22px;background:#FFF2E3;border:1px solid #FFB985;color:#B04400;font-size:14px;line-height:1.7}
+body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
+</style>
 </style>
 </head>
 <body>
+<script data-no-i18n>try{if((localStorage.getItem('hwThemeMode')||'dark')==='dark'){document.documentElement.classList.add('dark-root');document.body.classList.add('dark');}}catch(e){}</script>
 <div class="app-container">
-  <div class="brand"><h1>Hair World</h1><span id="brandTag">預約</span><button type="button" id="langToggle" data-no-i18n>EN</button><button type="button" id="themeToggle" class="theme-toggle">夜間模式</button></div>
+  <div class="brand hw-brand">
+    <div class="hw-brand-left"><h1>Hair World</h1><span id="brandTag">預約</span></div>
+    <div class="hw-brand-right">
+      <button type="button" id="langToggle" data-no-i18n class="hw-topbtn">EN</button>
+      <button type="button" id="themeToggle" class="theme-toggle hw-topbtn">夜間模式</button>
+      <button type="button" id="adminLockBtn" class="hw-lockbtn" title="管理員登入" aria-label="管理員登入"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="10" width="16" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+  </div>
 
   <!-- ===== 客人預約頁 ===== -->
   <div id="bookingPage" class="page">
     <form id="bookingForm">
+      <div id="stepBar"><span id="stepBarLeft"><span class="dot">1</span><span id="stepBarText">步驟 1／3　填寫個人資料</span></span><button type="button" id="myBookingsBtn" class="my-bookings-btn">我的預約</button></div>
       <div class="form-group" id="group-email">
         <label class="required" id="label-email">Email</label>
         <input type="email" id="email" placeholder="example@mail.com">
@@ -326,8 +401,10 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       </div>
 
       <div class="form-group" id="group-voucherCode">
-        <label id="label-voucherCode">優惠券號碼</label>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <label id="label-voucherCode">優惠券</label>
+        <input type="hidden" id="voucherSource" value="flyer">
+        <div class="chip-group" id="voucherSourceChips"></div>
+        <div id="voucherCodeWrap" style="display:flex;gap:8px;align-items:center;margin-top:10px;">
           <select id="voucherPrefix" style="max-width:110px;"></select>
           <input type="text" id="voucherNumber" inputmode="numeric" placeholder="號碼" style="flex:1;">
         </div>
@@ -338,6 +415,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         <input type="tel" id="phone" placeholder="例如 9123 4567">
       </div>
 
+      <div id="stepsLater">
+      <div id="step2" class="hidden">
       <div class="student-calendar">
         <div class="cal-title"><span>預約人數</span><div class="help-icon" title="紅色數字為管理員設定的影子標記或當日預約人數">?</div></div>
         <div class="cal-header"><h4 id="studentCalMonthYear"></h4><div class="cal-nav"><button type="button" id="studentPrevMonth">←</button><button type="button" id="studentNextMonth">→</button></div></div>
@@ -345,34 +424,65 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         <div id="studentCalGrid" class="cal-grid"></div>
       </div>
 
-      <div class="form-group"><label class="required">預約時間</label><select id="timeSlot"><option value="">請先選擇日期</option></select><div class="note" id="timeNote"></div></div>
-
-      <div id="captchaContainer" style="display:none;margin-bottom:18px;">
-        <div class="captcha-group"><span id="captchaQuestion"></span><input type="number" id="captchaAnswer" placeholder="輸入答案" min="0"></div>
+      <div class="form-group" id="group-timeSlot"><label class="required">預約時間</label><select id="timeSlot"><option value="">請先選擇日期</option></select><div class="note" id="timeNote"></div></div>
+      <div id="step2Feedback" class="form-feedback" style="display:none;"></div>
+      <div class="step-nav">
+        <button type="button" class="btn-back" id="backStep2Btn">← 上一頁</button>
+        <button type="button" class="btn-next" id="nextStep2Btn">下一頁 →</button>
       </div>
+      </div><!-- /step2 -->
+
+      <div id="step3" class="hidden">
+      <button type="button" class="btn-back-line" id="backStep3Btn">← 返回選擇日期／時間</button>
 
       <div style="background:#FFF2E3;border-radius:20px;padding:10px;margin:10px 0;font-size:14px;color:#B04400;border:1px solid #FFB985;line-height:1.6;">
-        <i class="fa-solid fa-circle-info"></i> <strong>預約小提示：</strong> 提交後系統需要約5秒處理，請稍候。若多人同時預約同一時段，將以提交時間最早者優先，時間相同則隨機抽選。
+        <i class="fa-solid fa-circle-info"></i> <strong>預約小提示：</strong> 提交後系統需要約5秒處理，請稍候。若多人同時預約同一時段，以成功提交者為準，其他人需重新選擇時間。
       </div>
 
       <div id="confirmBoxesContainer"></div>
 
       <div class="social-links">
-        <a id="igLink" href="https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-brands fa-instagram"></i> Instagram</a>
-        <a id="mapLink" href="https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fa-solid fa-location-dot"></i> 井財街店</a>
+        <a id="igLink" href="https://www.instagram.com/hair_world_hk?igsh=MWltN3c0Y2NsYjlydA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" class="social-link"><svg class="brand-ico" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="igGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#FEDA75"/><stop offset="28%" stop-color="#FA7E1E"/><stop offset="55%" stop-color="#D62976"/><stop offset="80%" stop-color="#962FBF"/><stop offset="100%" stop-color="#4F5BD5"/></linearGradient></defs><path fill="url(#igGrad)" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg> Instagram</a>
+        <a id="mapLink" href="https://maps.app.goo.gl/zFbMRrseW1Eaf5KcA?g_st=ic" target="_blank" rel="noopener noreferrer" class="social-link"><svg class="brand-ico" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gmGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#EA4335"/><stop offset="38%" stop-color="#FBBC04"/><stop offset="70%" stop-color="#34A853"/><stop offset="100%" stop-color="#4285F4"/></linearGradient></defs><path fill="url(#gmGrad)" d="M19.527 4.799c1.212 2.608.937 5.678-.405 8.173-1.101 2.047-2.744 3.74-4.098 5.614-.619.858-1.244 1.75-1.669 2.727-.141.325-.263.658-.383.992-.121.333-.224.673-.34 1.008-.109.314-.236.684-.627.687h-.007c-.466-.001-.579-.53-.695-.887-.284-.874-.581-1.713-1.019-2.525-.51-.944-1.145-1.817-1.79-2.671L19.527 4.799zM8.545 7.705l-3.959 4.707c.724 1.54 1.821 2.863 2.871 4.18.247.31.494.622.737.936l4.984-5.925-.029.01c-1.741.601-3.691-.291-4.392-1.987a3.377 3.377 0 0 1-.209-.716c-.063-.437-.077-.761-.004-1.198l.001-.007zM5.492 3.149l-.003.004c-1.947 2.466-2.281 5.88-1.117 8.77l4.785-5.689-.058-.05-3.607-3.035zM14.661.436l-3.838 4.563a.295.295 0 0 1 .027-.01c1.6-.551 3.403.15 4.22 1.626.176.319.323.683.377 1.045.068.446.085.773.012 1.22l-.003.016 3.836-4.561A8.382 8.382 0 0 0 14.67.439l-.009-.003zM9.466 5.868L14.162.285l-.047-.012A8.31 8.31 0 0 0 11.986 0a8.439 8.439 0 0 0-6.169 2.766l-.016.018 3.665 3.084z"/></svg> 井財街店</a>
       </div>
 
+      <div id="captchaContainer" style="display:none;margin-bottom:18px;">
+        <div class="captcha-group"><span id="captchaQuestion"></span><input type="number" id="captchaAnswer" placeholder="輸入答案" min="0"></div>
+      </div>
       <button type="button" class="btn" id="submitBooking">提交預約</button>
       <div id="formFeedback" class="form-feedback"></div>
       <div id="studentInfoArea" class="info-card" style="display:none;"><h4>我的預約記錄</h4><div id="studentInfoContent"></div></div>
-      <button type="button" class="btn btn-secondary" id="modifyBookingBtn">修改我的預約</button>
+      <button type="button" class="btn btn-secondary hidden" id="modifyBookingBtn">修改我的預約</button>
       <div id="bookingNoticeArea" class="footer-note" style="margin-top:15px;"><p><strong>預約須知</strong></p><div id="bookingNoticeContent"></div></div>
+      </div><!-- /stepsLater -->
+      <div id="stepNav"><button type="button" id="nextStepBtn">下一頁 →</button></div>
     </form>
+    <div id="stepStub" class="hidden"></div>
+    <div id="myPanel" class="my-overlay hidden">
+      <div class="my-card">
+        <div class="my-head"><h3>我的預約</h3><button type="button" class="my-close" id="myClose">✕</button></div>
+        <div class="my-hint">輸入預約時使用的 Email，即可查回未完成的預約，亦可取消後重新預約。</div>
+        <div class="my-row"><input type="email" id="myEmail" placeholder="example@mail.com"><button type="button" class="btn-small" id="myQueryBtn">查詢</button></div>
+        <div id="myMsg" class="my-msg"></div>
+        <div id="myResult"></div>
+      </div>
+    </div>
 
     <div style="text-align:center;font-size:10px;color:#ccc;margin-top:20px;padding-top:10px;border-top:1px dashed #FFD8B2;">@vison 11.0（一般預約版）</div>
     <div class="divider"></div>
+    <div id="pwdPanel" class="my-overlay hidden">
+      <div class="my-card">
+        <div class="my-head"><h3 id="pwdTitle">管理員登入</h3><button type="button" class="my-close" id="pwdClose">✕</button></div>
+        <div class="my-hint" id="pwdHint">請輸入密碼</div>
+        <div class="my-row"><input type="password" id="pwdInput" placeholder="請輸入密碼"><button type="button" class="btn-small" id="pwdOk">確定</button></div>
+        <div id="pwdMsg"></div>
+      </div>
+    </div>
+    <div class="staff-link" id="staffLink">員工登入</div>
+    <div id="adminZone" style="display:none;">
     <div style="margin-top:12px;"><label>管理員專區</label><div class="admin-row"><input type="password" id="adminPass" placeholder="管理員密碼"><button class="btn-small" id="viewCalendarBtn">查看所有記錄</button></div></div>
     <div style="margin-top:8px;"><label>員工專區</label><div class="admin-row"><input type="password" id="staffPass" placeholder="員工密碼"><button class="btn-small" id="enterStaffBtn">進入員工頁面</button></div></div>
+    </div>
   </div>
 
   <!-- ===== 管理員月曆頁 ===== -->
@@ -435,7 +545,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     <details class="settings-section" id="section-vouchercodes">
       <summary>優惠券號碼管理</summary>
       <div class="section-content">
-        <p style="font-size:13px;color:#B45A2A;line-height:1.6;margin-bottom:8px;">每行三格：<strong>前綴</strong> / <strong>起始號碼</strong> / <strong>結束號碼</strong>，勾「顯示」＝客人可在預約頁選用該前綴。<br>例如 A / 1 / 1000 → 可填 A1 至 A1000。可新增多行。</p>
+        <p style="font-size:13px;color:#B45A2A;line-height:1.6;margin-bottom:8px;">每行四格：<strong>前綴</strong> / <strong>起始號碼</strong> / <strong>結束號碼</strong> / <strong>備註文字</strong>（備註只會儲存，不會顯示給客人；按「儲存所有設定」後會寫入 Google Sheet「設定」分頁）。勾「顯示」＝客人可在預約頁選用該前綴。<br>例如 A / 1 / 1000 / 「春季傳單」→ 可填 A1 至 A1000。可新增或刪除行。</p>
         <div id="voucherRulesContainer"></div>
         <button type="button" class="btn-small" id="addVoucherRule" style="margin-top:8px;">＋ 新增一行</button>
         <small style="color:#B45A2A;display:block;margin-top:6px;">改完按「儲存所有設定」</small>
@@ -569,6 +679,18 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
           <label>管理員頁按鈕／框底色透明度：<span id="adminSurfaceAlphaVal">90%</span></label>
           <input type="range" id="adminSurfaceAlpha" class="hw-range" min="0" max="100" step="5" value="90">
         </div>
+        <div class="form-group">
+          <label>分隔線顏色（日間模式）</label>
+          <input type="color" id="lineColorDay" value="#000000" style="width:100%;height:44px;padding:4px;border-radius:14px;">
+        </div>
+        <div class="form-group">
+          <label>分隔線顏色（夜間模式）</label>
+          <input type="color" id="lineColorNight" value="#FFFFFF" style="width:100%;height:44px;padding:4px;border-radius:14px;">
+        </div>
+        <div class="form-group">
+          <label>分隔線透明度：<span id="lineAlphaVal">100%</span></label>
+          <input type="range" id="lineAlpha" class="hw-range" min="0" max="100" step="5" value="100">
+        </div>
         <small style="color:#B45A2A;">透明度越低＝底圖越明顯；改完按「儲存所有設定」</small>
       </div>
     </details>
@@ -595,6 +717,9 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         <h4>確認框（可自由增減）</h4>
         <div id="confirmBoxesSettings"></div>
         <div class="add-item"><input type="text" id="newConfirmBoxText" placeholder="例如 我已準時到店"><button class="btn-small" id="addConfirmBoxBtn">新增確認框</button></div>
+        <h4 style="margin-top:14px;">優惠券選項文字（傳單 / $20 合併）</h4>
+        <div class="bi-row"><input type="text" id="flyerOptionLabel" placeholder="傳單選項文字"><input type="text" id="flyerOptionLabelEn" placeholder="Flyer option (English)"></div>
+        <div class="bi-row" style="margin-top:6px;"><input type="text" id="v20OptionLabel" placeholder="$20 優惠券選項文字"><input type="text" id="v20OptionLabelEn" placeholder="$20 voucher option (English)"></div>
       </div>
     </details>
 
@@ -890,6 +1015,9 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     pageBgAlpha:90,
     adminBgPhoto:"none",
     adminSurfaceAlpha:90,
+    lineColorDay:"#000000",
+    lineColorNight:"#FFFFFF",
+    lineAlpha:100,
     noticeEn:"• Each guest may hold only one active booking.\n• Bookings cannot be changed or cancelled within 2 hours of the slot.\n• Booking only spreads the flow; you still queue in the shop.",
     parentNoticeEn:"• Each guest may hold only one active booking.\n• Bookings cannot be changed or cancelled within 2 hours of the slot.\n• Proof must be shown when using a voucher.",
     voucherInfoEn:"• This page is for guests who have bought the $20 voucher.\n• Show your voucher on arrival (digital or paper).\n• Vouchers can be stored at the shop; tell the staff when you use one.\n• Each guest may hold only one active booking at a time.",
@@ -901,7 +1029,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     visibleFields:{email:true,name:true,gender:true,service:true,voucherCode:true,phone:true},
     requiredFields:{email:true,name:true,gender:true,service:true,voucherCode:true,phone:false},
     allowDuplicate:{email:false,name:false,gender:true,service:true,voucherCode:false,phone:false},
-    fieldLabels:{email:"Email",name:"姓名",gender:"性別",service:"服務項目",voucherCode:"優惠券號碼",phone:"電話號碼"},
+    fieldLabels:{email:"Email",name:"姓名",gender:"性別",service:"服務項目",voucherCode:"優惠券",phone:"電話號碼"},
     voucherCodeRules:[{prefix:"A",from:1,to:1000,show:true}],
     fieldOrder:["email","voucherCode","gender","service","name","phone"],
     confirmBoxes:[{label:"確定已截圖預約記錄",note:"",labelEn:"I have screenshotted my booking record",noteEn:""},{label:"我已準時到店",note:"(請準時到達，逾時可能需重新輪候)",labelEn:"I will arrive on time",noteEn:"(Please arrive on time; arriving late may mean re-queuing)"}],
@@ -955,6 +1083,32 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   const GS_TOKEN='hw9Kq2Zx-7pLmR4vT';
   const AUTH={admin:false, staff:false, staffEdit:false, owner:false};
   // 角色 → Google Sheet「設定」分頁的欄位名（Apps Script 以此比對）
+  /* 用頁內提示取代系統 alert（手機／內嵌預覽會攔截 alert，造成「按下沒反應」） */
+  function hwConfirm(msg,okText,cancelText){
+    return new Promise(function(resolve){
+      let ov=document.getElementById('hwConfirm');
+      if(!ov){ ov=document.createElement('div'); ov.id='hwConfirm'; ov.className='hw-co'; document.body.appendChild(ov); }
+      ov.innerHTML='<div class="hw-co-card"><p></p><div class="hw-co-row">'+
+        '<button type="button" class="btn-small" id="hwCoOk">'+escHtml(okText||'確定')+'</button>'+
+        '<button type="button" class="btn-small" id="hwCoNo" style="background:#fff;color:#B04400;border:1.5px solid #FFB985;">'+escHtml(cancelText||'取消')+'</button></div></div>';
+      ov.querySelector('p').textContent=String(msg||'');
+      ov.classList.add('show');
+      function done(v){ ov.classList.remove('show'); ov.onclick=null; resolve(v); }
+      ov.querySelector('#hwCoOk').onclick=function(){ done(true); };
+      ov.querySelector('#hwCoNo').onclick=function(){ done(false); };
+      ov.onclick=function(e){ if(e.target===ov) done(false); };
+    });
+  }
+  function hwToast(msg){
+    let t=document.getElementById('hwToast');
+    if(!t){ t=document.createElement('div'); t.id='hwToast'; t.className='hw-toast'; document.body.appendChild(t); }
+    t.textContent=String(msg||'');
+    t.className='hw-toast show';
+    clearTimeout(t._tid);
+    t._tid=setTimeout(function(){ t.className='hw-toast'; },2800);
+  }
+  try{ window.alert=function(m){ hwToast(m); }; }catch(e){}
+
   const ROLE_KEY={admin:'adminPassword', staff:'staffPassword', staffEdit:'staffEditPassword', owner:'ownerPassword'};
   let ADMIN_SESSION='';
   function gsJsonpParams(params, cb){
@@ -1116,6 +1270,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         if(!Array.isArray(config.services)||!config.services.length) config.services=['單剪','剪髮+洗頭'];
         if(config.noticeEn===undefined) config.noticeEn='';
         if(config.parentNoticeEn===undefined) config.parentNoticeEn='';
+        if(!config.fieldLabels) config.fieldLabels={};
+        if(config.fieldLabels.voucherCode==='優惠券號碼') config.fieldLabels.voucherCode='優惠券';
         if(config.voucherInfoEn===undefined) config.voucherInfoEn='';
         if(!Array.isArray(config.gendersEn)) config.gendersEn=[];
         if(!Array.isArray(config.servicesEn)) config.servicesEn=[];
@@ -1173,13 +1329,15 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     const list=Array.isArray(config.blockEmails)?config.blockEmails:[];
     return !!e && list.indexOf(String(e).trim().toLowerCase())>=0;
   }
-  async function checkDailyLimits(email){
+  async function checkDailyLimits(email,forcedType){
     try{
       const d=new Date(); d.setHours(0,0,0,0);
       const iso=d.toISOString();
       const snap=await db.collection('appointments').where('createdAt','>=',iso).get();
       let devCount=0, emailCount=0;
+      const myType=forcedType||((typeof VARIANT!=='undefined'&&VARIANT==='voucher')?'voucher':'normal');
       snap.forEach(doc=>{ const x=doc.data(); if(x.status==='cancelled') return;
+        if((x.type||'normal')!==myType) return;
         if(x.deviceId===deviceId) devCount++;
         if(email && String(x.email||'').toLowerCase()===String(email).toLowerCase()) emailCount++;
       });
@@ -1232,7 +1390,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         tx.set(dayRef,{times:times.concat([booking.time]),updatedAt:nowIso},{merge:true});
         tx.set(apptRef,{email:booking.email||'',name:booking.name||'',gender:booking.gender||'',service:booking.service||'',
           voucherCode:booking.voucherCode||'',phone:booking.phone||'',
-          date:booking.date,time:booking.time,status:'pending',type:type,voucherPurchased:false,
+          date:booking.date,time:booking.time,status:'pending',type:type,voucherPurchased:false,voucherKind:booking.voucherKind||'',
           createdAt:nowIso,updatedAt:nowIso,deviceId:deviceId,authUid:(auth.currentUser&&auth.currentUser.uid)||''});
       });
       if(taken) return {success:false,error:'slot_taken'};
@@ -1240,7 +1398,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       daySlotsCache[booking.date]={times:cur.concat([booking.time]),ts:0};
       availabilityCache.delete(booking.date);
       addActivity(booking);
-      gsPost({action:'upsert',record:gsRecord({id:apptRef.id,type:type,email:booking.email,name:booking.name,gender:booking.gender,service:booking.service,voucherCode:booking.voucherCode||'',phone:booking.phone||'',date:booking.date,time:booking.time,status:'pending',voucherPurchased:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),source:'online'})});
+      gsPost({action:'upsert',record:gsRecord({id:apptRef.id,type:type,email:booking.email,name:booking.name,gender:booking.gender,service:booking.service,voucherCode:(booking.voucherKind==='v20'?'$20券':(booking.voucherCode||'')),phone:booking.phone||'',date:booking.date,time:booking.time,status:'pending',voucherPurchased:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),source:'online'})});
       return {success:true,id:apptRef.id};
     }catch(e){ console.error('建立預約失敗',e); return {success:false,error:e.message}; }
   }
@@ -1297,7 +1455,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   }
 
   const FIELDS=['email','name','gender','service','voucherCode','phone'];
-  const FIELD_DEFAULT={email:'Email',name:'姓名',gender:'性別',service:'服務項目',voucherCode:'優惠券號碼',phone:'電話號碼'};
+  const FIELD_DEFAULT={email:'Email',name:'姓名',gender:'性別',service:'服務項目',voucherCode:'優惠券',phone:'電話號碼'};
 
   function applySocialLinks(){
     const ig=document.getElementById('igLink'), map=document.getElementById('mapLink');
@@ -1322,7 +1480,33 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(lab) lab.textContent=Math.round(mainAlpha*100)+'%';
     const lab2=document.getElementById('adminSurfaceAlphaVal');
     if(lab2) lab2.textContent=Math.round(adAlpha*100)+'%';
+    applyLineColors();
   }
+  function hexToRgba(hex,a){
+    let h=String(hex||'#000000').replace('#','');
+    if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    if(h.length!==6) h='000000';
+    const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+    return 'rgba('+r+','+g+','+b+','+a+')';
+  }
+  function applyLineColors(){
+    const OLD_D='#D9A47C', OLD_N='#5A6472';
+    let d=String(config.lineColorDay||'').toUpperCase(), n=String(config.lineColorNight||'').toUpperCase();
+    if(!d||d===OLD_D){ d='#000000'; config.lineColorDay=d; }
+    if(!n||n===OLD_N){ n='#FFFFFF'; config.lineColorNight=n; }
+    const alpha=(config.lineAlpha===undefined||config.lineAlpha===''?100:Number(config.lineAlpha))/100;
+    document.documentElement.style.setProperty('--hw-line-day', hexToRgba(d,alpha));
+    document.documentElement.style.setProperty('--hw-line-night', hexToRgba(n,alpha));
+    const lab=document.getElementById('lineAlphaVal');
+    if(lab) lab.textContent=Math.round(alpha*100)+'%';
+  }
+  (function(){
+    const i1=document.getElementById('lineColorDay'), i2=document.getElementById('lineColorNight');
+    if(i1) i1.addEventListener('input',function(){ config.lineColorDay=this.value; applyLineColors(); });
+    if(i2) i2.addEventListener('input',function(){ config.lineColorNight=this.value; applyLineColors(); });
+    const a=document.getElementById('lineAlpha');
+    if(a) a.addEventListener('input',function(){ config.lineAlpha=Number(this.value); applyLineColors(); });
+  })();
   (function(){
     const b=document.getElementById('bgPhotoSelect');
     if(b) b.addEventListener('change',function(){ config.bgPhoto=this.value; applyBackground(); });
@@ -1375,7 +1559,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
 "預約時間": "Time",
 "請先選擇日期": "Select a date first",
 "預約小提示：": "Tips: ",
-"提交後系統需要約5秒處理，請稍候。若多人同時預約同一時段，將以提交時間最早者優先，時間相同則隨機抽選。": "After submitting, the system needs about 5 seconds. If several people book the same slot, the earliest submission wins; ties are drawn at random.",
+"提交後系統需要約5秒處理，請稍候。若多人同時預約同一時段，以成功提交者為準，其他人需重新選擇時間。": "After submitting, the system needs about 5 seconds. If several people pick the same slot, whoever submits successfully gets it; others must choose another time.",
 "井財街店": "Shop location",
 "提交預約": "Submit booking",
 "我的預約記錄": "My booking",
@@ -1797,7 +1981,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   function applyFieldSettings(){
     FIELDS.forEach(f=>{
       const group=document.getElementById('group-'+f);
-      if(group) group.style.display=FC('visibleFields')[f]?'block':'none';
+      if(group){ const forceShow=(f==='voucherCode'); group.style.display=(forceShow||FC('visibleFields')[f])?'block':'none'; }
       const label=document.getElementById('label-'+f);
       if(label){
         label.textContent=FC('fieldLabels')[f]||FIELD_DEFAULT[f];
@@ -1830,7 +2014,12 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   }
 
   const PAGE_TYPE='normal';
-  function getActiveConfirmBoxes(){ return PAGE_TYPE==='voucher' ? config.voucherConfirmBoxes : config.confirmBoxes; }
+  function getVoucherSource(){
+    const el=document.getElementById('voucherSource');
+    return (el&&el.value==='v20')?'v20':'flyer';
+  }
+  function isVoucherLike(){ return PAGE_TYPE==='voucher' || getVoucherSource()==='v20'; }
+  function getActiveConfirmBoxes(){ return isVoucherLike() ? (config.voucherConfirmBoxes||[]) : (config.confirmBoxes||[]); }
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function renderConfirmBoxes(){
     const box=document.getElementById('confirmBoxesContainer'); if(!box) return;
@@ -1873,7 +2062,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
   function cbText(c){ return (CUR_LANG==='en' && c && c.labelEn) ? c.labelEn : ((c&&c.label)||''); }
   function cbNote(c){ return (CUR_LANG==='en' && c && c.noteEn) ? c.noteEn : ((c&&c.note)||''); }
   function noticeText(){
-    if(PAGE_TYPE==='voucher') return (CUR_LANG==='en'&&config.parentNoticeEn) ? config.parentNoticeEn : (config.parentNotice||'');
+    if(isVoucherLike()) return (CUR_LANG==='en'&&config.parentNoticeEn) ? config.parentNoticeEn : (config.parentNotice||'');
     return (CUR_LANG==='en'&&config.noticeEn) ? config.noticeEn : (config.notice||'');
   }
   function refreshLangContent(){
@@ -1900,9 +2089,42 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       hidden.value=this.dataset.value;
     }));
   }
+  function renderVoucherSourceChips(){
+    const box=document.getElementById('voucherSourceChips'), hidden=document.getElementById('voucherSource');
+    if(!box||!hidden) return;
+    const flyer=(CUR_LANG==='en'&&config.flyerOptionLabelEn)?config.flyerOptionLabelEn:(config.flyerOptionLabel||'傳單（A 1-1000）');
+    const v20=(CUR_LANG==='en'&&config.v20OptionLabelEn)?config.v20OptionLabelEn:(config.v20OptionLabel||'$20 優惠券');
+    const opts=[{v:'flyer',t:flyer},{v:'v20',t:v20}];
+    const cur=(hidden.value==='v20')?'v20':'flyer';
+    box.innerHTML=opts.map(function(o){ return '<button type="button" class="chip-btn'+(cur===o.v?' active':'')+'" data-value="'+o.v+'">'+escHtml(o.t)+'</button>'; }).join('');
+    box.querySelectorAll('.chip-btn').forEach(function(b){
+      b.addEventListener('click',function(){
+        box.querySelectorAll('.chip-btn').forEach(function(x){ x.classList.remove('active'); });
+        this.classList.add('active');
+        hidden.value=this.dataset.value;
+        applyVoucherSourceUI();
+        try{ saveDraft(); }catch(e){}
+      });
+    });
+    applyVoucherSourceUI();
+  }
+  function applyVoucherSourceUI(){
+    const isV20=getVoucherSource()==='v20';
+    const wrap=document.getElementById('voucherCodeWrap');
+    if(wrap) wrap.style.display=isV20?'none':'flex';
+    if(isV20){
+      const num=document.getElementById('voucherNumber'); if(num) num.value='';
+      const note=document.getElementById('voucherCodeNote'); if(note) note.textContent='';
+      const g=document.getElementById('group-voucherCode'); if(g) g.classList.remove('hw-invalid');
+    }
+    try{ renderConfirmBoxes(); }catch(e){}
+    const bn=document.getElementById('bookingNoticeContent');
+    if(bn) bn.innerHTML=noticeText().replace(/\n/g,'<br>');
+  }
   function renderBookingOptionSelects(){
     renderChipGroup('genderChips','gender',config.genders);
     renderChipGroup('serviceChips','service',config.services);
+    renderVoucherSourceChips();
   }
 
   function renderStaffOptionSelects(){
@@ -1924,6 +2146,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
         '<input type="text" class="vr-prefix" data-i="'+i+'" value="'+(r.prefix||'')+'" placeholder="前綴" style="width:80px;">'+
         '<input type="number" class="vr-from" data-i="'+i+'" value="'+(r.from===undefined?1:r.from)+'" placeholder="由" style="width:90px;">'+
         '<input type="number" class="vr-to" data-i="'+i+'" value="'+(r.to===undefined?1000:r.to)+'" placeholder="到" style="width:90px;">'+
+        '<input type="text" class="vr-note" data-i="'+i+'" value="'+String(r.note||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" placeholder="備註文字（只儲存）" style="flex:1;min-width:130px;">'+
         '<label style="display:inline-flex;gap:4px;align-items:center;"><input type="checkbox" class="vr-show" data-i="'+i+'" '+(r.show!==false?'checked':'')+'> 顯示</label>'+
         '<button type="button" class="btn-small vr-del" data-i="'+i+'">刪除</button>'+
       '</div>';
@@ -1931,6 +2154,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     box.querySelectorAll('.vr-prefix').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].prefix=this.value.trim().toUpperCase(); }); });
     box.querySelectorAll('.vr-from').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].from=Number(this.value)||1; }); });
     box.querySelectorAll('.vr-to').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].to=Number(this.value)||1000; }); });
+    box.querySelectorAll('.vr-note').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].note=this.value; }); });
     box.querySelectorAll('.vr-show').forEach(function(el){ el.addEventListener('change',function(){ config.voucherCodeRules[this.dataset.i].show=this.checked; }); });
     box.querySelectorAll('.vr-del').forEach(function(el){ el.addEventListener('click',function(){ config.voucherCodeRules.splice(Number(this.dataset.i),1); renderVoucherRules(); }); });
   }
@@ -1939,7 +2163,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       const b=document.getElementById('addVoucherRule');
       if(b) b.addEventListener('click',function(){
         config.voucherCodeRules=config.voucherCodeRules||[];
-        config.voucherCodeRules.push({prefix:'',from:1,to:1000,show:true});
+        config.voucherCodeRules.push({prefix:'',from:1,to:1000,show:true,note:''});
         renderVoucherRules();
       });
     });
@@ -1977,6 +2201,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     const num=parseInt(String(code).slice(rule.prefix.length),10);
     if(!isFinite(num)||num<Number(rule.from)||num>Number(rule.to))
       return {ok:false,msg:'此號碼不在可用範圍（'+rule.prefix+rule.from+' 至 '+rule.prefix+rule.to+'）'};
+    if(FC('allowDuplicate')&&FC('allowDuplicate').voucherCode) return {ok:true};
     try{
       const snap=await db.collection('appointments').where('voucherCode','==',code).get();
       let used=false;
@@ -1993,16 +2218,21 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(vis.email)       h+='<p><strong>'+(lab.email||'Email')+'：</strong>'+(b.email||'')+'</p>';
     if(vis.gender)      h+='<p><strong>'+(lab.gender||'性別')+'：</strong>'+(b.gender||'')+'</p>';
     if(vis.service)     h+='<p><strong>'+(lab.service||'服務項目')+'：</strong>'+(b.service||'')+'</p>';
-    if(vis.voucherCode) h+='<p><strong>'+(lab.voucherCode||'優惠券號碼')+'：</strong>'+(b.voucherCode||'')+'</p>';
+    if(vis.voucherCode){
+      if(b.voucherKind==='v20') h+='<p><strong>優惠券：</strong>$20 優惠券</p>';
+      else if(b.voucherCode) h+='<p><strong>'+(lab.voucherCode||'優惠券號碼')+'：</strong>'+b.voucherCode+'</p>';
+    }
     if(vis.phone)       h+='<p><strong>'+(lab.phone||'電話號碼')+'：</strong>'+(b.phone||'')+'</p>';
     return h;
   }
 
-  async function checkDuplicates(vals){
+  async function checkDuplicates(vals,forcedType){
     const pairs=[['email','Email'],['name','姓名'],['phone','電話號碼'],['voucherCode','優惠券號碼']];
     try{
       const snap=await db.collection('appointments').where('status','==','pending').get();
-      const list=[]; snap.forEach(function(doc){ list.push(doc.data()); });
+      const list=[];
+      const myType=forcedType||((typeof VARIANT!=='undefined'&&VARIANT==='voucher')?'voucher':'normal');
+      snap.forEach(function(doc){ const d=doc.data(); if((d.type||'normal')===myType) list.push(d); });
       for(const p of pairs){
         const k=p[0], label=p[1];
         if(!FC('visibleFields')[k]) continue;
@@ -2161,6 +2391,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     return result;
   }
 
+  function calMsg(t){ if(typeof showStep2Feedback==='function') showStep2Feedback(t); else showFeedback(t,true); }
   function renderStudentCalendar(){
     const y=studentYear,m=studentMonth;
     const ymKey=`${y}-${pad2(m+1)}`;
@@ -2206,16 +2437,16 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     document.querySelectorAll('#studentCalGrid .cal-cell:not(.empty-cell)').forEach(cell=>{
       cell.addEventListener('click',function(){
         const ds=this.dataset.date;
-        if(ds<=getTodayStr()){ showFeedback('只能預約明天或以後的日期'); return; }
+        if(ds<=getTodayStr()){ calMsg('只能預約明天或以後的日期'); return; }
         if(config.dailyCutoff){
           const t=new Date(ds+'T00:00:00'), now=new Date();
           if(t.toDateString()===new Date(now.getTime()+86400000).toDateString()){
             const p=config.dailyCutoff.split(':'), cut=new Date();
             cut.setHours(parseInt(p[0],10),parseInt(p[1],10),0,0);
-            if(now>cut){ showFeedback('今日預約已截止，請選擇其他日期'); return; }
+            if(now>cut){ calMsg('今日預約已截止，請選擇其他日期'); return; }
           }
         }
-        currentSelectedDate=ds; renderTimeSlots(ds); renderStudentCalendar();
+        currentSelectedDate=ds; showStep2Feedback(''); renderTimeSlots(ds); renderStudentCalendar();
       });
     });
   }
@@ -2227,7 +2458,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(!date){ sel.innerHTML='<option value="">請先選擇日期</option>'; note.innerText=''; return; }
     const avail=getAvailableTimeSlots(date);
     if(!avail.length){ sel.innerHTML='<option value="">本日已滿</option>'; note.innerText='所有時段已被預約'; }
-    else{ sel.innerHTML=avail.map(t=>`<option value="${t}">${t}</option>`).join(''); note.innerText=`可預約時段（共 ${avail.length} 個）`; }
+    else{ sel.innerHTML='<option value="">請選擇時間</option>'+avail.map(t=>`<option value="${t}">${t}</option>`).join(''); sel.value=''; note.innerText=`可預約時段（共 ${avail.length} 個），請自行選擇`; }
   }
 
   function renderAdminCalendar(){
@@ -2430,7 +2661,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     const today=getTodayStr();
     if(found.date>=today&&isWithinTwoHours(found)){ showFeedback('預約時間前2小時內無法修改或取消'); return; }
     if(found.date<today){ showFeedback('過期預約無法修改'); return; }
-    if(found.date===today&&!confirm('您今天的預約即將取消，需提前一日重新預約。確定繼續嗎？')) return;
+    if(found.date===today&&!await hwConfirm('您今天的預約即將取消，需提前一日重新預約。確定繼續嗎？')) return;
 
     if(!await deleteBookingById(found.id)){ showFeedback('刪除失敗，請稍後再試'); return; }
     monthLoaded[found.date.slice(0,7)]=false;
@@ -2453,6 +2684,381 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     performModify(input.trim(), document.getElementById('name').value.trim());
   });
 
+  /* ===== 三頁流程：頁面切換 ===== */
+  let stubReturn=2;
+  function setStepBar(n,txt){
+    const left=document.getElementById('stepBarLeft');
+    if(left) left.innerHTML='<span class="dot">'+n+'</span><span id="stepBarText">'+txt+'</span>';
+  }
+  function showStep(n){
+    const wrap=document.getElementById('fieldOrderWrap'), nav=document.getElementById('stepNav');
+    const s2=document.getElementById('step2'), s3=document.getElementById('step3'), stub=document.getElementById('stepStub');
+    if(wrap) wrap.classList.toggle('hidden', n!==1);
+    if(nav) nav.classList.toggle('hidden', n!==1);
+    if(s2) s2.classList.toggle('hidden', n!==2);
+    if(s3) s3.classList.toggle('hidden', n!==3);
+    if(stub) stub.classList.toggle('hidden', n!==0);
+    const myBtn=document.getElementById('myBookingsBtn');
+    if(myBtn) myBtn.style.display=(n===3)?'none':'';
+    if(n===1) setStepBar(1,'步驟 1／3　填寫個人資料');
+    if(n===2) setStepBar(2,'步驟 2／3　選擇日期與時間');
+    if(n===3) setStepBar(3,'步驟 3／3　確認並提交');
+    try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
+  }
+  function showStub(text,backTo){
+    const stub=document.getElementById('stepStub');
+    if(!stub) return;
+    stubReturn=backTo;
+    stub.innerHTML='<div id="stubText"></div>';
+    stub.querySelector('#stubText').textContent=text;
+    const b=document.createElement('button');
+    b.type='button'; b.id='backStep1'; b.className='stub-back'; b.textContent='← 返回上一頁';
+    stub.appendChild(b);
+    b.addEventListener('click',function(){ showStep(stubReturn); });
+    showStep(0);
+  }
+  function showStep2Feedback(msg){
+    const fb=document.getElementById('step2Feedback');
+    if(!fb) return;
+    if(!msg){ fb.style.display='none'; fb.textContent=''; return; }
+    fb.textContent=msg; fb.className='form-feedback error'; fb.style.display='block';
+  }
+
+  /* ===== 三頁流程：第 1 頁（個人資料） ===== */
+  function fieldVal(f){
+    if(f==='voucherCode'){
+      const p=document.getElementById('voucherPrefix'), n=document.getElementById('voucherNumber');
+      const pv=p?p.value:'', nv=n?n.value.trim():'';
+      return (pv&&nv)?(pv+nv):'';
+    }
+    const el=document.getElementById(f);
+    return el?String(el.value||'').trim():'';
+  }
+  function clearFieldErrors(){
+    document.querySelectorAll('.form-group').forEach(function(g){ g.classList.remove('hw-invalid'); });
+  }
+  function clearOneError(g){
+    if(!g) return;
+    g.classList.remove('hw-invalid');
+    const e=g.querySelector('.hw-field-err');
+    if(e) e.textContent='';
+  }
+  /* 客人一改動該欄，立即取消該欄的紅字（已填好就不再紅） */
+  (function(){
+    function hit(ev){
+      const t=ev.target;
+      if(!t||!t.closest) return;
+      const g=t.closest('.form-group');
+      if(g&&g.classList.contains('hw-invalid')) clearOneError(g);
+    }
+    document.addEventListener('input',hit,true);
+    document.addEventListener('change',hit,true);
+    document.addEventListener('click',hit,true);
+  })();
+
+  function markFieldError(f,msg){
+    const g=document.getElementById('group-'+f);
+    if(!g) return;
+    g.classList.add('hw-invalid');
+    let e=g.querySelector('.hw-field-err');
+    if(!e){ e=document.createElement('div'); e.className='hw-field-err'; g.appendChild(e); }
+    e.textContent=msg;
+  }
+  async function validateStep1(){
+    clearFieldErrors();
+    const vis=FC('visibleFields'), req=FC('requiredFields');
+    if(vis.email&&req.email&&!fieldVal('email')) return {f:'email',msg:'請填寫 Email'};
+    if(vis.email&&fieldVal('email')&&fieldVal('email').indexOf('@')<0) return {f:'email',msg:'請輸入有效的 Email'};
+    if(vis.name&&req.name&&!fieldVal('name')) return {f:'name',msg:'請填寫姓名'};
+    if(vis.gender&&req.gender&&!fieldVal('gender')) return {f:'gender',msg:'請選擇性別'};
+    if(vis.service&&req.service&&!fieldVal('service')) return {f:'service',msg:'請選擇服務項目'};
+    const src=getVoucherSource();
+    if(src==='flyer'&&vis.voucherCode&&req.voucherCode&&!fieldVal('voucherCode')) return {f:'voucherCode',msg:'請填寫優惠券號碼'};
+    if(vis.phone&&req.phone&&!fieldVal('phone')) return {f:'phone',msg:'請填寫電話號碼'};
+    if(src==='flyer'&&vis.voucherCode&&fieldVal('voucherCode')){
+      const r=await checkVoucherCode(fieldVal('voucherCode'));
+      if(!r.ok) return {f:'voucherCode',msg:r.msg};
+    }
+    const dup=await checkDuplicates({email:fieldVal('email'),name:fieldVal('name'),phone:fieldVal('phone'),voucherCode:(src==='flyer'?fieldVal('voucherCode'):'')},(src==='v20')?'voucher':'normal');
+    if(dup) return {f:'',msg:dup};
+    return null;
+  }
+  let pwdOnOk=null;
+  function openPwd(title,hint,ok){
+    const panel=document.getElementById('pwdPanel');
+    if(!panel) return;
+    pwdOnOk=ok;
+    document.getElementById('pwdTitle').textContent=title;
+    document.getElementById('pwdHint').textContent=hint||'請輸入密碼';
+    const inp=document.getElementById('pwdInput');
+    inp.value=''; inp.type='password';
+    const m=document.getElementById('pwdMsg'); if(m) m.textContent='';
+    panel.classList.remove('hidden');
+    setTimeout(function(){ try{ inp.focus(); }catch(e){} },120);
+  }
+  function pwdMsg(t){
+    const m=document.getElementById('pwdMsg');
+    if(!m) return;
+    m.textContent=t||'';
+    m.className=t?'pwd-err':'';
+  }
+  function closePwd(){ const p=document.getElementById('pwdPanel'); if(p) p.classList.add('hidden'); pwdOnOk=null; }
+  (function(){
+    const panel=document.getElementById('pwdPanel');
+    if(!panel) return;
+    const inp=document.getElementById('pwdInput'), ok=document.getElementById('pwdOk'), cl=document.getElementById('pwdClose');
+    async function submit(){
+      const p=(inp.value||'').trim();
+      if(!p){ pwdMsg('請輸入密碼'); return; }
+      ok.disabled=true;
+      let res=false;
+      try{ res=await pwdOnOk(p); }catch(e){ res=false; }
+      ok.disabled=false;
+      if(res){ closePwd(); return; }
+      pwdMsg('密碼不正確，請再試一次');
+      inp.value=''; inp.focus();
+    }
+    if(ok) ok.addEventListener('click',submit);
+    if(cl) cl.addEventListener('click',closePwd);
+    if(inp) inp.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); submit(); } });
+    panel.addEventListener('click',function(ev){ if(ev.target===panel) closePwd(); });
+  })();
+  document.getElementById('adminLockBtn').addEventListener('click',function(){
+    openPwd('管理員登入','請輸入管理員密碼',async function(p){
+      if(!(await authRole('admin',p))) return false;
+      const ap=document.getElementById('adminPass'); if(ap) ap.value=p;
+      document.getElementById('viewCalendarBtn').click();
+      return true;
+    });
+  });
+  (function(){
+    const btn=document.getElementById('nextStepBtn');
+    if(!btn) return;
+    btn.addEventListener('click',async function(){
+      if(btn.disabled) return;
+      btn.disabled=true; btn.textContent='檢查中…';
+      const err=await validateStep1();
+      btn.disabled=false; btn.textContent='下一頁 →';
+      if(err){
+        if(err.f) markFieldError(err.f,err.msg);
+        showFeedback(err.msg,true);
+        try{ hwToast(err.msg); }catch(e){}
+        const g=err.f?document.getElementById('group-'+err.f):null;
+        if(g&&g.scrollIntoView){ try{ g.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
+        return;
+      }
+      if(document.getElementById('step2Feedback')) document.getElementById('step2Feedback').style.display='none';
+      showStep(2);
+    });
+  })();
+  /* ===== 第 2 頁：日期與時間 ===== */
+  (function(){
+    const back=document.getElementById('backStep2Btn'), next=document.getElementById('nextStep2Btn');
+    if(back) back.addEventListener('click',function(){ showStep(1); });
+    if(next) next.addEventListener('click',function(){
+      const t=document.getElementById('timeSlot');
+      const g=document.getElementById('group-timeSlot');
+      if(!currentSelectedDate){
+        if(g) g.classList.add('hw-invalid');
+        showStep2Feedback('請先選擇預約日期');
+        return;
+      }
+      if(!t||!t.value){
+        if(g) g.classList.add('hw-invalid');
+        const av0=getAvailableTimeSlots(currentSelectedDate);
+        showStep2Feedback(av0.length?'請自行選擇預約時間':'本日已滿，請選擇其他日期');
+        return;
+      }
+      if(g) g.classList.remove('hw-invalid');
+      showStep2Feedback('');
+      availabilityCache.clear();
+      const avail=getAvailableTimeSlots(currentSelectedDate);
+      if(avail.length&&avail.indexOf(t.value)<0){
+        if(g) g.classList.add('hw-invalid');
+        showStep2Feedback('「'+t.value+'」剛剛已被預約，請重新選擇時間');
+        renderTimeSlots(currentSelectedDate);
+        return;
+      }
+      showStep(3);
+    });
+    const t=document.getElementById('timeSlot');
+    if(t) t.addEventListener('change',function(){ showStep2Feedback(''); const g=document.getElementById('group-timeSlot'); if(g) g.classList.remove('hw-invalid'); });
+  })();
+
+  /* ===== 我的預約（獨立入口） ===== */
+  (function(){
+    const btn=document.getElementById('myBookingsBtn'), panel=document.getElementById('myPanel');
+    if(!btn||!panel) return;
+    const closeBtn=document.getElementById('myClose'), qBtn=document.getElementById('myQueryBtn'), email=document.getElementById('myEmail');
+    function msg(t){
+      const m=document.getElementById('myMsg');
+      if(!m) return;
+      m.textContent=t||'';
+      m.style.color=t?'#E5484D':'';
+    }
+    function open(){
+      panel.classList.remove('hidden');
+      const e=document.getElementById('email');
+      const cur=(e&&e.value.trim())||localStorage.getItem('hwLastEmail')||'';
+      if(cur) email.value=cur;
+      query();
+    }
+    function shut(){ panel.classList.add('hidden'); }
+    async function query(){
+      const v=(email.value||'').trim();
+      const res=document.getElementById('myResult');
+      if(!res) return;
+      msg('');
+      if(!v){ res.innerHTML=''; msg('請輸入預約時使用的 Email'); return; }
+      res.innerHTML='<div class="my-hint">查詢中…</div>';
+      let list=[];
+      const myTypes=(VARIANT==='voucher')?['voucher']:['normal','voucher'];
+      try{
+        const snap=await db.collection('appointments').where('email','==',v).get();
+        snap.forEach(function(doc){ const d=doc.data(); d.id=doc.id; if(d.status==='pending'&&myTypes.indexOf(d.type||'normal')>=0) list.push(d); });
+      }catch(e){
+        console.error('我的預約查詢失敗',e);
+        res.innerHTML='<div class="my-hint">讀取失敗，請稍後再試。</div>';
+        return;
+      }
+      if(!list.length){
+        try{
+          const snap2=await db.collection('appointments').where('status','==','pending').get();
+          const low=v.toLowerCase();
+          snap2.forEach(function(doc){ const d=doc.data(); d.id=doc.id; if(String(d.email||'').trim().toLowerCase()===low&&myTypes.indexOf(d.type||'normal')>=0) list.push(d); });
+        }catch(e){}
+      }
+      if(!list.length){
+        res.innerHTML='<div class="my-hint">找不到未完成的預約。若之前已提交，可能已完成或被取消。</div>';
+        return;
+      }
+      res.innerHTML=list.map(function(b){
+        return '<div class="info-card" style="margin:8px 0;">'+recordHtml(b)+
+          '<button type="button" class="btn btn-secondary my-cancel" data-id="'+b.id+'" data-date="'+(b.date||'')+'" style="margin-top:8px;">取消並重新預約</button></div>';
+      }).join('');
+      res.querySelectorAll('.my-cancel').forEach(function(btn2){
+        btn2.addEventListener('click',function(){ askCancel(this.dataset.id,this.dataset.date); });
+      });
+    }
+    function askCancel(id,date){
+      const res=document.getElementById('myResult');
+      res.innerHTML='<div class="my-confirm"><p style="font-weight:700;color:#E5484D;margin:0 0 6px;">取消預約提醒</p>'+
+        '<p style="margin:0 0 10px;line-height:1.7;">取消後，你<b>只可以預約明天或之後</b>的時間（即日不接受預約）。是否確定取消？</p>'+
+        '<div class="my-row" style="margin:0;"><button type="button" class="btn-small" id="myYes">確定取消</button>'+
+        '<button type="button" class="btn-small" id="myNo" style="background:#fff;color:#B04400;border:1.5px solid #FFB985;">返回</button></div></div>';
+      document.getElementById('myYes').addEventListener('click',function(){ doCancel(id,date); });
+      document.getElementById('myNo').addEventListener('click',function(){ query(); });
+    }
+    function busy(t){
+      const res=document.getElementById('myResult');
+      if(res) res.innerHTML='<div class="my-hint">'+t+'</div>';
+    }
+    async function doCancel(id,date){
+      const today=getTodayStr();
+      if(date&&date<today){ msg('過期預約無法修改，請聯絡店舖'); query(); return; }
+      let d0={};
+      try{
+        const doc=await db.collection('appointments').doc(id).get();
+        d0=(doc&&doc.data)?(doc.data()||{}):{};
+        if(date&&date>=today&&typeof isWithinTwoHours==='function'&&isWithinTwoHours(d0)){
+          msg('預約時間前2小時內無法修改或取消，請直接到店或聯絡店舖'); query(); return;
+        }
+      }catch(e){}
+      msg('');
+      busy('正在取消，請稍候…');
+      if(!await deleteBookingById(id)){
+        msg('取消失敗，請稍後再試');
+        busy('取消未成功，請再試一次。');
+        return;
+      }
+      if(date) monthLoaded[String(date).slice(0,7)]=false;
+      const area=document.getElementById('studentInfoArea'); if(area) area.style.display='none';
+      try{ availabilityCache.clear(); renderTimeSlots(currentSelectedDate); renderStudentCalendar(); }catch(e){}
+      const res=document.getElementById('myResult');
+      const booked=(d0.date?(d0.date+(d0.time?(' '+d0.time):'')):'');
+      res.innerHTML='<div class="info-card" style="margin:8px 0;border:1.5px solid #28a745;background:rgba(40,167,69,.1);">'+
+        '<p style="font-weight:700;color:#1e7e34;margin:0 0 8px;font-size:16px;">✅ 已成功取消預約</p>'+
+        (booked?('<p style="margin:0 0 8px;"><strong>取消了：</strong>'+booked+'</p>'):'')+
+        (d0.voucherCode?('<p style="margin:0 0 8px;"><strong>優惠券號碼：</strong>'+d0.voucherCode+'（此券號已可再次使用）</p>'):'')+
+        '<p style="margin:0 0 12px;line-height:1.7;">你的預約已從系統移除。請返回表格選擇新的日期與時間（只可預約明天或之後）。</p>'+
+        '<div class="my-row" style="margin:0;flex-wrap:wrap;">'+
+        '<button type="button" class="btn-small" id="myGoForm">返回表格重新預約</button>'+
+        '<button type="button" class="btn-small" id="myAgain" style="background:#fff;color:#B04400;border:1.5px solid #FFB985;">再查一次</button>'+
+        '</div></div>';
+      const go=document.getElementById('myGoForm');
+      if(go) go.addEventListener('click',function(){
+        const e=document.getElementById('email');
+        if(e&&!e.value) e.value=(email.value||'').trim();
+        try{ saveDraft(); }catch(err){}
+        shut(); showStep(1);
+      });
+      const again=document.getElementById('myAgain');
+      if(again) again.addEventListener('click',query);
+    }
+    const b3=document.getElementById('backStep3Btn');
+    if(b3) b3.addEventListener('click',function(){ showStep(2); });
+    btn.addEventListener('click',open);
+    if(closeBtn) closeBtn.addEventListener('click',shut);
+    if(qBtn) qBtn.addEventListener('click',query);
+    if(email) email.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); query(); } });
+    panel.addEventListener('click',function(ev){ if(ev.target===panel) shut(); });
+    const staffLink=document.getElementById('staffLink');
+    if(staffLink) staffLink.addEventListener('click',function(){
+      openPwd('員工登入','請輸入員工密碼',async function(p){
+        if(!(await authRole('staff',p))) return false;
+        const inp=document.getElementById('staffPass'); if(inp) inp.value=p;
+        document.getElementById('enterStaffBtn').click();
+        return true;
+      });
+    });
+  })();
+
+  /* ===== 草稿保存：切換日夜模式／重新載入都不會丟失已填資料 ===== */
+  const DRAFT_KEY='hwBookingDraft';
+  const DRAFT_TEXT=['email','name','phone','voucherNumber'];
+  function saveDraft(){
+    const d={ts:Date.now()};
+    DRAFT_TEXT.forEach(function(f){ const el=document.getElementById(f); if(el) d[f]=el.value; });
+    const p=document.getElementById('voucherPrefix'); if(p) d.voucherPrefix=p.value;
+    const vs=document.getElementById('voucherSource'); if(vs) d.voucherSource=vs.value;
+    ['gender','service'].forEach(function(f){ const el=document.getElementById(f); if(el) d[f]=el.value; });
+    try{ localStorage.setItem(DRAFT_KEY,JSON.stringify(d)); }catch(e){}
+  }
+  function restoreDraft(){
+    let d={};
+    try{ d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}'); }catch(e){ d={}; }
+    if(!d||!d.ts||Date.now()-d.ts>30*60000){ clearDraft(); return; }
+    DRAFT_TEXT.forEach(function(f){ const el=document.getElementById(f); if(el&&d[f]) el.value=d[f]; });
+    const p=document.getElementById('voucherPrefix'); if(p&&d.voucherPrefix) p.value=d.voucherPrefix;
+    const vs=document.getElementById('voucherSource'); if(vs&&d.voucherSource) vs.value=d.voucherSource;
+    ['gender','service'].forEach(function(f){ const el=document.getElementById(f); if(el&&d[f]) el.value=d[f]; });
+    try{ renderBookingOptionSelects(); }catch(e){}
+    const vn=document.getElementById('voucherNumber'); if(vn) vn.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  function clearDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} }
+  function resetBookingForm(){
+    ['email','name','phone','voucherNumber'].forEach(function(f){ const el=document.getElementById(f); if(el) el.value=''; });
+    ['gender','service'].forEach(function(f){ const el=document.getElementById(f); if(el) el.value=''; });
+    const vs=document.getElementById('voucherSource'); if(vs) vs.value='flyer';
+    try{ renderBookingOptionSelects(); }catch(e){}
+    try{ renderConfirmBoxes(); }catch(e){}
+    clearDraft();
+    try{ hideFeedback(); }catch(e){}
+    const area=document.getElementById('studentInfoArea'); if(area) area.style.display='none';
+    const box=document.getElementById('backHomeConfirm'); if(box) box.innerHTML='';
+    const fb2=document.getElementById('step2Feedback'); if(fb2) fb2.style.display='none';
+    try{ document.getElementById('timeSlot').innerHTML='<option value="">請先選擇日期</option>'; }catch(e){}
+    currentSelectedDate=getTomorrowStr();
+    showStep(1);
+  }
+  (function(){
+    const form=document.getElementById('bookingForm');
+    if(!form) return;
+    ['input','change','click'].forEach(function(ev){ form.addEventListener(ev,saveDraft,true); });
+    form.addEventListener('input',function(){ try{ hideFeedback(); }catch(e){} });
+    restoreDraft();
+  })();
+
   let submitting=false;
   document.getElementById('submitBooking').addEventListener('click',async function(){
     if(submitting) return;
@@ -2468,6 +3074,9 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     const voucherCode=(vPrefix&&vNum)?(vPrefix+vNum):'';
     const date=currentSelectedDate;
     const time=document.getElementById('timeSlot').value;
+    const src=getVoucherSource();
+    const isV20=(src==='v20');
+    const submitType=isV20?'voucher':'normal';
     const confirmBoxes=Array.from(document.querySelectorAll('#confirmBoxesContainer .confirm-chk'));
 
     if(FC('visibleFields').email&&FC('requiredFields').email&&!email){ showFeedback('請填寫 Email'); return; }
@@ -2475,8 +3084,8 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(FC('visibleFields').gender&&FC('requiredFields').gender&&!gender){ showFeedback('請選擇性別'); return; }
     if(FC('visibleFields').service&&FC('requiredFields').service&&!service){ showFeedback('請選擇服務項目'); return; }
     if(FC('visibleFields').phone&&FC('requiredFields').phone&&!phone){ showFeedback('請填寫電話號碼'); return; }
-    if(FC('visibleFields').voucherCode&&FC('requiredFields').voucherCode&&!voucherCode){ showFeedback('請填寫優惠券號碼'); return; }
-    if(voucherCode&&FC('visibleFields').voucherCode){
+    if(!isV20&&FC('visibleFields').voucherCode&&FC('requiredFields').voucherCode&&!voucherCode){ showFeedback('請填寫優惠券號碼'); return; }
+    if(!isV20&&voucherCode&&FC('visibleFields').voucherCode){
       const vc=await checkVoucherCode(voucherCode);
       if(!vc.ok){ showFeedback(vc.msg,true); return; }
     }
@@ -2505,36 +3114,57 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(isBlockedEmail(email)){ showFeedback('此 Email 已被停用，請聯絡店舖',true); return; }
 
     {
-      const dupMsg=await checkDuplicates({email:email,name:name,phone:phone,voucherCode:voucherCode});
+      const dupMsg=await checkDuplicates({email:email,name:name,phone:phone,voucherCode:(isV20?'':voucherCode)},submitType);
       if(dupMsg){ showFeedback(dupMsg,true); return; }
     }
 
     if(!isTestDevice()){
-      const lim=await checkDailyLimits(email);
+      const lim=await checkDailyLimits(email,submitType);
       if(!lim.ok){ showFeedback(lim.msg,true); return; }
     }
 
     submitting=true;
     this.disabled=true;
     localStorage.setItem('hwLastSubmit',String(Date.now()));
-    const result=await createBooking({email,name,gender,service,phone,voucherCode,date,time},'normal');
+    const submitVoucherCode=isV20?'':voucherCode;
+    const result=await createBooking({email,name,gender,service,phone,voucherCode:submitVoucherCode,date,time,voucherKind:(isV20?'v20':'flyer')},submitType);
 
     if(result.success){
       localStorage.setItem('hwLastEmail',email);
+      clearDraft();
       showFeedback('系統處理中，請稍候約5秒...',false);
       setTimeout(()=>{
         showFeedback('預約成功！',false);
         monthLoaded[date.slice(0,7)]=false;
         renderStudentCalendar(); renderTimeSlots(date);
         document.getElementById('studentInfoContent').innerHTML=
-          recordHtml({date:date,time:time,name:name,email:email,gender:gender,service:service,voucherCode:voucherCode,phone:phone})+'<p style="color:#28a745;">預約成功</p>';
+          recordHtml({date:date,time:time,name:name,email:email,gender:gender,service:service,voucherCode:submitVoucherCode,phone:phone})+
+          (isV20?'<p style="color:#1F6FEB;font-weight:700;margin:8px 0 0;">優惠券：$20 優惠券</p>':'')+
+          '<p style="color:#28a745;font-weight:700;margin:6px 0 0;">預約成功</p>'+
+          '<p style="color:#E5484D;font-weight:700;margin:10px 0 4px;line-height:1.7;">📸 請立即截圖這張預約記錄，到店時出示</p>'+
+          '<button type="button" class="btn btn-secondary" id="backHomeBtn" style="margin-top:10px;">返回主頁</button>'+
+          '<div id="backHomeConfirm"></div>';
         document.getElementById('studentInfoArea').style.display='block';
+        const bh=document.getElementById('backHomeBtn');
+        if(bh) bh.addEventListener('click',function(){
+          const box=document.getElementById('backHomeConfirm');
+          box.innerHTML='<div class="my-confirm" style="margin-top:10px;">'+
+            '<p style="font-weight:700;margin:0 0 8px;">是否已截圖預約記錄？</p>'+
+            '<div class="my-row" style="margin:0;flex-wrap:wrap;">'+
+            '<button type="button" class="btn-small" id="confirmShot">已截圖，返回主頁</button>'+
+            '<button type="button" class="btn-small" id="cancelShot" style="background:#fff;color:#B04400;border:1.5px solid #FFB985;">還未截圖</button>'+
+            '</div></div>';
+          document.getElementById('confirmShot').addEventListener('click',resetBookingForm);
+          document.getElementById('cancelShot').addEventListener('click',function(){ box.innerHTML=''; });
+        });
         submitting=false; document.getElementById('submitBooking').disabled=false;
       },REVIEW_WINDOW_MS);
     }else if(result.error==='slot_taken'){
       showFeedback('此時間段已被預約，請重新選擇',true);
       await fetchDaySlots(date,true); renderTimeSlots(date); renderStudentCalendar();
       submitting=false; this.disabled=false;
+      showStep(2);
+      showStep2Feedback('「'+(date||'')+' '+(time||'')+'」剛剛已被其他人預約，請重新選擇時間');
     }else{
       showFeedback('預約失敗：'+result.error,true);
       submitting=false; this.disabled=false;
@@ -2624,11 +3254,11 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     const ids=batchCheckboxes(scope).filter(c=>c.checked).map(c=>c.dataset.id);
     if(!ids.length){ alert('請先勾選資料'); return; }
     if(mode==='delete'){
-      if(!confirm('確定刪除已選的 '+ids.length+' 筆記錄？此操作無法復原')) return;
+      if(!await hwConfirm('確定刪除已選的 '+ids.length+' 筆記錄？此操作無法復原')) return;
       for(const id of ids){ await deleteBookingById(id); }
     }else{
       if(!staffEditMode&&!staffCanEditDefault){ alert('請先解鎖編輯模式'); return; }
-      if(!confirm('確定把已選的 '+ids.length+' 筆改回「待處理」？')) return;
+      if(!await hwConfirm('確定把已選的 '+ids.length+' 筆改回「待處理」？')) return;
       for(const id of ids){ await updateBookingStatus(id,'pending',{completedAt:null}); }
     }
     await fetchAllBookings();
@@ -2670,27 +3300,27 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
 
     if(t.classList.contains('batch-action')){ await batchDo(t.dataset.scope,t.dataset.mode); return; }
     if(t.classList.contains('complete-btn')&&!t.closest('#staffPage')){
-      if(!confirm('標記為已完成？')) return;
+      if(!await hwConfirm('標記為已完成？')) return;
       await updateBookingStatus(t.dataset.id,'completed',{completedAt:new Date().toISOString()});
       await fetchAllBookings(); renderAdminCalendar(); renderTables(); renderStudentCalendar();
       return;
     }
     if(t.classList.contains('revert-btn')){
       const b=bookings.find(x=>x.id===t.dataset.id); if(!b) return;
-      if(!confirm('返回待處理？')) return;
+      if(!await hwConfirm('返回待處理？')) return;
       await updateBookingStatus(b.id,'pending',{completedAt:null});
       await fetchAllBookings(); renderAdminCalendar(); renderTables(); renderStudentCalendar();
       return;
     }
     if(t.classList.contains('delete-row-btn')){
-      if(!confirm('確定刪除此預約？')) return;
+      if(!await hwConfirm('確定刪除此預約？')) return;
       await deleteBookingById(t.dataset.id);
       await fetchAllBookings(); renderAdminCalendar(); renderTables(); renderStudentCalendar();
       return;
     }
     if(t.classList.contains('delete-btn')&&t.closest('#appointmentList')){
       const item=t.closest('.appointment-item');
-      if(!confirm('確定刪除？')) return;
+      if(!await hwConfirm('確定刪除？')) return;
       await deleteBookingById(item.dataset.id);
       await fetchAllBookings(); renderAdminCalendar(); renderTables(); showDateDetail(item.dataset.date);
       return;
@@ -2741,7 +3371,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     }
     if(t.classList.contains('delete-record')){
       if(!staffEditMode&&!staffCanEditDefault){ alert('無編輯權限'); return; }
-      if(!confirm('確定刪除此記錄？此操作無法復原')) return;
+      if(!await hwConfirm('確定刪除此記錄？此操作無法復原')) return;
       await deleteBookingById(t.dataset.id);
       await fetchAllBookings(); renderStaffPage(document.getElementById('staffDatePicker').value);
       return;
@@ -2764,7 +3394,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
       return;
     }
     if(!email&&bookings.find(b=>b.name===name&&b.date===getTodayStr()&&b.type===type)){
-      if(!confirm(`今日已有同名（${name}）的${type==='voucher'?'優惠券':'一般'}記錄，仍然登記？`)) return;
+      if(!await hwConfirm(`今日已有同名（${name}）的${type==='voucher'?'優惠券':'一般'}記錄，仍然登記？`)) return;
     }
 
     const now=new Date();
@@ -2814,6 +3444,10 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     renderConfirmBoxSettings('confirmBoxesSettings',config.confirmBoxes);
     renderConfirmBoxSettings('confirmBoxesVoucherSettings',config.voucherConfirmBoxes);
     document.getElementById('parentNoticeText').value=config.parentNotice||'';
+    document.getElementById('flyerOptionLabel').value=config.flyerOptionLabel||'傳單（A 1-1000）';
+    document.getElementById('flyerOptionLabelEn').value=config.flyerOptionLabelEn||'Flyer (A 1-1000)';
+    document.getElementById('v20OptionLabel').value=config.v20OptionLabel||'$20 優惠券';
+    document.getElementById('v20OptionLabelEn').value=config.v20OptionLabelEn||'$20 Voucher';
     document.getElementById('voucherInfoText').value=config.voucherInfo||'';
     if(document.getElementById('voucherInfoTextEn')) document.getElementById('voucherInfoTextEn').value=config.voucherInfoEn||'';
 
@@ -2838,6 +3472,11 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     document.getElementById('staffSurfaceAlphaVal').textContent=(config.pageBgAlpha===undefined?90:config.pageBgAlpha)+'%';
     document.getElementById('adminBgPhotoSelect').value=config.adminBgPhoto||'none';
     document.getElementById('adminSurfaceAlpha').value=(config.adminSurfaceAlpha===undefined?90:config.adminSurfaceAlpha);
+    document.getElementById('lineColorDay').value=config.lineColorDay||'#000000';
+    document.getElementById('lineColorNight').value=config.lineColorNight||'#FFFFFF';
+    document.getElementById('lineAlpha').value=(config.lineAlpha===undefined?100:config.lineAlpha);
+    document.getElementById('lineAlphaVal').textContent=(config.lineAlpha===undefined?100:config.lineAlpha)+'%';
+    applyLineColors();
     ADMIN_MODE=true; applyBackground();
     renderLangSettings();
     await loadShadowMarks();
@@ -2892,6 +3531,10 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     config.studentCardLabel=(config.confirmBoxes[1]&&config.confirmBoxes[1].label)||'';
     config.cardNoteLabel=(config.confirmBoxes[1]&&config.confirmBoxes[1].note)||'';
     config.parentNotice=document.getElementById('parentNoticeText').value;
+    config.flyerOptionLabel=document.getElementById('flyerOptionLabel').value.trim()||'傳單（A 1-1000）';
+    config.flyerOptionLabelEn=document.getElementById('flyerOptionLabelEn').value.trim()||'Flyer (A 1-1000)';
+    config.v20OptionLabel=document.getElementById('v20OptionLabel').value.trim()||'$20 優惠券';
+    config.v20OptionLabelEn=document.getElementById('v20OptionLabelEn').value.trim()||'$20 Voucher';
     config.voucherInfo=document.getElementById('voucherInfoText').value;
     if(document.getElementById('voucherInfoTextEn')) config.voucherInfoEn=document.getElementById('voucherInfoTextEn').value;
     config.parentScreenshotLabel=(config.voucherConfirmBoxes[0]&&config.voucherConfirmBoxes[0].label)||'';
@@ -2916,6 +3559,9 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     config.pageBgAlpha=Number(document.getElementById('staffSurfaceAlpha').value);
     config.adminBgPhoto=document.getElementById('adminBgPhotoSelect').value;
     config.adminSurfaceAlpha=Number(document.getElementById('adminSurfaceAlpha').value);
+    config.lineColorDay=document.getElementById('lineColorDay').value;
+    config.lineColorNight=document.getElementById('lineColorNight').value;
+    config.lineAlpha=Number(document.getElementById('lineAlpha').value);
     config.langEnabled=document.getElementById('langEnabled').checked;
     const __ld={};
     document.querySelectorAll('#langTableBody .lang-en-input').forEach(function(inp){ if(inp.dataset.zh) __ld[inp.dataset.zh]=inp.value; });
@@ -2923,6 +3569,7 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     config.shadowMarks=shadowMarks;
 
     if(await updateConfig(config)){
+      try{ gsPost({action:'saveNotes',rules:(config.voucherCodeRules||[]).map(function(r){ return {prefix:r.prefix||'',from:r.from,to:r.to,note:r.note||''}; })}); }catch(e){}
       await fetchAllBookings();
       applyFieldSettings(); toggleCaptcha(); renderBookingOptionSelects(); renderStaffOptionSelects();
       alert('設定已儲存並同步至雲端');
@@ -2994,8 +3641,10 @@ body.dark .lang-table td.lang-zh{color:#E8EAED}
     if(!btn) return;
     btn.addEventListener('click',function(){
       const next=(localStorage.getItem(THEME_KEY)==='dark')?'light':'dark';
+      saveDraft();
       localStorage.setItem(THEME_KEY,next);
       applyTheme(next);
+      restoreDraft();
     });
   })();
 

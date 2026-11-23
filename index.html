@@ -3677,5 +3677,20 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   })();
 })();
 </script>
+<script>
+/* 修正：三頁改版後，管理員頁／員工頁被錯誤包在預約頁內，
+   導致登入後隱藏預約頁時，連管理員頁一齊隱藏（畫面空白）。
+   這裡把它們提升為 .app-container 的直接子層。 */
+(function(){
+  function hoist(id){
+    var app=document.querySelector('.app-container');
+    var el=document.getElementById(id);
+    if(!app||!el) return;
+    if(el.parentElement!==app) app.appendChild(el);
+  }
+  function go(){ ['calendarPage','staffPage'].forEach(hoist); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',go); else go();
+})();
+</script>
 </body>
 </html>

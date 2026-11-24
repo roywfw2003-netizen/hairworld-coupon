@@ -61,7 +61,21 @@ textarea{border-radius:28px;min-height:80px}
 .cal-cell.unavailable{background:#f0f0f0;color:#aaa;cursor:not-allowed}
 .cal-cell .full-mark{position:absolute;top:0;right:2px;color:#f00;font-size:16px;font-weight:bold}
 .empty-cell{background:transparent;border:none;cursor:default}
-.booking-count-red,.shadow-mark{position:absolute;bottom:2px;right:2px;width:20px;height:20px;background:#f00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:bold}
+.booking-count-red,.shadow-mark{position:absolute;bottom:2px;left:2px;width:20px;height:20px;background:#f00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:bold}
+.cap-badge{position:absolute;bottom:2px;right:2px;min-width:20px;height:18px;border-radius:9px;background:#FFF0F0;color:#E5484D;border:1px solid #E5484D;font-size:11px;line-height:16px;text-align:center;padding:0 3px;font-weight:800;z-index:2}
+.cap-badge.hit{background:#E5484D;border-color:#E5484D;color:#fff}
+.lock-mark{position:absolute;top:1px;right:2px;font-size:13px;line-height:1;opacity:.85}
+.cap-month-box{border:2px solid #F25C0A;border-radius:18px;padding:10px;margin-top:10px;background:#FFFDF9}
+.cap-month-box h6{font-size:13px;color:#B04400;margin:0 0 8px;font-weight:700}
+.cap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cap-cell{display:flex;flex-direction:column;align-items:center;background:#FFF2E3;border-radius:8px;padding:3px 1px}
+.cap-day{font-size:11px;color:#8A6A50;line-height:1.1}
+.cap-input{width:100%;max-width:36px;font-size:12px;text-align:center;border:1px solid #FFB985;border-radius:6px;padding:2px 0;background:#fff;color:#4F310B}
+.cap-input::placeholder{color:#C9B7A6}
+.cap-paste-box{margin-top:12px;border-top:1px dashed #FFB985;padding-top:10px}
+.cap-paste-box textarea{width:100%;box-sizing:border-box;border:1px solid #FFB985;border-radius:10px;padding:8px;font-size:13px;background:#fff;color:#4F310B;resize:vertical}
+.cap-paste-actions{display:flex;gap:8px;margin-top:8px}
+.cap-paste-actions button{flex:1}
 .cal-title{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
 .help-icon{width:20px;height:20px;background:#f00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:bold;cursor:help}
 .calendar-header{display:flex;justify-content:space-between;align-items:center;margin:10px 0 20px}
@@ -168,6 +182,33 @@ textarea{border-radius:28px;min-height:80px}
 .chip-btn{flex:1 1 auto;min-width:90px;padding:14px 10px;border-radius:18px;border:2px solid #FFB985;background:#fff;color:#B04400;font-size:16px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;box-sizing:border-box}
 .chip-btn:hover{background:#FFF2E3}
 .chip-btn.active{background:#F25C0A;border-color:#F25C0A;color:#fff;box-shadow:0 4px 12px rgba(242,92,10,.28)}
+.dp-block{border:1px solid #FFD8B2;border-radius:14px;padding:10px;margin-bottom:10px}
+.dp-block h5{margin:0 0 8px;font-size:14px;color:#B04400}
+.dp-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px;margin-bottom:6px}
+.dp-row span{min-width:52px;font-weight:600;color:#B45A2A}
+.dp-row input[type=time]{flex:1;min-width:100px;padding:8px 10px;border-radius:10px}
+.dp-row input[type=date]{flex:1;min-width:130px;padding:8px 10px;border-radius:10px}
+.dp-row input[type=number]{padding:8px 10px;border-radius:10px}
+.date-chips{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}
+.date-chip{display:inline-flex;gap:6px;align-items:center;background:#FFE1C7;color:#B04400;border-radius:12px;padding:6px 10px;font-size:13px;cursor:pointer}
+.date-chip.empty{background:transparent;color:#B45A2A;cursor:default}
+.cal-cell.holiday-frame,.shadow-cell.holiday-frame{border:2px solid #F25C0A}
+.cal-cell.special-frame,.shadow-cell.special-frame{border:2px solid #E53935}
+.cal-cell.closed-frame,.shadow-cell.closed-frame{border:2px dashed #B00020;opacity:.6}
+#voucherPrefixChips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#voucherPrefixChips .chip-btn{width:100%;flex:none;min-width:0;padding:12px 4px}
+.vch-toggle{width:100%;display:flex;align-items:center;gap:8px;padding:14px 16px;border-radius:18px;border:2px solid #FFB985;background:#fff;color:#B04400;font-size:16px;font-weight:700;cursor:pointer;text-align:left;box-sizing:border-box;transition:all .15s}
+.vch-toggle:hover{background:#FFF2E3}
+.vch-toggle[aria-expanded="true"]{background:#F25C0A;border-color:#F25C0A;color:#fff;box-shadow:0 4px 12px rgba(242,92,10,.28)}
+.vch-sub-text{margin-left:auto;font-size:14px;font-weight:600;opacity:.9}
+.vch-arrow{transition:transform .2s;display:inline-block}
+.vch-toggle[aria-expanded="true"] .vch-arrow{transform:rotate(180deg)}
+.vch-panel{margin-top:10px}
+.vch-sub{margin-left:14px;padding-left:12px;border-left:3px solid #FFD9BC}
+body.dark .vch-toggle{background:#1A1F26;border-color:#2F353D;color:#C3CAD2}
+body.dark .vch-toggle:hover{background:#232A32}
+body.dark .vch-toggle[aria-expanded="true"]{background:#F25C0A;border-color:#F25C0A;color:#fff}
+body.dark .vch-sub{border-left-color:#4A3A2C}
 .confirm-item{margin-bottom:12px}
 .confirm-item .checkbox-wrapper{margin-bottom:0}
 .confirm-item .checkbox-note{margin-top:6px;margin-bottom:0;margin-left:42px}
@@ -402,13 +443,23 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
 
       <div class="form-group" id="group-voucherCode">
         <label id="label-voucherCode">優惠券</label>
-        <input type="hidden" id="voucherSource" value="flyer">
-        <div class="chip-group" id="voucherSourceChips"></div>
-        <div id="voucherCodeWrap" style="display:flex;gap:8px;align-items:center;margin-top:10px;">
-          <select id="voucherPrefix" style="max-width:110px;"></select>
-          <input type="text" id="voucherNumber" inputmode="numeric" placeholder="號碼" style="flex:1;">
+        <input type="hidden" id="voucherSource" value="">
+        <button type="button" class="vch-toggle" id="voucherMainBtn" aria-expanded="false">
+          <span>優惠券</span>
+          <span class="vch-sub-text" id="voucherMainSub">未選擇</span>
+          <span class="vch-arrow" id="voucherArrow">▾</span>
+        </button>
+        <div class="vch-panel" id="voucherPanel1" style="display:none;">
+          <div class="chip-group" id="voucherSourceChips"></div>
         </div>
-        <div class="note" id="voucherCodeNote"></div>
+        <div class="vch-panel vch-sub" id="voucherPanel2" style="display:none;">
+          <div class="chip-group" id="voucherPrefixChips"></div>
+          <div id="voucherCodeWrap" style="display:none;gap:8px;align-items:center;margin-top:10px;">
+            <select id="voucherPrefix" style="display:none;"></select>
+            <input type="text" id="voucherNumber" inputmode="numeric" placeholder="號碼" style="flex:1;">
+          </div>
+          <div class="note" id="voucherCodeNote"></div>
+        </div>
       </div>
       <div class="form-group" id="group-phone">
         <label id="label-phone">電話號碼</label>
@@ -418,10 +469,12 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       <div id="stepsLater">
       <div id="step2" class="hidden">
       <div class="student-calendar">
-        <div class="cal-title"><span>預約人數</span><div class="help-icon" title="紅色數字為管理員設定的影子標記或當日預約人數">?</div></div>
+        <div class="cal-title"><span>剩餘預約的數</span><div class="help-icon" title="右下角紅色數字＝該日仍可預約的剩餘名額">?</div></div>
         <div class="cal-header"><h4 id="studentCalMonthYear"></h4><div class="cal-nav"><button type="button" id="studentPrevMonth">←</button><button type="button" id="studentNextMonth">→</button></div></div>
         <div class="cal-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
         <div id="studentCalGrid" class="cal-grid"></div>
+        <div style="text-align:right;margin-top:8px;"><button type="button" class="btn-small" id="refreshGuestSlots" style="width:auto;">🔄 更新預約時間</button></div>
+        <div class="note" style="text-align:right;">每月 25 號開放下一個月；如看不到新日子，可按「更新預約時間」。</div>
       </div>
 
       <div class="form-group" id="group-timeSlot"><label class="required">預約時間</label><select id="timeSlot"><option value="">請先選擇日期</option></select><div class="note" id="timeNote"></div></div>
@@ -468,7 +521,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       </div>
     </div>
 
-    <div style="text-align:center;font-size:10px;color:#ccc;margin-top:20px;padding-top:10px;border-top:1px dashed #FFD8B2;">@vison 11.0（一般預約版）</div>
+    <div style="text-align:center;font-size:12px;color:#8A6A50;font-weight:600;margin-top:20px;padding-top:10px;border-top:1px dashed #FFD8B2;" id="appVersionBar"><span id="appVerLabel">版本 19.0（一般預約版）</span></div>
     <div class="divider"></div>
     <div id="pwdPanel" class="my-overlay hidden">
       <div class="my-card">
@@ -480,8 +533,8 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     </div>
     <div class="staff-link" id="staffLink">員工登入</div>
     <div id="adminZone" style="display:none;">
-    <div style="margin-top:12px;"><label>管理員專區</label><div class="admin-row"><input type="password" id="adminPass" placeholder="管理員密碼"><button class="btn-small" id="viewCalendarBtn">查看所有記錄</button></div></div>
-    <div style="margin-top:8px;"><label>員工專區</label><div class="admin-row"><input type="password" id="staffPass" placeholder="員工密碼"><button class="btn-small" id="enterStaffBtn">進入員工頁面</button></div></div>
+    <div style="margin-top:12px;"><label>管理員專區</label><div class="admin-row"><input type="password" id="adminPass" placeholder="管理員密碼"><button type="button" class="btn-small" id="viewCalendarBtn">查看所有記錄</button></div></div>
+    <div style="margin-top:8px;"><label>員工專區</label><div class="admin-row"><input type="password" id="staffPass" placeholder="員工密碼"><button type="button" class="btn-small" id="enterStaffBtn">進入員工頁面</button></div></div>
     </div>
   </div>
 
@@ -531,10 +584,48 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       <div class="shadow-header"><h5>指定日子封鎖時段 <span id="shadowMonthYear" style="font-size:14px;color:#B45A2A;font-weight:400;"></span></h5><div class="shadow-nav"><button id="shadowPrevMonth">←</button><button id="shadowNextMonth">→</button></div></div>
       <div class="weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
       <div id="shadowGrid" class="shadow-grid"></div>
-      <p style="font-size:13px;color:#B45A2A;line-height:1.6;margin-bottom:8px;">
-        <strong>用法：</strong>點一下日期 → 輸入 1–9 的數字，代表該日要「收起」幾個可預約時段（客人當天會看到少了幾個時段／全滿）；輸入 0 或留空可取消。此設定會同步到所有客人裝置。
-      </p>
-      <div class="shadow-footer"><button class="btn-small" id="clearShadowMonth">清除本月數字</button></div>
+      <div class="dp-block" id="monthCapEditor">
+        <h5>每月每日預約上限（本月／下月）</h5>
+        <div id="monthCapPanels"></div>
+        <div class="cap-paste-box">
+          <label style="font-size:13px;font-weight:700;color:#B04400;">快速貼上（逗號分隔，第 1 個數字＝1 號）</label>
+          <textarea id="capPasteText" rows="2" placeholder="例：15,5,15,15,25,25,15…"></textarea>
+          <div class="cap-paste-actions">
+            <button type="button" class="btn-small" id="capPasteCur">套用到本月</button>
+            <button type="button" class="btn-small" id="capPasteNext">套用到下月</button>
+          </div>
+        </div>
+        <small style="color:#B45A2A;display:block;margin-top:6px;line-height:1.5;">只有已輸入數字的日期才會開放給客人預約（留空＝該日不開放）。當日已預約數達到上限，該日不再顯示可預約時段（已預約的保留）。下一個月會在每月 25 號開放。每月最後一日 23:59 後自動清除該月設定並轉往下一月。</small>
+      </div>
+      <div id="dayPlanEditor">
+      <div class="dp-block">
+        <h5>① 平日（星期一至五）</h5>
+        <div class="dp-row"><span>早上</span><input type="time" id="dp-weekday-mf"> 至 <input type="time" id="dp-weekday-mt"> 每 <input type="number" id="dp-weekday-ms" min="5" step="5" style="width:64px;"> 分鐘一節</div>
+        <div class="dp-row"><span>食飯</span><input type="time" id="dp-weekday-lf"> 至 <input type="time" id="dp-weekday-lt">（不可預約）</div>
+        <div class="dp-row"><span>下午</span><input type="time" id="dp-weekday-af"> 至 <input type="time" id="dp-weekday-at"> 每 <input type="number" id="dp-weekday-as" min="5" step="5" style="width:64px;"> 分鐘一節</div>
+      </div>
+      <div class="dp-block">
+        <h5>② 星期六日／公眾假期／特別日子</h5>
+        <div class="dp-row"><span>早上</span><input type="time" id="dp-holiday-mf"> 至 <input type="time" id="dp-holiday-mt"> 每 <input type="number" id="dp-holiday-ms" min="5" step="5" style="width:64px;"> 分鐘一節</div>
+        <div class="dp-row"><span>食飯</span><input type="time" id="dp-holiday-lf"> 至 <input type="time" id="dp-holiday-lt">（不可預約）</div>
+        <div class="dp-row"><span>下午</span><input type="time" id="dp-holiday-af"> 至 <input type="time" id="dp-holiday-at"> 每 <input type="number" id="dp-holiday-as" min="5" step="5" style="width:64px;"> 分鐘一節</div>
+      </div>
+      <div class="dp-block">
+        <h5>③ 不能預約（時段只作記錄，實際全封）</h5>
+        <div class="dp-row"><span>早上</span><input type="time" id="dp-closed-mf"> 至 <input type="time" id="dp-closed-mt"> 每 <input type="number" id="dp-closed-ms" min="5" step="5" style="width:64px;"> 分鐘一節</div>
+        <div class="dp-row"><span>食飯</span><input type="time" id="dp-closed-lf"> 至 <input type="time" id="dp-closed-lt">（不可預約）</div>
+        <div class="dp-row"><span>下午</span><input type="time" id="dp-closed-af"> 至 <input type="time" id="dp-closed-at"> 每 <input type="number" id="dp-closed-as" min="5" step="5" style="width:64px;"> 分鐘一節</div>
+      </div>
+      </div>
+      <div class="dp-row" style="margin-top:10px;"><span>特別日子</span><input type="date" id="specialDateInput" min="2026-01-01" max="2028-12-31"><button type="button" class="btn-small" id="addSpecialDate" style="width:auto;">新增</button></div>
+      <div id="specialDateChips" class="date-chips"></div>
+      <div class="dp-row"><span>不能預約</span><input type="date" id="closedDateInput" min="2026-01-01" max="2028-12-31"><button type="button" class="btn-small" id="addClosedDate" style="width:auto;">新增</button></div>
+      <div id="closedDateChips" class="date-chips"></div>
+      <div style="margin-top:10px;">
+        <label style="font-size:13px;">公眾假期名單（YYYY-MM-DD，每行一個；可自行補到 2028-12-31）</label>
+        <textarea id="publicHolidaysText" rows="6" style="font-size:13px;"></textarea>
+      </div>
+      <small style="color:#B45A2A;display:block;margin-top:6px;">改完按「儲存所有設定」；特別日子及不能預約日子會即時在月曆以框線顯示。</small>
     </div>
 
     <details class="settings-section" id="section-field" open>
@@ -941,14 +1032,34 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     const bad=Object.keys(cnt).filter(d=>cnt[d]>1);
     return recent.filter(a=>bad.includes(a.deviceId));
   }
+  function getSuspiciousList(){
+    const cut=Date.now()-3600000;
+    const recent=(bookings||[]).filter(function(b){
+      const t=b.createdAt?Date.parse(b.createdAt):0;
+      return t && t>=cut;
+    });
+    const groups={};
+    recent.forEach(function(b){
+      const k=b.deviceId?('d:'+b.deviceId):('e:'+(b.email||b.id));
+      (groups[k]=groups[k]||[]).push(b);
+    });
+    const out=[];
+    Object.keys(groups).forEach(function(k){ if(groups[k].length>1) groups[k].forEach(function(b){ out.push({ts:Date.parse(b.createdAt)||0,name:b.name,email:b.email,date:b.date,time:b.time,id:b.id}); }); });
+    getSuspiciousActivities().forEach(function(a){
+      out.push({ts:a.timestamp,name:a.name,email:a.email,date:a.date,time:a.time,id:'local_'+a.timestamp+'_'+(a.email||'')});
+    });
+    const seen={}; const uniq=[];
+    out.sort(function(a,b){ return b.ts-a.ts; }).forEach(function(x){ if(!seen[x.id]){ seen[x.id]=1; uniq.push(x); } });
+    return uniq;
+  }
   function renderSuspiciousTable(){
     clearOldActivities(1);
-    const list=getSuspiciousActivities(), div=document.getElementById('suspiciousTable');
+    const list=getSuspiciousList(), div=document.getElementById('suspiciousTable');
     if(!list.length){ div.innerHTML='<div style="padding:10px;text-align:center;">目前無可疑活動</div>'; return; }
     let html='<table><thead><tr><th>時間</th><th>姓名</th><th>Email</th><th>日期</th><th>時段</th></tr></thead><tbody>';
-    list.sort((a,b)=>b.timestamp-a.timestamp).forEach(a=>{
-      const t=new Date(a.timestamp).toLocaleTimeString('zh-HK',{hour12:false});
-      html+=`<tr><td>${t}</td><td>${a.name||''}</td><td>${a.email||''}</td><td>${a.date||''}</td><td>${a.time||''}</td></tr>`;
+    list.forEach(function(a){
+      const t=a.ts?new Date(a.ts).toLocaleTimeString('zh-HK',{hour12:false}):'';
+      html+='<tr><td>'+t+'</td><td>'+(a.name||'')+'</td><td>'+(a.email||'')+'</td><td>'+(a.date||'')+'</td><td>'+(a.time||'')+'</td></tr>';
     });
     div.innerHTML=html+'</tbody></table>';
   }
@@ -960,7 +1071,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   async function saveShadowMarks(){
     localStorage.setItem(SHADOW_KEY,JSON.stringify(shadowMarks));
     try{ await db.collection("config").doc("settings").set({shadowMarks:shadowMarks},{merge:true}); }
-    catch(e){ console.error('封鎖日期同步失敗',e); }
+    catch(e){ console.error('封鎖日期同步失敗',e); try{ hwToast('封鎖時段未能同步到雲端，請檢查網絡後再試'); }catch(_){} }
   }
   async function loadShadowMarks(){
     try{
@@ -1031,6 +1142,13 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     allowDuplicate:{email:false,name:false,gender:true,service:true,voucherCode:false,phone:false},
     fieldLabels:{email:"Email",name:"姓名",gender:"性別",service:"服務項目",voucherCode:"優惠券",phone:"電話號碼"},
     voucherCodeRules:[{prefix:"A",from:1,to:1000,show:true}],
+    dayPlan:{
+      weekday:{morning:{from:'10:30',to:'13:00',step:15},lunch:{from:'13:00',to:'14:00'},afternoon:{from:'14:00',to:'19:30',step:15}},
+      holiday:{morning:{from:'10:00',to:'13:00',step:15},lunch:{from:'13:00',to:'14:00'},afternoon:{from:'14:00',to:'19:00',step:15}},
+      closed:{morning:{from:'10:30',to:'13:00',step:15},lunch:{from:'13:00',to:'14:00'},afternoon:{from:'14:00',to:'19:30',step:15}}
+    },
+    specialDates:[],
+    closedDates:[],
     fieldOrder:["email","voucherCode","gender","service","name","phone"],
     confirmBoxes:[{label:"確定已截圖預約記錄",note:"",labelEn:"I have screenshotted my booking record",noteEn:""},{label:"我已準時到店",note:"(請準時到達，逾時可能需重新輪候)",labelEn:"I will arrive on time",noteEn:"(Please arrive on time; arriving late may mean re-queuing)"}],
     voucherConfirmBoxes:[{label:"確定已使用優惠券預約",note:"",labelEn:"I am booking with my $20 voucher",noteEn:""},{label:"我已準備好出示優惠券核對",note:"(需出示優惠券核對)",labelEn:"I am ready to show my voucher",noteEn:"(Voucher must be shown for checking)"}],
@@ -1097,6 +1215,45 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       ov.querySelector('#hwCoOk').onclick=function(){ done(true); };
       ov.querySelector('#hwCoNo').onclick=function(){ done(false); };
       ov.onclick=function(e){ if(e.target===ov) done(false); };
+    });
+  }
+  function hwAlert(msg,title){
+    return new Promise(function(resolve){
+      let ov=document.getElementById('hwConfirm');
+      if(!ov){ ov=document.createElement('div'); ov.id='hwConfirm'; ov.className='hw-co'; document.body.appendChild(ov); }
+      ov.innerHTML='<div class="hw-co-card">'+(title?'<p style="font-weight:700;margin-bottom:6px;"></p><p style="margin-top:0;"></p>':'<p></p>')+
+        '<div class="hw-co-row"><button type="button" class="btn-small" id="hwAlertOk">確定</button></div></div>';
+      if(title){ ov.querySelectorAll('p')[0].textContent=String(title); ov.querySelectorAll('p')[1].textContent=String(msg||''); }
+      else ov.querySelector('p').textContent=String(msg||'');
+      ov.classList.add('show');
+      function done(){ ov.classList.remove('show'); ov.onclick=null; resolve(true); }
+      ov.querySelector('#hwAlertOk').onclick=done;
+      ov.onclick=function(e){ if(e.target===ov) done(); };
+    });
+  }
+  function hwPrompt(title,defVal,opt){
+    opt=opt||{};
+    return new Promise(function(resolve){
+      let ov=document.getElementById('hwConfirm');
+      if(!ov){ ov=document.createElement('div'); ov.id='hwConfirm'; ov.className='hw-co'; document.body.appendChild(ov); }
+      ov.innerHTML='<div class="hw-co-card"><p></p>'+
+        '<input id="hwPromptInput" style="margin-bottom:14px;" autocomplete="off">'+
+        '<div class="hw-co-row">'+
+        '<button type="button" class="btn-small" id="hwPrOk">確定</button>'+
+        '<button type="button" class="btn-small" id="hwPrNo" style="background:#fff;color:#B04400;border:1.5px solid #FFB985;">取消</button></div></div>';
+      const card=ov.querySelector('.hw-co-card'), p=ov.querySelector('p'), inp=ov.querySelector('#hwPromptInput');
+      p.textContent=String(title||'');
+      inp.type=opt.password?'password':(opt.numeric?'number':'text');
+      inp.value=(defVal===undefined||defVal===null)?'':String(defVal);
+      if(opt.max) inp.max=opt.max; if(opt.min) inp.min=opt.min;
+      if(opt.placeholder) inp.placeholder=opt.placeholder;
+      ov.classList.add('show');
+      let finished=false;
+      function done(v){ if(finished) return; finished=true; ov.classList.remove('show'); ov.onclick=null; resolve(v); }
+      ov.querySelector('#hwPrOk').onclick=function(){ done(inp.value); };
+      ov.querySelector('#hwPrNo').onclick=function(){ done(null); };
+      ov.onclick=function(e){ if(e.target===ov) done(null); };
+      setTimeout(function(){ try{ inp.focus(); inp.select(); }catch(e){} },120);
     });
   }
   function hwToast(msg){
@@ -1182,6 +1339,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       bookings=list;
       normalBookings=list.filter(b=>b.type==='normal');
       voucherBookings=list.filter(b=>b.type==='voucher');
+      try{ availabilityCache.clear(); renderStudentCalendar(); renderShadowCalendar(); }catch(e2){}
     }catch(e){ console.error('讀取預約失敗',e); bookings=[]; normalBookings=[]; voucherBookings=[]; }
   }
 
@@ -1281,6 +1439,15 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         if(!Array.isArray(config.barbers)||!config.barbers.length) config.barbers=['師傅A','師傅B','師傅C','師傅D'];
         if(!Array.isArray(config.weekdaySlots)) config.weekdaySlots=['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'];
         if(!Array.isArray(config.holidaySlots)) config.holidaySlots=['10:30','11:30','12:30'];
+        if(!config.dayPlan||typeof config.dayPlan!=='object') config.dayPlan={
+          weekday:{morning:{from:'10:30',to:'13:00',step:15},lunch:{from:'13:00',to:'14:00'},afternoon:{from:'14:00',to:'19:30',step:15}},
+          holiday:{morning:{from:'10:00',to:'13:00',step:15},lunch:{from:'13:00',to:'14:00'},afternoon:{from:'14:00',to:'19:00',step:15}},
+          closed:{morning:{from:'10:30',to:'13:00',step:15},lunch:{from:'13:00',to:'14:00'},afternoon:{from:'14:00',to:'19:30',step:15}}
+        };
+        if(!Array.isArray(config.specialDates)) config.specialDates=[];
+        if(!Array.isArray(config.closedDates)) config.closedDates=[];
+        if(!Array.isArray(config.publicHolidays)) config.publicHolidays=[];
+        ensureDayCapsDefault();
         if(config.dailyCutoff===undefined) config.dailyCutoff='';
         if(config.googleSheetUrl===undefined) config.googleSheetUrl='https://script.google.com/macros/s/AKfycbxH03G2l897KUcgNAxU6zj0Pv19hmHqssG3IiJOd_5YbsEa-44h-M2IwFUel04sEWVN/exec';
                 if(config.googleSheetUrl && (config.googleSheetUrl.indexOf('AKfycbzBLSOJ5')>=0 || config.googleSheetUrl.indexOf('AKfycbwlg8XBKhi')>=0 || config.googleSheetUrl.indexOf('AKfycbzCHY_0pNufKWEBTiXUZ4')>=0 || config.googleSheetUrl.indexOf('AKfycbxq27SZWedI9ulZKrmNAldImHw2GmSIGrEtcfJPcoHg25QY')>=0 || config.googleSheetUrl.indexOf('AKfycbwSHHBO6gH1H2tKJ-QkvrXBAMQfplZHpyTVFiD6prSYuMrJkqojOAaNVFrJSD66M8a1')>=0)){ config.googleSheetUrl='https://script.google.com/macros/s/AKfycbxH03G2l897KUcgNAxU6zj0Pv19hmHqssG3IiJOd_5YbsEa-44h-M2IwFUel04sEWVN/exec'; legacyFixed=true; }
@@ -2024,10 +2191,15 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyLang(CUR_LANG);
   }
 
+  const APP_VERSION='12.0';
   const PAGE_TYPE='normal';
+  let voucherOpen=false;
   function getVoucherSource(){
     const el=document.getElementById('voucherSource');
-    return (el&&el.value==='v20')?'v20':'flyer';
+    const v=(el&&el.value)||'';
+    if(v==='v20') return 'v20';
+    if(v==='flyer') return 'flyer';
+    return 'none';
   }
   function isVoucherLike(){ return PAGE_TYPE==='voucher' || getVoucherSource()==='v20'; }
   function getActiveConfirmBoxes(){ return isVoucherLike() ? (config.voucherConfirmBoxes||[]) : (config.confirmBoxes||[]); }
@@ -2100,34 +2272,162 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       hidden.value=this.dataset.value;
     }));
   }
+  function voucherFlyerLabel(){
+    if(CUR_LANG==='en' && config.flyerOptionLabelEn) return config.flyerOptionLabelEn;
+    return config.flyerOptionLabel || '傳單';
+  }
+  function voucherV20Label(){
+    if(CUR_LANG==='en' && config.v20OptionLabelEn) return config.v20OptionLabelEn;
+    return config.v20OptionLabel || '$20 優惠券';
+  }
+  function currentPrefixRule(){
+    const sel=document.getElementById('voucherPrefix');
+    if(!sel) return null;
+    const v=String(sel.value||'').trim();
+    return (config.voucherCodeRules||[]).find(function(r){ return r && String(r.prefix||'').trim()===v; }) || null;
+  }
+  function ensureVoucherPrefixOptions(){
+    const sel=document.getElementById('voucherPrefix');
+    if(!sel) return;
+    const rules=(config.voucherCodeRules||[]).filter(function(r){ return r && r.show!==false && String(r.prefix||'').trim(); });
+    const have={};
+    Array.prototype.forEach.call(sel.options,function(o){ have[o.value]=1; });
+    rules.forEach(function(r){
+      const p=String(r.prefix||'').trim();
+      if(!have[p]){ const op=document.createElement('option'); op.value=p; op.textContent=p; sel.appendChild(op); have[p]=1; }
+    });
+  }
+  const VCH_COLORS=['#E53935','#F25C0A','#F2B800','#2FA36B','#0E9AA7','#2F7DE1','#8E5AD6'];
+  function vchColorFor(rule,idx){
+    if(rule&&rule.color) return rule.color;
+    return VCH_COLORS[0];
+  }
+  function ensureVoucherColors(){
+    if(!Array.isArray(config.voucherCodeRules)) config.voucherCodeRules=[];
+    if(String(config.colorScheme||'')!=='roygbiv'){
+      config.voucherCodeRules.forEach(function(r){ if(r) delete r.color; });
+      config.colorScheme='roygbiv';
+    }
+    const used={};
+    config.voucherCodeRules.forEach(function(r){ if(r&&r.color) used[String(r.color).toUpperCase()]=1; });
+    let pi=0;
+    config.voucherCodeRules.forEach(function(r){
+      if(!r||r.color) return;
+      let c='';
+      while(pi<VCH_COLORS.length && used[VCH_COLORS[pi].toUpperCase()]) pi++;
+      if(pi<VCH_COLORS.length){ c=VCH_COLORS[pi]; pi++; }
+      else{
+        for(let k=0;k<50;k++){
+          const t='#'+Math.floor(Math.random()*0xFFFFFF).toString(16).padStart(6,'0').toUpperCase();
+          if(!used[t]){ c=t; break; }
+        }
+        if(!c) c='#E53935';
+      }
+      r.color=c; used[String(c).toUpperCase()]=1;
+    });
+  }
+  function nextVoucherColor(){
+    const used=(config.voucherCodeRules||[]).map(function(r){ return String((r&&r.color)||'').toUpperCase(); });
+    const free=VCH_COLORS.filter(function(c){ return used.indexOf(c.toUpperCase())<0; });
+    if(free.length) return free[0];
+    for(let k=0;k<40;k++){
+      const c='#'+Math.floor(Math.random()*0xFFFFFF).toString(16).padStart(6,'0').toUpperCase();
+      if(used.indexOf(c)<0) return c;
+    }
+    return '#F25C0A';
+  }
+  function renderVoucherPrefixChips(){
+    const box=document.getElementById('voucherPrefixChips');
+    const sel=document.getElementById('voucherPrefix');
+    if(!box||!sel) return;
+    ensureVoucherColors();
+    const rules=(config.voucherCodeRules||[]).filter(function(r){ return r && r.show!==false && r.prefix; });
+    if(!rules.length){
+      box.innerHTML='<div class="note" style="margin:0;">管理員尚未設定券號，請稍後再試或聯絡店舖。</div>';
+      return;
+    }
+    const cur=sel.value;
+    const all=(config.voucherCodeRules||[]);
+    box.innerHTML=rules.map(function(r){
+      const txt=r.prefix;
+      const ci=all.indexOf(r);
+      const col=vchColorFor(r,ci<0?0:ci);
+      const on=(cur===r.prefix);
+      return '<button type="button" class="chip-btn'+(on?' active':'')+'" data-prefix="'+escHtml(r.prefix)+'" data-color="'+col+'" style="border-color:'+col+';'+(on?('background:'+col+';border-color:'+col+';'):('color:'+col+';'))+'">'+escHtml(txt)+'</button>';
+    }).join('');
+    box.querySelectorAll('.chip-btn').forEach(function(b){
+      b.addEventListener('click',function(){
+        ensureVoucherPrefixOptions();
+        sel.value=this.dataset.prefix;
+        sel.dispatchEvent(new Event('change',{bubbles:true}));
+        const w=document.getElementById('voucherCodeWrap'); if(w) w.style.display='flex';
+        renderVoucherPrefixChips();
+        try{ saveDraft(); }catch(e){}
+      });
+    });
+  }
+  function syncVoucherUI(){
+    const p1=document.getElementById('voucherPanel1');
+    const p2=document.getElementById('voucherPanel2');
+    const btn=document.getElementById('voucherMainBtn');
+    const sub=document.getElementById('voucherMainSub');
+    const wrap=document.getElementById('voucherCodeWrap');
+    const sel=document.getElementById('voucherPrefix');
+    ensureVoucherPrefixOptions();
+    const src=getVoucherSource();
+    const v20=src==='v20';
+    const flyer=src==='flyer';
+    if(p1) p1.style.display=voucherOpen?'block':'none';
+    if(p2) p2.style.display=(voucherOpen&&flyer)?'block':'none';
+    if(btn) btn.setAttribute('aria-expanded',voucherOpen?'true':'false');
+    const rule=currentPrefixRule();
+    if(sub){ sub.textContent=''; sub.style.display='none'; }
+    const hasPrefix=!!(sel&&String(sel.value||'').trim());
+    if(wrap) wrap.style.display=(flyer && hasPrefix)?'flex':'none';
+    const numEl=document.getElementById('voucherNumber');
+    if(numEl){
+      const col=(flyer && rule)?vchColorFor(rule,(config.voucherCodeRules||[]).indexOf(rule)):'';
+      numEl.style.borderColor=col||'';
+      numEl.style.borderWidth=col?'2px':'';
+    }
+    if(flyer) renderVoucherPrefixChips();
+    const note=document.getElementById('voucherCodeNote');
+    if(note){
+      if(v20||!flyer){ note.textContent=''; }
+      else if(rule){
+        const rng=rule.prefix+String(rule.from)+' – '+rule.prefix+String(rule.to);
+        note.textContent=(CUR_LANG==='en'?'Available: ':'可用範圍：')+rng;
+      } else { note.textContent=''; }
+    }
+  }
   function renderVoucherSourceChips(){
     const box=document.getElementById('voucherSourceChips'), hidden=document.getElementById('voucherSource');
     if(!box||!hidden) return;
-    const flyer=(CUR_LANG==='en'&&config.flyerOptionLabelEn)?config.flyerOptionLabelEn:(config.flyerOptionLabel||'傳單（A 1-1000）');
-    const v20=(CUR_LANG==='en'&&config.v20OptionLabelEn)?config.v20OptionLabelEn:(config.v20OptionLabel||'$20 優惠券');
-    const opts=[{v:'flyer',t:flyer},{v:'v20',t:v20}];
-    const cur=(hidden.value==='v20')?'v20':'flyer';
-    box.innerHTML=opts.map(function(o){ return '<button type="button" class="chip-btn'+(cur===o.v?' active':'')+'" data-value="'+o.v+'">'+escHtml(o.t)+'</button>'; }).join('');
+    const opts=[{v:'flyer',t:voucherFlyerLabel()},{v:'v20',t:voucherV20Label()}];
+    const cur=getVoucherSource();
+    box.innerHTML=opts.map(function(o){
+      const base=o.v==='flyer'?'傳單':'$20 優惠券';
+      return '<button type="button" class="chip-btn'+(cur===o.v?' active':'')+'" data-value="'+o.v+'"><span style="display:block;font-size:15px;">'+escHtml(base)+'</span></button>';
+    }).join('');
     box.querySelectorAll('.chip-btn').forEach(function(b){
       b.addEventListener('click',function(){
-        box.querySelectorAll('.chip-btn').forEach(function(x){ x.classList.remove('active'); });
-        this.classList.add('active');
-        hidden.value=this.dataset.value;
+        const v=this.dataset.value;
+        hidden.value=(hidden.value===v)?'':v;
+        if(v==='flyer') voucherOpen=true;
+        renderVoucherSourceChips();
         applyVoucherSourceUI();
         try{ saveDraft(); }catch(e){}
       });
     });
-    applyVoucherSourceUI();
+    syncVoucherUI();
   }
   function applyVoucherSourceUI(){
-    const isV20=getVoucherSource()==='v20';
-    const wrap=document.getElementById('voucherCodeWrap');
-    if(wrap) wrap.style.display=isV20?'none':'flex';
-    if(isV20){
+    const src=getVoucherSource();
+    if(src!=='flyer'){
       const num=document.getElementById('voucherNumber'); if(num) num.value='';
-      const note=document.getElementById('voucherCodeNote'); if(note) note.textContent='';
       const g=document.getElementById('group-voucherCode'); if(g) g.classList.remove('hw-invalid');
     }
+    syncVoucherUI();
     try{ renderConfirmBoxes(); }catch(e){}
     const bn=document.getElementById('bookingNoticeContent');
     if(bn) bn.innerHTML=noticeText().replace(/\n/g,'<br>');
@@ -2151,6 +2451,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     const box=document.getElementById('voucherRulesContainer');
     if(!box) return;
     if(!Array.isArray(config.voucherCodeRules)) config.voucherCodeRules=[];
+    ensureVoucherColors();
     const rules=config.voucherCodeRules;
     box.innerHTML=rules.map(function(r,i){
       return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">'+
@@ -2158,6 +2459,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         '<input type="number" class="vr-from" data-i="'+i+'" value="'+(r.from===undefined?1:r.from)+'" placeholder="由" style="width:90px;">'+
         '<input type="number" class="vr-to" data-i="'+i+'" value="'+(r.to===undefined?1000:r.to)+'" placeholder="到" style="width:90px;">'+
         '<input type="text" class="vr-note" data-i="'+i+'" value="'+String(r.note||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" placeholder="備註文字（只儲存）" style="flex:1;min-width:130px;">'+
+        '<input type="color" class="vr-color" data-i="'+i+'" value="'+vchColorFor(r,i)+'" title="按鈕顏色" style="width:46px;height:40px;padding:2px;border-radius:12px;flex:0 0 auto;">'+
         '<label style="display:inline-flex;gap:4px;align-items:center;"><input type="checkbox" class="vr-show" data-i="'+i+'" '+(r.show!==false?'checked':'')+'> 顯示</label>'+
         '<button type="button" class="btn-small vr-del" data-i="'+i+'">刪除</button>'+
       '</div>';
@@ -2166,6 +2468,8 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     box.querySelectorAll('.vr-from').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].from=Number(this.value)||1; }); });
     box.querySelectorAll('.vr-to').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].to=Number(this.value)||1000; }); });
     box.querySelectorAll('.vr-note').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].note=this.value; }); });
+    box.querySelectorAll('.vr-color').forEach(function(el){ el.addEventListener('input',function(){ config.voucherCodeRules[this.dataset.i].color=this.value; });
+      el.addEventListener('change',function(){ renderVoucherRules(); }); });
     box.querySelectorAll('.vr-show').forEach(function(el){ el.addEventListener('change',function(){ config.voucherCodeRules[this.dataset.i].show=this.checked; }); });
     box.querySelectorAll('.vr-del').forEach(function(el){ el.addEventListener('click',function(){ config.voucherCodeRules.splice(Number(this.dataset.i),1); renderVoucherRules(); }); });
   }
@@ -2174,7 +2478,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       const b=document.getElementById('addVoucherRule');
       if(b) b.addEventListener('click',function(){
         config.voucherCodeRules=config.voucherCodeRules||[];
-        config.voucherCodeRules.push({prefix:'',from:1,to:1000,show:true,note:''});
+        config.voucherCodeRules.push({prefix:'',from:1,to:1000,show:true,note:'',color:nextVoucherColor()});
         renderVoucherRules();
       });
     });
@@ -2183,25 +2487,32 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   function renderVoucherPrefix(){
     const sel=document.getElementById('voucherPrefix');
     if(!sel) return;
-    const rules=(config.voucherCodeRules||[]).filter(function(r){ return r&&r.show!==false&&r.prefix; });
+    const rules=(config.voucherCodeRules||[]).filter(function(r){ return r && r.show!==false && r.prefix; });
     const prev=sel.value;
     sel.innerHTML=rules.length?rules.map(function(r){ return '<option value="'+r.prefix+'">'+r.prefix+'</option>'; }).join(''):'<option value="">—</option>';
     if(prev&&rules.some(function(r){ return r.prefix===prev; })) sel.value=prev;
     updateVoucherNote();
+    renderVoucherPrefixChips();
+    syncVoucherUI();
   }
   function updateVoucherNote(){
-    const sel=document.getElementById('voucherPrefix'), note=document.getElementById('voucherCodeNote');
+    const sel=document.getElementById('voucherPrefix');
     const num=document.getElementById('voucherNumber');
     if(!sel) return;
-    const rules=(config.voucherCodeRules||[]);
-    const cur=rules.find(function(r){ return r.prefix===sel.value; });
+    const cur=(config.voucherCodeRules||[]).find(function(r){ return r.prefix===sel.value; });
     if(num) num.placeholder=cur?(Number(cur.from)+'-'+Number(cur.to)):'號碼';
-    if(note) note.textContent='';
+    syncVoucherUI();
   }
   (function(){
     document.addEventListener('DOMContentLoaded',function(){
       const sel=document.getElementById('voucherPrefix');
       if(sel) sel.addEventListener('change',updateVoucherNote);
+      const btn=document.getElementById('voucherMainBtn');
+      if(btn) btn.addEventListener('click',function(){
+        voucherOpen=!voucherOpen;
+        renderVoucherSourceChips();
+        syncVoucherUI();
+      });
     });
   })();
 
@@ -2375,8 +2686,37 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
 
   const publicHolidays=['2026-01-01','2026-02-17','2026-02-18','2026-02-19','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-05-01','2026-05-25','2026-06-19','2026-07-01','2026-10-01','2026-10-02','2026-10-21','2026-12-25','2026-12-26','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-26','2027-03-27','2027-03-29','2027-04-05','2027-05-01','2027-05-14','2027-06-09','2027-07-01','2027-10-01','2027-10-02','2027-10-19','2027-12-25','2027-12-26'];
   function isWeekend(d){ const x=new Date(d+'T12:00:00'); return x.getDay()===0||x.getDay()===6; }
-  function isHoliday(d){ return isWeekend(d)||publicHolidays.includes(d); }
-  function getBaseTimeSlots(d){ return isHoliday(d)?(config.holidaySlots||[]):(config.weekdaySlots||[]); }
+  function holidayList(){
+    const list=(config.publicHolidays&&config.publicHolidays.length)?config.publicHolidays:publicHolidays;
+    return list||[];
+  }
+  function isHoliday(d){ return isWeekend(d)||holidayList().indexOf(d)>=0; }
+  function isSpecialDate(d){ return (config.specialDates||[]).indexOf(d)>=0; }
+  function isClosedDate(d){ return (config.closedDates||[]).indexOf(d)>=0; }
+  function planSlotsFrom(plan){
+    if(!plan) return [];
+    const out=[];
+    function pad(v){ return String(v).padStart(2,'0'); }
+    function addRange(from,to,step){
+      if(!from||!to) return;
+      const a=from.split(':').map(Number), b=to.split(':').map(Number);
+      if(a.length<2||b.length<2) return;
+      let cur=a[0]*60+a[1], end=b[0]*60+b[1];
+      const st=Math.max(5,Number(step)||15);
+      while(cur<end && cur<24*60){ out.push(pad(Math.floor(cur/60))+':'+pad(cur%60)); cur+=st; }
+    }
+    addRange(plan.morning&&plan.morning.from, plan.morning&&plan.morning.to, plan.morning&&plan.morning.step);
+    addRange(plan.afternoon&&plan.afternoon.from, plan.afternoon&&plan.afternoon.to, plan.afternoon&&plan.afternoon.step);
+    return out;
+  }
+  function getBaseTimeSlots(d){
+    if(isClosedDate(d)) return [];
+    const plan=config.dayPlan||{};
+    const p=(isHoliday(d)||isSpecialDate(d))?plan.holiday:plan.weekday;
+    const slots=planSlotsFrom(p);
+    if(slots.length) return slots;
+    return isHoliday(d)?(config.holidaySlots||[]):(config.weekdaySlots||[]);
+  }
 
   function getShadowBlockedSlots(date,available){
     const n=shadowMarks[date];
@@ -2390,14 +2730,139 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     return hashed.slice(0,n).map(x=>x.slot);
   }
 
+  function ensureDayCapsDefault(){
+    if(!config.dayCaps||typeof config.dayCaps!=='object'||Array.isArray(config.dayCaps)){
+      config.dayCaps={};
+      const DEF_DEC_CAPS=[15,5,15,15,25,25,15,15,5,15,15,15,25,15,5,5,15,15,13,13,15,15,5,5,5,8,8,15,15,15,15];
+      DEF_DEC_CAPS.forEach(function(n,i){ config.dayCaps['2026-12-'+String(i+1).padStart(2,'0')]=n; });
+    }
+    return config.dayCaps;
+  }
+  function ymKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+  function hasCapEntry(date){
+    const caps=config.dayCaps||{};
+    return Object.prototype.hasOwnProperty.call(caps,date) && isFinite(Number(caps[date]));
+  }
+  function isNoBookingDay(date){
+    return hasCapEntry(date) && Number((config.dayCaps||{})[date])<=0;
+  }
+  function getDayCap(date){
+    const caps=config.dayCaps||{};
+    const n=Number(caps[date]);
+    return (isFinite(n)&&n>0)?Math.floor(n):0;
+  }
+  function getDayUsedCount(date){
+    const docs=(daySlotsCache[date]&&Array.isArray(daySlotsCache[date].times))?daySlotsCache[date].times.length:0;
+    const bk=bookings.filter(function(b){ return b.date===date && b.status!=='cancelled'; }).length;
+    return Math.max(docs,bk);
+  }
+  function pruneDayCaps(){
+    if(!config.dayCaps||typeof config.dayCaps!=='object'||Array.isArray(config.dayCaps)) config.dayCaps={};
+    const cur=ymKey(new Date());
+    Object.keys(config.dayCaps).forEach(function(k){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(k) || k.slice(0,7)<cur) delete config.dayCaps[k];
+    });
+  }
+  function renderMonthCapEditor(){
+    const host=document.getElementById('monthCapPanels');
+    if(!host) return;
+    ensureDayCapsDefault();
+    pruneDayCaps();
+    const now=new Date();
+    const months=[{y:now.getFullYear(),m:now.getMonth(),label:'本月'},{y:new Date(now.getFullYear(),now.getMonth()+1,1).getFullYear(),m:new Date(now.getFullYear(),now.getMonth()+1,1).getMonth(),label:'下月'}];
+    host.innerHTML=months.map(function(o){
+      const days=new Date(o.y,o.m+1,0).getDate();
+      let cells='';
+      for(let d=1;d<=days;d++){
+        const ds=o.y+'-'+String(o.m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+        const raw=(config.dayCaps||{})[ds];
+        const shown=(raw===undefined?'':raw);
+        cells+='<div class="cap-cell"><span class="cap-day">'+d+'</span><input class="cap-input" type="number" inputmode="numeric" min="-99" max="99" data-date="'+ds+'" value="'+shown+'" placeholder="—"></div>';
+      }
+      return '<div class="cap-month-box"><h6>'+o.label+' '+o.y+'年'+(o.m+1)+'月</h6><div class="cap-grid">'+cells+'</div></div>';
+    }).join('');
+  }
+  function bindMonthCapInputs(){
+    const host=document.getElementById('monthCapPanels');
+    if(!host || host.dataset.bound) return;
+    host.dataset.bound='1';
+    host.addEventListener('change',function(e){
+      const inp=e.target.closest('.cap-input'); if(!inp) return;
+      const ds=inp.dataset.date; const raw=inp.value.trim(); const n=parseInt(raw,10);
+      if(!config.dayCaps) config.dayCaps={};
+      if(raw===''||!isFinite(n)) delete config.dayCaps[ds];
+      else config.dayCaps[ds]=Math.max(-99,Math.min(99,n));
+      if(isFinite(n)&&n>99) inp.value=99;
+      if(isFinite(n)&&n<-99) inp.value=-99;
+      availabilityCache.clear();
+      try{ renderStudentCalendar(); renderShadowCalendar(); renderTimeSlots(currentSelectedDate); }catch(err){}
+      hwToast('已更新 '+ds+' 上限；記得按「儲存所有設定」');
+    });
+  }
+  function splitCapNumbers(txt){
+    return String(txt||'').split(/[\s,，、;；]+/).map(function(x){ return x.trim(); }).filter(function(x){ return x!==''; });
+  }
+  function applyCapPaste(which){
+    const ta=document.getElementById('capPasteText');
+    if(!ta) return;
+    const nums=splitCapNumbers(ta.value);
+    if(!nums.length){ hwToast('請先貼上數字'); return; }
+    const now=new Date();
+    const base=new Date(now.getFullYear(),now.getMonth()+(which==='next'?1:0),1);
+    const y=base.getFullYear(), m=base.getMonth();
+    const days=new Date(y,m+1,0).getDate();
+    if(!config.dayCaps) config.dayCaps={};
+    let applied=0, skipped=0;
+    for(let i=0;i<nums.length;i++){
+      const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(i+1).padStart(2,'0');
+      if(i>=days){ skipped++; continue; }
+      const n=parseInt(nums[i],10);
+      if(!isFinite(n)){ delete config.dayCaps[ds]; applied++; continue; }
+      config.dayCaps[ds]=Math.max(-99,Math.min(99,n)); applied++;
+    }
+    availabilityCache.clear();
+    renderMonthCapEditor();
+    try{ renderStudentCalendar(); renderShadowCalendar(); renderTimeSlots(currentSelectedDate); }catch(e){}
+    hwToast('已填入 '+y+'年'+(m+1)+'月 '+Math.min(applied,days)+' 日'+(skipped?'（多出 '+skipped+' 個數字已忽略）':'')+'；記得按「儲存所有設定」');
+  }
+  function isCapReleased(date){
+    if(getDayCap(date)<=0) return false;
+    const today=new Date();
+    const curKey=ymKey(today);
+    if(date.slice(0,7)<=curKey) return true;
+    const nx=new Date(today.getFullYear(),today.getMonth()+1,1);
+    if(date.slice(0,7)===ymKey(nx)) return today.getDate()>=25;
+    return false;
+  }
+  function monthHasAnyCap(ym){
+    const caps=config.dayCaps||{};
+    return Object.keys(caps).some(function(k){ return k.slice(0,7)===ym && Number(caps[k])>0; });
+  }
+  function getDayBlockReason(date){
+    if(date<=getTodayStr()) return {code:'past',msg:'此日期已過去，請選擇明天或之後的日期。'};
+    if(isClosedDate(date)) return {code:'closed',msg:'此日暫停接受預約，請選擇其他日期。'};
+    if(isNoBookingDay(date)) return {code:'noaccept',msg:'本日不接受預約，請選擇其他日期。'};
+    const cap=getDayCap(date);
+    if(cap<=0){
+      const curKey=ymKey(new Date());
+      if(date.slice(0,7)===curKey && !monthHasAnyCap(curKey)) return null;
+      return {code:'notset',msg:'此日尚未開放預約。店舖通常每月 25 號更新下一個月的預約時間，請稍後再試。'};
+    }
+    if(!isCapReleased(date)) return {code:'unreleased',msg:'下個月預約將於本月 25 號開放，請稍後再試。'};
+    if(getDayUsedCount(date)>=cap) return {code:'full',msg:'當日預約已滿，請改下一天。'};
+    return null;
+  }
   function getAvailableTimeSlots(date){
-    const cached=getCachedAvailability(date); if(cached) return cached;
+    if(getDayBlockReason(date)) return [];
+    const cached=getCachedAvailability(date); if(cached && cached.length) return cached;
     const base=getBaseTimeSlots(date);
     const fromDocs=(daySlotsCache[date]&&daySlotsCache[date].times)||[];
     const fromBookings=bookings.filter(b=>b.date===date&&b.status==='pending').map(b=>b.time);
     const booked=Array.from(new Set(fromDocs.concat(fromBookings)));
     const remain=base.filter(t=>!booked.includes(t));
-    const result=remain.filter(t=>!getShadowBlockedSlots(date,remain).includes(t));
+    let result=remain.filter(t=>!getShadowBlockedSlots(date,remain).includes(t));
+    const cap=getDayCap(date);
+    if(cap>0 && getDayUsedCount(date)>=cap) result=[];
     setCachedAvailability(date,result);
     return result;
   }
@@ -2428,39 +2893,60 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
           if(now>cut) unavailable=true;
         }
       }
-      const full=!unavailable && getAvailableTimeSlots(ds).length===0;
+      const blockReason=getDayBlockReason(ds);
+      const full=!unavailable && !blockReason && getAvailableTimeSlots(ds).length===0;
       let cls='cal-cell';
       if(unavailable) cls+=' unavailable';
       else if(isHoliday(ds)) cls+=' holiday';
+      if(isClosedDate(ds)) cls+=' closed-frame';
+      else if(isSpecialDate(ds)) cls+=' special-frame';
+      else if(isHoliday(ds)) cls+=' holiday-frame';
       if(ds===currentSelectedDate) cls+=' selected';
-      const mark=(unavailable||full)?'<span class="full-mark">✖</span>':'';
-      let extra='';
-      if(syncMain){
-        const c=(daySlotsCache[ds]&&daySlotsCache[ds].times&&daySlotsCache[ds].times.length)?daySlotsCache[ds].times.length:bookings.filter(b=>b.date===ds&&b.status==='pending').length;
-        if(c>0) extra=`<span class="booking-count-red">${c}</span>`;
-      }else{
-        const sm=shadowMarks[ds];
-        if(sm) extra=`<span class="shadow-mark">${sm}</span>`;
-      }
+      let mark='';
+      if(unavailable) mark='';
+      else if(blockReason && blockReason.code==='full') mark='<span class="full-mark">✖</span>';
+      else if(blockReason && (blockReason.code==='notset'||blockReason.code==='unreleased'||blockReason.code==='closed'||blockReason.code==='noaccept')) mark='<span class="lock-mark">🔒</span>';
+      else if(full) mark='<span class="full-mark">✖</span>';
+      const isPast=ds<=getTodayStr();
+      const cap=getDayCap(ds), used=getDayUsedCount(ds);
+      const remain=cap?Math.max(0,cap-used):null;
+      const capBadge=(!isPast && !isNoBookingDay(ds) && cap>0)?`<span class="cap-badge${remain===0?' hit':''}">${remain}</span>`:'';
+      const extra=capBadge;
       html+=`<div class="${cls}" data-date="${ds}"><span class="day-number">${d}</span>${mark}${extra}</div>`;
     }
     document.getElementById('studentCalGrid').innerHTML=html;
     document.querySelectorAll('#studentCalGrid .cal-cell:not(.empty-cell)').forEach(cell=>{
       cell.addEventListener('click',function(){
         const ds=this.dataset.date;
-        if(ds<=getTodayStr()){ calMsg('只能預約明天或以後的日期'); return; }
+        const reason=getDayBlockReason(ds);
+        if(reason){ hwAlert(reason.msg); return; }
         if(config.dailyCutoff){
           const t=new Date(ds+'T00:00:00'), now=new Date();
           if(t.toDateString()===new Date(now.getTime()+86400000).toDateString()){
             const p=config.dailyCutoff.split(':'), cut=new Date();
             cut.setHours(parseInt(p[0],10),parseInt(p[1],10),0,0);
-            if(now>cut){ calMsg('今日預約已截止，請選擇其他日期'); return; }
+            if(now>cut){ hwAlert('今日預約已截止，請選擇其他日期。'); return; }
           }
         }
         currentSelectedDate=ds; showStep2Feedback(''); renderTimeSlots(ds); renderStudentCalendar();
       });
     });
   }
+  const refreshGuestBtn=document.getElementById('refreshGuestSlots');
+  if(refreshGuestBtn) refreshGuestBtn.addEventListener('click',async function(){
+    const btn=this; const old=btn.textContent;
+    try{
+      btn.disabled=true; btn.textContent='更新中…';
+      await fetchConfig();
+      await fetchAllBookings();
+      await fetchMonthSlots(`${studentYear}-${String(studentMonth+1).padStart(2,'0')}`);
+      availabilityCache.clear();
+      renderStudentCalendar();
+      if(currentSelectedDate) renderTimeSlots(currentSelectedDate);
+      hwToast('已更新至最新可預約時間');
+    }catch(e){ hwToast('更新失敗，請檢查網絡再試'); }
+    finally{ btn.disabled=false; btn.textContent=old; }
+  });
   document.getElementById('studentPrevMonth').addEventListener('click',()=>{ studentMonth--; if(studentMonth<0){studentMonth=11;studentYear--;} renderStudentCalendar(); });
   document.getElementById('studentNextMonth').addEventListener('click',()=>{ studentMonth++; if(studentMonth>11){studentMonth=0;studentYear++;} renderStudentCalendar(); });
 
@@ -2468,7 +2954,15 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     const sel=document.getElementById('timeSlot'), note=document.getElementById('timeNote');
     if(!date){ sel.innerHTML='<option value="">請先選擇日期</option>'; note.innerText=''; return; }
     const avail=getAvailableTimeSlots(date);
-    if(!avail.length){ sel.innerHTML='<option value="">本日已滿</option>'; note.innerText='所有時段已被預約'; }
+    const reason=getDayBlockReason(date);
+    if(!avail.length){
+      if(reason&&reason.code==='noaccept'){ sel.innerHTML='<option value="">本日不接受預約</option>'; note.innerText='此日不接受預約，請選擇其他日期'; }
+      else if(reason&&reason.code==='notset'){ sel.innerHTML='<option value="">本日尚未開放</option>'; note.innerText='此日尚未開放預約，請選擇其他日期'; }
+      else if(reason&&reason.code==='unreleased'){ sel.innerHTML='<option value="">本日尚未開放</option>'; note.innerText='下個月預約將於本月 25 號開放'; }
+      else if(reason&&reason.code==='closed'){ sel.innerHTML='<option value="">本日暫停預約</option>'; note.innerText='此日暫停接受預約'; }
+      else if(reason&&reason.code==='past'){ sel.innerHTML='<option value="">本日已過去</option>'; note.innerText='請選擇明天或之後的日期'; }
+      else { sel.innerHTML='<option value="">本日已滿</option>'; note.innerText='所有時段已被預約'; }
+    }
     else{ sel.innerHTML='<option value="">請選擇時間</option>'+avail.map(t=>`<option value="${t}">${t}</option>`).join(''); sel.value=''; note.innerText=`可預約時段（共 ${avail.length} 個），請自行選擇`; }
   }
 
@@ -2619,24 +3113,117 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     for(let d=1;d<=days;d++){
       const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const mark=shadowMarks[ds];
-      html+=`<div class="shadow-cell ${isHoliday(ds)?'holiday':''}" data-date="${ds}"><span class="day-number">${d}</span>${mark?`<span class="shadow-mark">${mark}</span>`:''}</div>`;
+      let sc='shadow-cell'+(isHoliday(ds)?' holiday':'');
+      if(isClosedDate(ds)) sc+=' closed-frame';
+      else if(isSpecialDate(ds)) sc+=' special-frame';
+      else if(isHoliday(ds)) sc+=' holiday-frame';
+      const tag=isClosedDate(ds)?'<span class="shadow-mark">休</span>':(isSpecialDate(ds)?'<span class="shadow-mark">特</span>':(mark?`<span class="shadow-mark">${mark}</span>`:''));
+      const isPast=ds<=getTodayStr();
+      const cap=getDayCap(ds), used=getDayUsedCount(ds);
+      const remain=cap?Math.max(0,cap-used):null;
+      const capBadge=(!isPast && !isNoBookingDay(ds) && cap>0)?`<span class="cap-badge${remain===0?' hit':''}">${remain}</span>`:'';
+      html+=`<div class="${sc}" data-date="${ds}"><span class="day-number">${d}</span>${tag}${capBadge}</div>`;
     }
     document.getElementById('shadowGrid').innerHTML=html;
   }
-  document.getElementById('shadowGrid').addEventListener('click',function(e){
-    const cell=e.target.closest('.shadow-cell');
-    if(!cell||cell.classList.contains('empty-cell')) return;
-    const ds=cell.dataset.date;
-    const input=prompt('請輸入數字 (1-9)，留空或0可清除', shadowMarks[ds]||'');
-    if(input===null) return;
-    const n=parseInt(input,10);
-    if(isNaN(n)||n<1||n>9) delete shadowMarks[ds]; else shadowMarks[ds]=n;
-    saveShadowMarks(); renderShadowCalendar(); renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
-  });
-  document.getElementById('clearShadowMonth').addEventListener('click',function(){
-    const prefix=`${shadowYear}-${String(shadowMonth+1).padStart(2,'0')}`;
-    for(const k in shadowMarks) if(k.startsWith(prefix)) delete shadowMarks[k];
-    saveShadowMarks(); renderShadowCalendar(); renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
+  /* ===== 時段計劃 + 特別／不能預約日子 ===== */
+  const DP_TAGS=['weekday','holiday','closed'];
+  function dpField(tag,k){ return document.getElementById('dp-'+tag+'-'+k); }
+  function renderDayPlanEditor(){
+    const plan=(config.dayPlan&&typeof config.dayPlan==='object')?config.dayPlan:null;
+    if(!plan) return;
+    DP_TAGS.forEach(function(tag){
+      const p=plan[tag]||{};
+      const m=p.morning||{}, l=p.lunch||{}, a=p.afternoon||{};
+      const set=function(id,v){ const el=dpField(tag,id); if(el&&v!==undefined&&v!==null) el.value=v; };
+      set('mf',m.from); set('mt',m.to); set('ms',m.step);
+      set('lf',l.from); set('lt',l.to);
+      set('af',a.from); set('at',a.to); set('as',a.step);
+    });
+    const ht=document.getElementById('publicHolidaysText');
+    if(ht) ht.value=(config.publicHolidays&&config.publicHolidays.length?config.publicHolidays:publicHolidays).join('\n');
+    renderDateChips('special');
+    renderDateChips('closed');
+    bindMonthCapInputs();
+    renderMonthCapEditor();
+  }
+  function renderDateChips(kind){
+    const box=document.getElementById(kind==='special'?'specialDateChips':'closedDateChips');
+    if(!box) return;
+    const arr=(kind==='special'?(config.specialDates||[]):(config.closedDates||[]));
+    box.innerHTML=arr.length?arr.slice().sort().map(function(d){
+      return '<span class="date-chip" data-kind="'+kind+'" data-date="'+d+'">'+d+' <b>✕</b></span>';
+    }).join(''):'<span class="date-chip empty">（未設定）</span>';
+    box.querySelectorAll('.date-chip[data-date]').forEach(function(el){
+      el.addEventListener('click',function(){
+        const k=this.dataset.kind, d=this.dataset.date;
+        if(k==='special') config.specialDates=(config.specialDates||[]).filter(function(x){ return x!==d; });
+        else config.closedDates=(config.closedDates||[]).filter(function(x){ return x!==d; });
+        renderDateChips(k); renderShadowCalendar(); renderStudentCalendar();
+        try{ renderTimeSlots(currentSelectedDate); }catch(e){}
+      });
+    });
+  }
+  function bindDayPlanInputs(){
+    DP_TAGS.forEach(function(tag){
+      ['mf','mt','ms','lf','lt','af','at','as'].forEach(function(k){
+        const el=dpField(tag,k);
+        if(!el) return;
+        el.addEventListener('input',function(){
+          config.dayPlan=config.dayPlan||{};
+          const p=config.dayPlan[tag]=config.dayPlan[tag]||{};
+          if(k==='lf'||k==='lt'){ p.lunch=p.lunch||{}; p.lunch[k==='lf'?'from':'to']=this.value; }
+          else{
+            const which=(k==='mf'||k==='mt'||k==='ms')?'morning':'afternoon';
+            p[which]=p[which]||{};
+            const key=k.endsWith('f')?'from':(k.endsWith('t')?'to':'step');
+            p[which][key]=(key==='step')?(Number(this.value)||15):this.value;
+          }
+        });
+      });
+    });
+    const ht=document.getElementById('publicHolidaysText');
+    if(ht) ht.addEventListener('input',function(){
+      config.publicHolidays=this.value.split(/\n|,/).map(function(x){ return x.trim(); }).filter(Boolean);
+    });
+    const addS=document.getElementById('addSpecialDate'), addC=document.getElementById('addClosedDate');
+    if(addS) addS.addEventListener('click',function(){
+      const el=document.getElementById('specialDateInput'); const d=(el&&el.value||'').trim();
+      if(!d) return;
+      if(d<'2026-01-01'||d>'2028-12-31'){ hwToast('日期需介乎 2026-01-01 至 2028-12-31'); return; }
+      config.specialDates=config.specialDates||[];
+      if(config.specialDates.indexOf(d)<0) config.specialDates.push(d);
+      config.closedDates=(config.closedDates||[]).filter(function(x){ return x!==d; });
+      renderDateChips('special'); renderDateChips('closed'); renderShadowCalendar(); renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
+    });
+    if(addC) addC.addEventListener('click',function(){
+      const el=document.getElementById('closedDateInput'); const d=(el&&el.value||'').trim();
+      if(!d) return;
+      if(d<'2026-01-01'||d>'2028-12-31'){ hwToast('日期需介乎 2026-01-01 至 2028-12-31'); return; }
+      config.closedDates=config.closedDates||[];
+      if(config.closedDates.indexOf(d)<0) config.closedDates.push(d);
+      config.specialDates=(config.specialDates||[]).filter(function(x){ return x!==d; });
+      renderDateChips('closed'); renderDateChips('special'); renderShadowCalendar(); renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    try{ bindDayPlanInputs(); renderDayPlanEditor(); }catch(e){}
+    try{
+      const cur=document.getElementById('capPasteCur'), nxt=document.getElementById('capPasteNext');
+      if(cur) cur.addEventListener('click',function(){ applyCapPaste('cur'); });
+      if(nxt) nxt.addEventListener('click',function(){ applyCapPaste('next'); });
+    }catch(e){}
+    try{
+      let lastYm=ymKey(new Date());
+      setInterval(function(){
+        const k=ymKey(new Date());
+        if(k!==lastYm){
+          lastYm=k; pruneDayCaps(); renderMonthCapEditor(); availabilityCache.clear();
+          try{ renderStudentCalendar(); renderShadowCalendar(); renderTimeSlots(currentSelectedDate); }catch(e){}
+          hwToast('已轉換月份，舊月上限已自動清除');
+        }
+      },60000);
+    }catch(e){}
   });
   document.getElementById('shadowPrevMonth').addEventListener('click',()=>{ shadowMonth--; if(shadowMonth<0){shadowMonth=11;shadowYear--;} renderShadowCalendar(); });
   document.getElementById('shadowNextMonth').addEventListener('click',()=>{ shadowMonth++; if(shadowMonth>11){shadowMonth=0;shadowYear++;} renderShadowCalendar(); });
@@ -2687,12 +3274,12 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     document.getElementById('studentInfoArea').style.display='block';
     showFeedback('已取消您的預約，請重新選擇',false);
   }
-  document.getElementById('modifyBookingBtn').addEventListener('click',function(){
+  document.getElementById('modifyBookingBtn').addEventListener('click',async function(){
     const formEmail=document.getElementById('email').value.trim();
     const lastEmail=localStorage.getItem('hwLastEmail')||'';
-    const input=prompt('請輸入預約時使用的 Email', formEmail||lastEmail||'');
+    const input=await hwPrompt('請輸入預約時使用的 Email', formEmail||lastEmail||'', {placeholder:'example@mail.com'});
     if(input===null) return;
-    performModify(input.trim(), document.getElementById('name').value.trim());
+    performModify(String(input).trim(), document.getElementById('name').value.trim());
   });
 
   /* ===== 三頁流程：頁面切換 ===== */
@@ -2821,10 +3408,10 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     async function submit(){
       const p=(inp.value||'').trim();
       if(!p){ pwdMsg('請輸入密碼'); return; }
-      ok.disabled=true;
+      ok.disabled=true; const __oldText=ok.textContent; ok.textContent='驗證中…';
       let res=false;
       try{ res=await pwdOnOk(p); }catch(e){ res=false; }
-      ok.disabled=false;
+      ok.disabled=false; ok.textContent=__oldText;
       if(res){ closePwd(); return; }
       pwdMsg('密碼不正確，請再試一次');
       inp.value=''; inp.focus();
@@ -2838,7 +3425,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     openPwd('管理員登入','請輸入管理員密碼',async function(p){
       if(!(await authRole('admin',p))) return false;
       const ap=document.getElementById('adminPass'); if(ap) ap.value=p;
-      document.getElementById('viewCalendarBtn').click();
+      await enterAdminPage();
       return true;
     });
   });
@@ -3044,13 +3631,16 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     const vs=document.getElementById('voucherSource'); if(vs&&d.voucherSource) vs.value=d.voucherSource;
     ['gender','service'].forEach(function(f){ const el=document.getElementById(f); if(el&&d[f]) el.value=d[f]; });
     try{ renderBookingOptionSelects(); }catch(e){}
+    try{ renderVoucherPrefix(); }catch(e){}
     const vn=document.getElementById('voucherNumber'); if(vn) vn.dispatchEvent(new Event('input',{bubbles:true}));
   }
   function clearDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} }
   function resetBookingForm(){
     ['email','name','phone','voucherNumber'].forEach(function(f){ const el=document.getElementById(f); if(el) el.value=''; });
     ['gender','service'].forEach(function(f){ const el=document.getElementById(f); if(el) el.value=''; });
-    const vs=document.getElementById('voucherSource'); if(vs) vs.value='flyer';
+    const vs=document.getElementById('voucherSource'); if(vs) vs.value='';
+    const pr=document.getElementById('voucherPrefix'); if(pr) pr.value='';
+    voucherOpen=false;
     try{ renderBookingOptionSelects(); }catch(e){}
     try{ renderConfirmBoxes(); }catch(e){}
     clearDraft();
@@ -3125,7 +3715,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     if(isBlockedEmail(email)){ showFeedback('此 Email 已被停用，請聯絡店舖',true); return; }
 
     {
-      const dupMsg=await checkDuplicates({email:email,name:name,phone:phone,voucherCode:(isV20?'':voucherCode)},submitType);
+      const dupMsg=await checkDuplicates({email:email,name:name,phone:phone,voucherCode:(src==='flyer'?voucherCode:'')},submitType);
       if(dupMsg){ showFeedback(dupMsg,true); return; }
     }
 
@@ -3137,8 +3727,8 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     submitting=true;
     this.disabled=true;
     localStorage.setItem('hwLastSubmit',String(Date.now()));
-    const submitVoucherCode=isV20?'':voucherCode;
-    const result=await createBooking({email,name,gender,service,phone,voucherCode:submitVoucherCode,date,time,voucherKind:(isV20?'v20':'flyer')},submitType);
+    const submitVoucherCode=(src==='flyer')?voucherCode:'';
+    const result=await createBooking({email,name,gender,service,phone,voucherCode:submitVoucherCode,date,time,voucherKind:(src==='v20'?'v20':(src==='flyer'?'flyer':''))},submitType);
 
     if(result.success){
       localStorage.setItem('hwLastEmail',email);
@@ -3427,7 +4017,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   document.getElementById('submitStaffWalkinVoucher').addEventListener('click',()=>staffWalkin('voucher'));
 
   document.getElementById('unlockEditBtn').addEventListener('click',async function(){
-    const pwd=prompt('請輸入編輯解鎖密碼');
+    const pwd=await hwPrompt('請輸入編輯解鎖密碼','',{password:true});
     if(pwd===null) return;
     if(await authRole('staffEdit', pwd)){
       staffEditMode=true;
@@ -3444,10 +4034,12 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyBackground();
   });
 
-  document.getElementById('viewCalendarBtn').addEventListener('click',async function(){
-    if(!(await authRole('admin', document.getElementById('adminPass').value))) return;
+  async function enterAdminPage(){
+    const cal=document.getElementById('calendarPage');
+    if(!cal){ try{ hwToast('管理員頁面未載入，請重新整理'); }catch(e){} return false; }
+    const st=document.getElementById('staffPage'); if(st) st.classList.add('hidden');
     document.getElementById('bookingPage').classList.add('hidden');
-    document.getElementById('calendarPage').classList.remove('hidden');
+    cal.classList.remove('hidden');
     ADMIN_MODE=true; applyBackground();
     await fetchAllBookings();
     renderFieldSettings(); renderVoucherRules(); renderOptionSettings(); renderBarbersSettings(); renderTimeSlotSettings();
@@ -3491,9 +4083,24 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyLineColors();
     ADMIN_MODE=true; applyBackground();
     renderLangSettings();
-    await loadShadowMarks();
+    try{ await loadShadowMarks(); }catch(e){}
     renderAdminCalendar(); showDateDetail(null); renderTables(); renderSuspiciousTable(); renderShadowCalendar();
+    try{ renderDayPlanEditor(); }catch(e){}
     renderStudentCalendar(); renderTimeSlots(currentSelectedDate);
+    if(cal.classList.contains('hidden')){
+      try{ hwToast('管理員頁面未能顯示，請重新整理後再試'); }catch(e){}
+      return false;
+    }
+    return true;
+  }
+  document.getElementById('viewCalendarBtn').addEventListener('click',async function(){
+    if(!(await authRole('admin', document.getElementById('adminPass').value))) return;
+    await enterAdminPage();
+  });
+
+  document.addEventListener('DOMContentLoaded',function(){
+    const v=document.getElementById('appVerLabel');
+    if(v) v.textContent='版本 '+APP_VERSION+'（一般預約版）';
   });
 
   document.getElementById('enterStaffBtn').addEventListener('click',async function(){
@@ -3510,6 +4117,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     document.getElementById('calendarPage').classList.add('hidden');
     document.getElementById('bookingPage').classList.remove('hidden');
     ADMIN_MODE=false; applyBackground();
+    try{ renderVoucherPrefix(); }catch(e){}
   });
 
   document.getElementById('cleanOldNoShow').addEventListener('click',async function(){
@@ -3584,7 +4192,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     if(await updateConfig(config)){
       try{ gsPost({action:'saveNotes',rules:(config.voucherCodeRules||[]).map(function(r){ return {prefix:r.prefix||'',from:r.from,to:r.to,note:r.note||''}; })}); }catch(e){}
       await fetchAllBookings();
-      applyFieldSettings(); toggleCaptcha(); renderBookingOptionSelects(); renderStaffOptionSelects();
+      applyFieldSettings(); toggleCaptcha(); renderBookingOptionSelects(); renderVoucherPrefix(); renderStaffOptionSelects();
       alert('設定已儲存並同步至雲端');
     }else alert('儲存失敗，請稍後再試');
   });

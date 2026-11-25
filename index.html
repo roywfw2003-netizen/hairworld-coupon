@@ -706,6 +706,8 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         <div class="form-group" style="margin-top:10px;">
           <label>本機裝置 ID（貼進 firestore.rules 的 adminUid 白名單）</label>
           <input type="text" id="myUidBox" readonly placeholder="載入中...">
+          <div id="adminAccountStatus" style="font-size:12px;margin-top:5px;color:#B45A2A;"></div>
+          <div style="font-size:12px;margin-top:3px;color:#8A6A50;">雲端管理員帳號：hairworld.admin@hairworld.com（密碼需與管理員密碼相同）</div>
         </div>
       </div>
     </details>
@@ -1266,6 +1268,20 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   }
   try{ window.alert=function(m){ hwToast(m); }; }catch(e){}
 
+  const ADMIN_EMAIL='hairworld.admin@hairworld.com';
+  async function ensureAdminAccount(pwd){
+    try{
+      if(auth.currentUser && auth.currentUser.email===ADMIN_EMAIL) return true;
+      await auth.signInWithEmailAndPassword(ADMIN_EMAIL, pwd);
+      return true;
+    }catch(e){
+      console.error('管理員雲端帳號登入失敗',e);
+      setTimeout(function(){
+        hwAlert('雲端管理員帳號登入失敗（'+(e.code||e.message)+'）。\n\n請確認：\n1) Firebase Console → Authentication → Sign-in method 已啟用 Email/Password；\n2) Users 已新增 '+ADMIN_EMAIL+'；\n3) 該帳號密碼與你的管理員密碼相同。','雲端帳號未登入');
+      },100);
+      return false;
+    }
+  }
   const ROLE_KEY={admin:'adminPassword', staff:'staffPassword', staffEdit:'staffEditPassword', owner:'ownerPassword'};
   let ADMIN_SESSION='';
   function gsJsonpParams(params, cb){
@@ -1301,7 +1317,12 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   async function setAdminPassword(np){
     if(!ADMIN_SESSION){ alert('請先以管理員密碼解鎖後台，再修改密碼'); return false; }
     const d=await waitJson({action:'setPassword', role:'adminPassword', session:ADMIN_SESSION, value:np});
-    return !!(d && d.ok);
+    const ok=!!(d && d.ok);
+    if(ok && auth.currentUser && auth.currentUser.email===ADMIN_EMAIL){
+      try{ await auth.currentUser.updatePassword(np); }
+      catch(e){ setTimeout(function(){ hwAlert('管理員密碼已更新，但雲端帳號密碼同步失敗（'+(e.code||e.message)+'）。請到 Firebase Console → Authentication → Users，把 '+ADMIN_EMAIL+' 的密碼改為新密碼。','密碼同步'); },100); }
+    }
+    return ok;
   }
   function gsRecord(o){
     o=o||{};
@@ -1482,11 +1503,23 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
 
   async function updateConfig(newConfig){
     try{
-      await db.collection("config").doc("settings").set(newConfig);
-      Object.assign(config,newConfig);
-      staffCanEditDefault=newConfig.staffCanEditDefault;
+      let clean;
+      try{ clean=JSON.parse(JSON.stringify(newConfig)); }catch(e0){ clean=newConfig; }
+      const __size=JSON.stringify(clean).length;
+      if(__size>1000000){
+        window.__lastConfigError={code:'config-too-large',message:'設定資料 '+Math.round(__size/1024)+'KB，超過 Firestore 1MB 上限'};
+        return false;
+      }
+      await db.collection("config").doc("settings").set(clean);
+      Object.assign(config,clean);
+      staffCanEditDefault=clean.staffCanEditDefault;
+      window.__lastConfigError=null;
       return true;
-    }catch(e){ console.error('更新設定失敗',e); return false; }
+    }catch(e){
+      window.__lastConfigError=e||{};
+      console.error('更新設定失敗',e);
+      return false;
+    }
   }
 
 
@@ -2191,7 +2224,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyLang(CUR_LANG);
   }
 
-  const APP_VERSION='12.0';
+  const APP_VERSION='12.2';
   const PAGE_TYPE='normal';
   let voucherOpen=false;
   function getVoucherSource(){
@@ -3425,6 +3458,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     openPwd('管理員登入','請輸入管理員密碼',async function(p){
       if(!(await authRole('admin',p))) return false;
       const ap=document.getElementById('adminPass'); if(ap) ap.value=p;
+      await ensureAdminAccount(p);
       await enterAdminPage();
       return true;
     });
@@ -4067,6 +4101,13 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     document.getElementById('dailyCutoff').value=config.dailyCutoff||'';
     document.getElementById('googleSheetUrl').value=config.googleSheetUrl||'';
     try{ document.getElementById('myUidBox').value=(auth.currentUser&&auth.currentUser.uid)||'（未登入，無法取得）'; }catch(e){}
+    try{
+      const ast=document.getElementById('adminAccountStatus');
+      if(ast){
+        if(auth.currentUser && auth.currentUser.email===ADMIN_EMAIL) ast.textContent='✅ 已登入雲端管理員帳號：'+ADMIN_EMAIL;
+        else ast.textContent='⚠️ 未登入雲端管理員帳號（儲存會失敗）；請用管理員密碼重新登入。';
+      }
+    }catch(e){}
     document.getElementById('instagramUrl').value=config.instagramUrl||'';
     document.getElementById('mapUrl').value=config.mapUrl||'';
     document.getElementById('bgPhotoSelect').value=config.bgPhoto||'none';
@@ -4095,6 +4136,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   }
   document.getElementById('viewCalendarBtn').addEventListener('click',async function(){
     if(!(await authRole('admin', document.getElementById('adminPass').value))) return;
+    await ensureAdminAccount(document.getElementById('adminPass').value);
     await enterAdminPage();
   });
 
@@ -4194,7 +4236,15 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       await fetchAllBookings();
       applyFieldSettings(); toggleCaptcha(); renderBookingOptionSelects(); renderVoucherPrefix(); renderStaffOptionSelects();
       alert('設定已儲存並同步至雲端');
-    }else alert('儲存失敗，請稍後再試');
+    }else{
+      const err=window.__lastConfigError||{};
+      const uid=(auth.currentUser&&auth.currentUser.uid)||'（未登入）';
+      let msg='儲存失敗：'+(err.code||err.message||'未知錯誤')+'\n本機 Firebase UID：'+uid;
+      if(err.code==='permission-denied') msg+='\n\n請確認已用固定管理員帳號登入（'+ADMIN_EMAIL+'），以及 Firebase 規則已用最新 firestore.rules 發布。如帳號狀態顯示未登入，請用管理員密碼重新登入一次。';
+      else if(err.code==='unavailable'||err.code==='deadline-exceeded') msg+='\n\n網絡或 Firestore 連線有問題，請檢查手機網絡後再試。';
+      else msg+='\n\n請截圖此畫面給技術支援。';
+      await hwAlert(msg,'儲存失敗');
+    }
   });
 
   document.getElementById('testNotificationBtn').addEventListener('click',function(){
@@ -4286,7 +4336,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     try{ db.collection("config").doc("settings").set({pageBg:v},{merge:true}).catch(function(){}); }catch(err){}
   });
 
-  (async function init(){    await auth.signInAnonymously();
+  (async function init(){    if(!auth.currentUser){ await auth.signInAnonymously(); }
     await fetchConfig();
     applyPageBg((config.pageBg!==undefined&&config.pageBg!==null&&config.pageBg!=='')?config.pageBg:(localStorage.getItem(BG_KEY)||'0'));
     renderBookingOptionSelects();

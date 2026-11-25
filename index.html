@@ -421,6 +421,9 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   <!-- ===== 客人預約頁 ===== -->
   <div id="bookingPage" class="page">
     <form id="bookingForm">
+      <div class="top-refresh-row" style="display:flex;justify-content:flex-end;margin:2px 0 8px;">
+        <button type="button" class="btn-small" id="refreshGuestSlots" style="width:auto;font-size:12px;padding:6px 12px;">🔄 更新預約時間</button>
+      </div>
       <div id="stepBar"><span id="stepBarLeft"><span class="dot">1</span><span id="stepBarText">步驟 1／3　填寫個人資料</span></span><button type="button" id="myBookingsBtn" class="my-bookings-btn">我的預約</button></div>
       <div class="form-group" id="group-email">
         <label class="required" id="label-email">Email</label>
@@ -473,8 +476,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         <div class="cal-header"><h4 id="studentCalMonthYear"></h4><div class="cal-nav"><button type="button" id="studentPrevMonth">←</button><button type="button" id="studentNextMonth">→</button></div></div>
         <div class="cal-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
         <div id="studentCalGrid" class="cal-grid"></div>
-        <div style="text-align:right;margin-top:8px;"><button type="button" class="btn-small" id="refreshGuestSlots" style="width:auto;">🔄 更新預約時間</button></div>
-        <div class="note" style="text-align:right;">每月 25 號開放下一個月；如看不到新日子，可按「更新預約時間」。</div>
+        <div class="note" style="text-align:right;">每月 25 號開放下一個月；如看不到新日子，可按頂部「更新預約時間」。</div>
       </div>
 
       <div class="form-group" id="group-timeSlot"><label class="required">預約時間</label><select id="timeSlot"><option value="">請先選擇日期</option></select><div class="note" id="timeNote"></div></div>
@@ -2224,7 +2226,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyLang(CUR_LANG);
   }
 
-  const APP_VERSION='12.2';
+  const APP_VERSION='12.3';
   const PAGE_TYPE='normal';
   let voucherOpen=false;
   function getVoucherSource(){

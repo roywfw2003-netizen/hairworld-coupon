@@ -1576,6 +1576,89 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     }catch(e){ console.error('限額檢查失敗',e); }
     return {ok:true};
   }
+  /* ===== 系統壓力監控＋ntfy 警報（只計數，不記錄客人資料） ===== */
+  const LOAD_DOC=db.collection('system').doc('load');
+  const ALERT_ACTIVE_LIMIT=10;
+  const ALERT_HOURLY_LIMIT=20;
+  const ALERT_COOLDOWN_MS=15*60*1000;
+  const MONITOR_STALE_MS=10*60*1000;
+  function monitorEnabled(){
+    return !!(config.ntfyEnabled && String(config.ntfyTopic||'').trim());
+  }
+  function hourKeyNow(){
+    const d=new Date();
+    return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+String(d.getHours()).padStart(2,'0');
+  }
+  function notifyOwner(title,message){
+    if(!monitorEnabled()) return;
+    const topic=String(config.ntfyTopic||'').trim();
+    try{
+      fetch('https://ntfy.sh/'+encodeURIComponent(topic),{
+        method:'POST',body:message,
+        headers:{'Title':title,'Priority':'high','Tags':'warning'}
+      }).catch(function(e){ console.warn('ntfy 發送失敗',e); });
+    }catch(e){ console.warn('ntfy 發送失敗',e); }
+  }
+  async function monitorStart(){
+    if(!monitorEnabled()||isTestDevice()) return null;
+    try{
+      return await db.runTransaction(async function(tx){
+        const doc=await tx.get(LOAD_DOC);
+        const d=doc.exists?doc.data():{};
+        const now=Date.now();
+        const stale=(now-(Number(d.lastStartAt)||0)>MONITOR_STALE_MS);
+        const active=stale?1:((Number(d.active)||0)+1);
+        const hk=hourKeyNow();
+        const hc=(d.hourKey===hk)?(Number(d.hourCount)||0):0;
+        const alert=(active>=ALERT_ACTIVE_LIMIT && now-(Number(d.lastAlertAt)||0)>ALERT_COOLDOWN_MS);
+        const patch={active:active,lastStartAt:now,hourKey:hk,hourCount:hc,updatedAt:now};
+        if(alert){ patch.lastAlertAt=now; patch.lastAlertType='active'; }
+        tx.set(LOAD_DOC,patch,{merge:true});
+        return {active:active,alert:alert};
+      });
+    }catch(e){ console.warn('監控開始失敗',e); return null; }
+  }
+  async function monitorEnd(){
+    if(!monitorEnabled()||isTestDevice()) return;
+    try{
+      await db.runTransaction(async function(tx){
+        const doc=await tx.get(LOAD_DOC);
+        if(!doc.exists) return;
+        const active=Math.max(0,(Number(doc.data().active)||0)-1);
+        tx.set(LOAD_DOC,{active:active,updatedAt:Date.now()},{merge:true});
+      });
+    }catch(e){ console.warn('監控結束失敗',e); }
+  }
+  async function monitorSuccess(){
+    if(!monitorEnabled()||isTestDevice()) return null;
+    try{
+      return await db.runTransaction(async function(tx){
+        const doc=await tx.get(LOAD_DOC);
+        const d=doc.exists?doc.data():{};
+        const now=Date.now(), hk=hourKeyNow();
+        const hc=(d.hourKey===hk)?((Number(d.hourCount)||0)+1):1;
+        const alert=(hc>=ALERT_HOURLY_LIMIT && now-(Number(d.lastAlertAt)||0)>ALERT_COOLDOWN_MS);
+        const patch={hourKey:hk,hourCount:hc,updatedAt:now};
+        if(alert){ patch.lastAlertAt=now; patch.lastAlertType='hourly'; }
+        tx.set(LOAD_DOC,patch,{merge:true});
+        return {count:hc,alert:alert};
+      });
+    }catch(e){ console.warn('成功計數失敗',e); return null; }
+  }
+  async function claimTimeoutAlert(){
+    if(!monitorEnabled()||isTestDevice()) return false;
+    try{
+      return await db.runTransaction(async function(tx){
+        const doc=await tx.get(LOAD_DOC);
+        const d=doc.exists?doc.data():{};
+        const now=Date.now();
+        if(now-(Number(d.lastAlertAt)||0)<=ALERT_COOLDOWN_MS) return false;
+        tx.set(LOAD_DOC,{lastAlertAt:now,lastAlertType:'timeout',updatedAt:now},{merge:true});
+        return true;
+      });
+    }catch(e){ return false; }
+  }
+
   function renderTestDevices(){
     const div=document.getElementById('testDeviceList'); if(!div) return;
     const list=Array.isArray(config.testDevices)?config.testDevices:[];
@@ -2253,7 +2336,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyLang(CUR_LANG);
   }
 
-  const APP_VERSION='12.5';
+  const APP_VERSION='12.6';
   const PAGE_TYPE='normal';
   let voucherOpen=false;
   function getVoucherSource(){
@@ -3793,15 +3876,25 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     if(!isTestDevice() && Date.now()-lastSubmit<cooldownMs){ showFeedback('提交太頻密，請 '+Math.ceil(cooldownMs/1000)+' 秒後再試'); return; }
     if(isBlockedEmail(email)){ showFeedback('此 Email 已被停用，請聯絡店舖',true); return; }
 
+    let monitorDone=false;
+    const monitorPromise=monitorStart();
+    const finishMonitor=async function(){
+      if(monitorDone) return;
+      monitorDone=true;
+      const st=await monitorPromise;
+      if(st&&st.alert) notifyOwner('Hair World Alert','同時提交已達 '+st.active+' 人，系統可能變慢。');
+      if(st) await monitorEnd();
+    };
+
     const needsVoucherCheck=(!isV20&&voucherCode&&FC('visibleFields').voucherCode);
     const [vcRes,dupMsg,limRes]=await Promise.all([
       needsVoucherCheck?checkVoucherCode(voucherCode):Promise.resolve({ok:true}),
       checkDuplicates({email:email,name:name,phone:phone,voucherCode:(src==='flyer'?voucherCode:'')},submitType),
       isTestDevice()?Promise.resolve({ok:true}):checkDailyLimits(email,submitType)
     ]);
-    if(vcRes&&!vcRes.ok){ showFeedback(vcRes.msg,true); return; }
-    if(dupMsg){ showFeedback(dupMsg,true); return; }
-    if(limRes&&!limRes.ok){ showFeedback(limRes.msg,true); return; }
+    if(vcRes&&!vcRes.ok){ showFeedback(vcRes.msg,true); finishMonitor(); return; }
+    if(dupMsg){ showFeedback(dupMsg,true); finishMonitor(); return; }
+    if(limRes&&!limRes.ok){ showFeedback(limRes.msg,true); finishMonitor(); return; }
 
     submitting=true;
     this.disabled=true;
@@ -3813,6 +3906,8 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     ]);
 
     if(result.success){
+      monitorSuccess().then(function(r){ if(r&&r.alert) notifyOwner('Hair World Alert','本小時成功預約已達 '+r.count+' 筆。'); });
+      finishMonitor();
       localStorage.setItem('hwLastEmail',email);
       clearDraft();
       showFeedback('預約成功！',false);
@@ -3843,15 +3938,19 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         });
       },REVIEW_WINDOW_MS);
     }else if(result.error==='slot_taken'){
+      finishMonitor();
       showFeedback('此時間段已被預約，請重新選擇',true);
       await fetchDaySlots(date,true); renderTimeSlots(date); renderStudentCalendar();
       submitting=false; this.disabled=false;
       showStep(2);
       showStep2Feedback('「'+(date||'')+' '+(time||'')+'」剛剛已被其他人預約，請重新選擇時間');
     }else if(result.error==='timeout'){
+      claimTimeoutAlert().then(function(ok){ if(ok) notifyOwner('Hair World Alert','有客人提交等候逾時（15 秒）。'); });
+      finishMonitor();
       showFeedback('提交等候逾時。請先到「我的預約」確認是否已成功，不要立即重複提交；如仍未見記錄，請聯絡店舖。',true);
       submitting=false; this.disabled=false;
     }else{
+      finishMonitor();
       showFeedback('預約失敗：'+result.error,true);
       submitting=false; this.disabled=false;
     }

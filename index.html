@@ -982,7 +982,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
 
   const DEVICE_ID_KEY='hairWorldDeviceId', ACTIVITY_KEY='hairWorldActivity',
         SHADOW_KEY='hairWorldShadowMarks', SYNC_MAIN_KEY='hairWorldSyncMain',
-        REVIEW_WINDOW_MS=5000;
+        REVIEW_WINDOW_MS=1200;
 
   function getDeviceId(){
     let id=localStorage.getItem(DEVICE_ID_KEY);
@@ -1366,6 +1366,29 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     }catch(e){ console.error('讀取預約失敗',e); bookings=[]; normalBookings=[]; voucherBookings=[]; }
   }
 
+  async function fetchBookingsForMonth(ym){
+    try{
+      const snap=await db.collection("appointments")
+        .where('date','>=',ym+'-01')
+        .where('date','<=',ym+'-31\uf8ff')
+        .get();
+      const list=[];
+      snap.forEach(doc=>{
+        const d=doc.data(); d.id=doc.id;
+        if(d.date && typeof d.date==='string' && d.date.includes('T')) d.date=d.date.split('T')[0];
+        if(!d.status) d.status='pending';
+        d.type=normalizeType(d.type);
+        if(!d.voucherPurchased) d.voucherPurchased=false;
+        list.push(d);
+      });
+      const other=bookings.filter(function(b){ return !(typeof b.date==='string'&&b.date.slice(0,7)===ym); });
+      bookings=other.concat(list);
+      normalBookings=bookings.filter(b=>b.type==='normal');
+      voucherBookings=bookings.filter(b=>b.type==='voucher');
+      availabilityCache.clear();
+    }catch(e){ console.error('讀取每月預約失敗',e); }
+  }
+
   async function fetchConfig(){
     try{
       const doc=await db.collection("config").doc("settings").get();
@@ -1532,10 +1555,15 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     return !!e && list.indexOf(String(e).trim().toLowerCase())>=0;
   }
   async function checkDailyLimits(email,forcedType){
+    const devMax=Number(config.maxPerDevicePerDay||0);
+    const emailMax=Number(config.maxPerEmailPerDay||0);
+    if(devMax<=0 && emailMax<=0) return {ok:true};
     try{
       const d=new Date(); d.setHours(0,0,0,0);
       const iso=d.toISOString();
-      const snap=await db.collection('appointments').where('createdAt','>=',iso).get();
+      const q=db.collection('appointments').where('createdAt','>=',iso).limit(300).get();
+      const snap=await Promise.race([q,new Promise(function(res){ setTimeout(function(){ res(null); },6000); })]);
+      if(!snap) return {ok:true};
       let devCount=0, emailCount=0;
       const myType=forcedType||((typeof VARIANT!=='undefined'&&VARIANT==='voucher')?'voucher':'normal');
       snap.forEach(doc=>{ const x=doc.data(); if(x.status==='cancelled') return;
@@ -1543,8 +1571,6 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         if(x.deviceId===deviceId) devCount++;
         if(email && String(x.email||'').toLowerCase()===String(email).toLowerCase()) emailCount++;
       });
-      const devMax=Number(config.maxPerDevicePerDay||0);
-      const emailMax=Number(config.maxPerEmailPerDay||0);
       if(devMax>0 && devCount>=devMax) return {ok:false,msg:'此裝置今日預約已達上限（'+devMax+' 次），請明日再試或聯絡店舖'};
       if(emailMax>0 && email && emailCount>=emailMax) return {ok:false,msg:'此 Email 今日預約已達上限（'+emailMax+' 次）'};
     }catch(e){ console.error('限額檢查失敗',e); }
@@ -1933,6 +1959,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
 "確認框": "checkbox",
 "驗證碼錯誤，請重新輸入": "Wrong captcha, please try again",
 "提交預約中，請稍候約5秒...": "Submitting booking, please wait about 5 seconds...",
+"提交預約中，請稍候…": "Submitting booking, please wait…",
 "此 Email 已被停用，請聯絡店舖": "This Email is blocked, please contact the shop",
 "系統處理中，請稍候約5秒...": "System is processing, please wait about 5 seconds...",
 "預約成功！": "Booking confirmed!",
@@ -2226,7 +2253,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyLang(CUR_LANG);
   }
 
-  const APP_VERSION='12.3';
+  const APP_VERSION='12.5';
   const PAGE_TYPE='normal';
   let voucherOpen=false;
   function getVoucherSource(){
@@ -2560,10 +2587,13 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       return {ok:false,msg:'此號碼不在可用範圍（'+rule.prefix+rule.from+' 至 '+rule.prefix+rule.to+'）'};
     if(FC('allowDuplicate')&&FC('allowDuplicate').voucherCode) return {ok:true};
     try{
-      const snap=await db.collection('appointments').where('voucherCode','==',code).get();
-      let used=false;
-      snap.forEach(function(doc){ if((doc.data().status||'')!=='cancelled') used=true; });
-      if(used) return {ok:false,msg:'此優惠券號碼（'+code+'）已使用過，不能重複使用'};
+      const q=db.collection('appointments').where('voucherCode','==',code).limit(20).get();
+      const snap=await timeoutFallback(q,6000,null);
+      if(snap){
+        let used=false;
+        snap.forEach(function(doc){ if((doc.data().status||'')!=='cancelled') used=true; });
+        if(used) return {ok:false,msg:'此優惠券號碼（'+code+'）已使用過，不能重複使用'};
+      }
     }catch(e){ console.error('券號檢查失敗',e); }
     return {ok:true};
   }
@@ -2583,22 +2613,36 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     return h;
   }
 
+  function timeoutFallback(p,ms,val){
+    return Promise.race([p,new Promise(function(res){ setTimeout(function(){ res(val); },ms); })]);
+  }
   async function checkDuplicates(vals,forcedType){
     const pairs=[['email','Email'],['name','姓名'],['phone','電話號碼'],['voucherCode','優惠券號碼']];
-    try{
-      const snap=await db.collection('appointments').where('status','==','pending').get();
-      const list=[];
-      const myType=forcedType||((typeof VARIANT!=='undefined'&&VARIANT==='voucher')?'voucher':'normal');
-      snap.forEach(function(doc){ const d=doc.data(); if((d.type||'normal')===myType) list.push(d); });
-      for(const p of pairs){
-        const k=p[0], label=p[1];
-        if(!FC('visibleFields')[k]) continue;
-        if(FC('allowDuplicate')[k]) continue;
-        const v=String(vals[k]||'').trim(); if(!v) continue;
-        const hit=list.find(function(d){ return String(d[k]||'').trim().toLowerCase()===v.toLowerCase(); });
-        if(hit) return '已有相同'+label+'（'+v+'）的未完成預約，不能重複提交';
-      }
-    }catch(e){ console.error('重複檢查失敗',e); }
+    const myType=forcedType||((typeof VARIANT!=='undefined'&&VARIANT==='voucher')?'voucher':'normal');
+    const active=[];
+    pairs.forEach(function(p){
+      const k=p[0];
+      if(!FC('visibleFields')[k]) return;
+      if(FC('allowDuplicate')[k]) return;
+      const v=String(vals[k]||'').trim();
+      if(v) active.push({k:k,label:p[1],v:v});
+    });
+    if(!active.length) return '';
+    const jobs=active.map(function(p){
+      return db.collection('appointments').where(p.k,'==',p.v).limit(20).get()
+        .then(function(snap){
+          let hit=null;
+          snap.forEach(function(doc){
+            const d=doc.data();
+            if((d.status||'')==='pending' && (d.type||'normal')===myType && String(d[p.k]||'').trim().toLowerCase()===p.v.toLowerCase()) hit=d;
+          });
+          return hit?('已有相同'+p.label+'（'+p.v+'）的未完成預約，不能重複提交'):'';
+        })
+        .catch(function(e){ console.error('重複檢查失敗',p.k,e); return ''; });
+    });
+    const res=await timeoutFallback(Promise.all(jobs),6000,null);
+    if(!res){ console.warn('重複檢查逾時，已跳過即時檢查'); return ''; }
+    for(const r of res){ if(r) return r; }
     return '';
   }
 
@@ -2973,8 +3017,9 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     try{
       btn.disabled=true; btn.textContent='更新中…';
       await fetchConfig();
-      await fetchAllBookings();
-      await fetchMonthSlots(`${studentYear}-${String(studentMonth+1).padStart(2,'0')}`);
+      const ymKeyNow=`${studentYear}-${String(studentMonth+1).padStart(2,'0')}`;
+      await fetchBookingsForMonth(ymKeyNow);
+      await fetchMonthSlots(ymKeyNow);
       availabilityCache.clear();
       renderStudentCalendar();
       if(currentSelectedDate) renderTimeSlots(currentSelectedDate);
@@ -3698,7 +3743,9 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
 
   let submitting=false;
   document.getElementById('submitBooking').addEventListener('click',async function(){
-    if(submitting) return;
+    if(submitting||window.__submitChecking) return;
+    window.__submitChecking=true;
+    try{
     hideFeedback();
 
     const email=document.getElementById('email').value.trim();
@@ -3722,10 +3769,6 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     if(FC('visibleFields').service&&FC('requiredFields').service&&!service){ showFeedback('請選擇服務項目'); return; }
     if(FC('visibleFields').phone&&FC('requiredFields').phone&&!phone){ showFeedback('請填寫電話號碼'); return; }
     if(!isV20&&FC('visibleFields').voucherCode&&FC('requiredFields').voucherCode&&!voucherCode){ showFeedback('請填寫優惠券號碼'); return; }
-    if(!isV20&&voucherCode&&FC('visibleFields').voucherCode){
-      const vc=await checkVoucherCode(voucherCode);
-      if(!vc.ok){ showFeedback(vc.msg,true); return; }
-    }
     if(!date){ showFeedback('請選擇預約日期'); return; }
     if(!time){ showFeedback('請選擇預約時間'); return; }
     if(email&&!email.includes('@')){ showFeedback('請輸入有效的 Email'); return; }
@@ -3743,34 +3786,38 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       }
     }
 
-    showFeedback('提交預約中，請稍候約5秒...',false);
+    showFeedback('提交預約中，請稍候…',false);
 
     const lastSubmit=parseInt(localStorage.getItem('hwLastSubmit')||'0',10);
     const cooldownMs=(Number(config.submitCooldownSec)||30)*1000;
     if(!isTestDevice() && Date.now()-lastSubmit<cooldownMs){ showFeedback('提交太頻密，請 '+Math.ceil(cooldownMs/1000)+' 秒後再試'); return; }
     if(isBlockedEmail(email)){ showFeedback('此 Email 已被停用，請聯絡店舖',true); return; }
 
-    {
-      const dupMsg=await checkDuplicates({email:email,name:name,phone:phone,voucherCode:(src==='flyer'?voucherCode:'')},submitType);
-      if(dupMsg){ showFeedback(dupMsg,true); return; }
-    }
-
-    if(!isTestDevice()){
-      const lim=await checkDailyLimits(email,submitType);
-      if(!lim.ok){ showFeedback(lim.msg,true); return; }
-    }
+    const needsVoucherCheck=(!isV20&&voucherCode&&FC('visibleFields').voucherCode);
+    const [vcRes,dupMsg,limRes]=await Promise.all([
+      needsVoucherCheck?checkVoucherCode(voucherCode):Promise.resolve({ok:true}),
+      checkDuplicates({email:email,name:name,phone:phone,voucherCode:(src==='flyer'?voucherCode:'')},submitType),
+      isTestDevice()?Promise.resolve({ok:true}):checkDailyLimits(email,submitType)
+    ]);
+    if(vcRes&&!vcRes.ok){ showFeedback(vcRes.msg,true); return; }
+    if(dupMsg){ showFeedback(dupMsg,true); return; }
+    if(limRes&&!limRes.ok){ showFeedback(limRes.msg,true); return; }
 
     submitting=true;
     this.disabled=true;
     localStorage.setItem('hwLastSubmit',String(Date.now()));
     const submitVoucherCode=(src==='flyer')?voucherCode:'';
-    const result=await createBooking({email,name,gender,service,phone,voucherCode:submitVoucherCode,date,time,voucherKind:(src==='v20'?'v20':(src==='flyer'?'flyer':''))},submitType);
+    const result=await Promise.race([
+      createBooking({email,name,gender,service,phone,voucherCode:submitVoucherCode,date,time,voucherKind:(src==='v20'?'v20':(src==='flyer'?'flyer':''))},submitType),
+      new Promise(function(res){ setTimeout(function(){ res({success:false,error:'timeout'}); },15000); })
+    ]);
 
     if(result.success){
       localStorage.setItem('hwLastEmail',email);
       clearDraft();
-      showFeedback('系統處理中，請稍候約5秒...',false);
+      showFeedback('預約成功！',false);
       setTimeout(()=>{
+        submitting=false; window.__submitChecking=false; document.getElementById('submitBooking').disabled=false;
         showFeedback('預約成功！',false);
         monthLoaded[date.slice(0,7)]=false;
         renderStudentCalendar(); renderTimeSlots(date);
@@ -3794,7 +3841,6 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
           document.getElementById('confirmShot').addEventListener('click',resetBookingForm);
           document.getElementById('cancelShot').addEventListener('click',function(){ box.innerHTML=''; });
         });
-        submitting=false; document.getElementById('submitBooking').disabled=false;
       },REVIEW_WINDOW_MS);
     }else if(result.error==='slot_taken'){
       showFeedback('此時間段已被預約，請重新選擇',true);
@@ -3802,9 +3848,15 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
       submitting=false; this.disabled=false;
       showStep(2);
       showStep2Feedback('「'+(date||'')+' '+(time||'')+'」剛剛已被其他人預約，請重新選擇時間');
+    }else if(result.error==='timeout'){
+      showFeedback('提交等候逾時。請先到「我的預約」確認是否已成功，不要立即重複提交；如仍未見記錄，請聯絡店舖。',true);
+      submitting=false; this.disabled=false;
     }else{
       showFeedback('預約失敗：'+result.error,true);
       submitting=false; this.disabled=false;
+    }
+    }finally{
+      if(!submitting) window.__submitChecking=false;
     }
   });
 

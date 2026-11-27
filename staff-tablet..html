@@ -50,6 +50,14 @@ h3{color:#F25C0A;font-size:1.4rem;margin:15px 0 10px;display:flex;align-items:ce
 .summary-card .label{font-size:1.1rem;color:#B04400}
 select,input{font-size:1rem;padding:10px 15px;border-radius:40px;border:2px solid #FFB985;background:#fff;width:100%}
 .form-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:18px}
+.form-group label{display:flex!important;align-items:center;justify-content:space-between;gap:6px}
+.form-group label.required .lab-text::after{content:" *";color:#dc3545;font-weight:700}
+.req-toggle{display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:500;color:#9a8f84;white-space:nowrap}
+.req-toggle input{width:14px;height:14px;margin:0;accent-color:#F25C0A}
+.req-toggle.on{color:#B04400;font-weight:700}
+.req-toggle input:disabled{opacity:.35}
+.admin-req-btn{padding:7px 12px;min-width:auto;font-size:.78rem;background:#6c757d;color:#fff;box-shadow:0 2px 0 #495057}
+.admin-req-btn.on{background:#28a745;box-shadow:0 2px 0 #1e7e34}
 .form-group{flex:1;min-width:130px}
 .form-group label{display:block;font-size:.85rem;font-weight:600;color:#77450E;margin-bottom:4px}
 .manual-buttons{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
@@ -128,7 +136,7 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,var(--hw-surf
 </head>
 <body>
 <div class="staff-container">
-  <h1><i class="fa-solid fa-scissors"></i> Hair World 員工工作台 <span class="ver">iPad版 v11.0</span><span class="edit-mode-badge" id="editModeBadge">編輯模式已啟用</span><button type="button" id="themeToggle" class="theme-toggle">夜間模式</button></h1>
+  <h1><i class="fa-solid fa-scissors"></i> Hair World 員工工作台 <span class="ver">iPad版 v11.2</span><span class="edit-mode-badge" id="editModeBadge">編輯模式已啟用</span><button type="button" id="themeToggle" class="theme-toggle">夜間模式</button></h1>
 
   <div class="edit-section">
     <div style="display:flex;align-items:center;gap:10px;">
@@ -163,18 +171,21 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,var(--hw-surf
 
   <div class="section-block" style="background:#e6f3ff;border-color:#17a2b8;">
     <h3><i class="fa-solid fa-pen-to-square"></i> 手動登記（現場）</h3>
-    <div class="form-row">
-      <div class="form-group"><label>姓名</label><input type="text" id="staffName" placeholder="客人姓名"></div>
-      <div class="form-group"><label>Email（選填）</label><input type="email" id="staffEmail" placeholder="example@mail.com"></div>
-      <div class="form-group"><label>性別</label><select id="staffGender"><option value="">請選擇</option></select></div>
-      <div class="form-group"><label>服務項目</label><select id="staffService"><option value="">請選擇</option></select></div>
-      <div class="form-group"><label>師傅</label><select id="staffBarber"><option value="">請選擇</option></select></div>
+    <div style="display:flex;justify-content:flex-end;margin:-4px 0 8px;"><button type="button" class="btn admin-req-btn" id="adminReqBtn">🔒 管理員解鎖必填設定</button></div>
+    <div class="form-row" id="staffFieldWrap">
+      <div class="form-group" id="group-name"><label id="label-name">姓名</label><input type="text" id="staffName" placeholder="請輸入姓名"></div>
+      <div class="form-group" id="group-email"><label id="label-email">Email</label><input type="email" id="staffEmail" placeholder="example@mail.com"></div>
+      <div class="form-group" id="group-phone"><label id="label-phone">電話號碼</label><input type="tel" id="staffPhone" placeholder="例如 9123 4567"></div>
+      <div class="form-group" id="group-gender"><label id="label-gender">性別</label><select id="staffGender"><option value="">請選擇</option></select></div>
+      <div class="form-group" id="group-service"><label id="label-service">服務項目</label><select id="staffService"><option value="">請選擇</option></select></div>
+      <div class="form-group" id="group-voucherCode"><label id="label-voucherCode">優惠券</label><input type="text" id="staffVoucherCode" placeholder="例如 A123（沒有可留空）"></div>
+      <div class="form-group" id="group-barber"><label id="label-barber">師傅</label><select id="staffBarber"><option value="">請選擇</option></select></div>
     </div>
     <div class="manual-buttons">
       <button class="btn btn-manual-student" id="submitStudentWalkin">一般剪髮登記</button>
       <button class="btn btn-manual-parent" id="submitParentWalkin">優惠券剪髮登記</button>
     </div>
-    <div class="note"><i class="fa-solid fa-info-circle"></i> 登記前會檢查同一 Email 是否已有預約記錄；如重複會拒絕登記並顯示警告。</div>
+    <div class="note"><i class="fa-solid fa-info-circle"></i> 欄位、名稱、選項與必填規則自動跟隨主頁面設定；登記前會按主頁面的「允許重複」規則檢查未完成預約。</div>
   </div>
 
   <div class="section-block">
@@ -196,7 +207,7 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,var(--hw-surf
     </div>
   </div>
 
-  <div class="footer">@vison 11.0 | 一般／優惠券雙欄 | Email 查重 | 編輯模式可返回／刪除</div>
+  <div class="footer">@vison 11.2 | 一般／優惠券雙欄 | 手動登記跟隨主頁面設定 | 管理員可設定必填</div>
 </div>
 
 <script>
@@ -268,6 +279,7 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,var(--hw-surf
     o=o||{};
     function nz(v){ return (v===null)?null:(v===undefined?'':v); }
     return {id:o.id||'',type:normalizeType(o.type),email:nz(o.email),name:nz(o.name),gender:nz(o.gender),service:nz(o.service),
+      voucherCode:nz(o.voucherCode),phone:nz(o.phone),
       barber:nz(o.barber),date:nz(o.date),time:nz(o.time),status:nz(o.status||'pending'),
       voucherPurchased:!!o.voucherPurchased,createdAt:nz(o.createdAt),completedAt:nz(o.completedAt),
       noShowAt:nz(o.noShowAt),updatedAt:nz(o.updatedAt),source:nz(o.source)};
@@ -307,8 +319,78 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,var(--hw-surf
     document.getElementById('staffGender').innerHTML='<option value="">請選擇</option>'+config.genders.map(v=>`<option value="${v}">${v}</option>`).join('');
     document.getElementById('staffService').innerHTML='<option value="">請選擇</option>'+config.services.map(v=>`<option value="${v}">${v}</option>`).join('');
     document.getElementById('staffBarber').innerHTML='<option value="">請選擇師傅</option>'+config.barbers.map(v=>`<option value="${v}">${v}</option>`).join('');
+    applyStaffFieldSettings();
   }
 
+  const STAFF_FIELDS=['email','name','gender','service','voucherCode','phone'];
+  const STAFF_FIELD_DEFAULT={email:'Email',name:'姓名',gender:'性別',service:'服務項目',voucherCode:'優惠券',phone:'電話號碼'};
+  const ADMIN_EMAIL='hairworld.admin@hairworld.com';
+  let staffAdminMode=false;
+  function staffFieldCfg(name,def){
+    var v=config[name];
+    if(!v||typeof v!=='object') return def;
+    return Object.assign({},def,v);
+  }
+  function staffRequired(f){
+    var req=staffFieldCfg('requiredFields',{email:true,name:true,gender:true,service:true,voucherCode:false,phone:false});
+    return !!req[f];
+  }
+  function staffVisible(f){ var v=staffFieldCfg('visibleFields',{email:true,name:true,gender:true,service:true,voucherCode:true,phone:true}); return f==='voucherCode'?true:!!v[f]; }
+  function staffAllowDup(f){ var v=staffFieldCfg('allowDuplicate',{email:false,name:false,gender:true,service:true,voucherCode:false,phone:false}); return !!v[f]; }
+  function staffEffectiveRequired(f){
+    var ov=(config.staffManualRequired&&typeof config.staffManualRequired==='object')?config.staffManualRequired:{};
+    if(ov[f]!==undefined&&ov[f]!==null) return !!ov[f];
+    if(f==='barber') return true;
+    return staffRequired(f);
+  }
+  function applyStaffFieldSettings(){
+    var vis=staffFieldCfg('visibleFields',{email:true,name:true,gender:true,service:true,voucherCode:true,phone:true});
+    var labels=staffFieldCfg('fieldLabels',STAFF_FIELD_DEFAULT);
+    var order=(Array.isArray(config.fieldOrder)?config.fieldOrder:[]).slice();
+    STAFF_FIELDS.forEach(function(f){ if(order.indexOf(f)<0) order.push(f); });
+    var wrap=document.getElementById('staffFieldWrap');
+    if(wrap){
+      order.forEach(function(f){ var g=document.getElementById('group-'+f); if(g) wrap.appendChild(g); });
+      var gb=document.getElementById('group-barber'); if(gb) wrap.appendChild(gb);
+    }
+    STAFF_FIELDS.concat(['barber']).forEach(function(f){
+      var g=document.getElementById('group-'+f);
+      if(g) g.style.display=(f==='voucherCode'||vis[f]||f==='barber')?'block':'none';
+      var lab=document.getElementById('label-'+f);
+      if(!lab) return;
+      var txt=lab.querySelector('.lab-text');
+      if(!txt){ lab.textContent=''; txt=document.createElement('span'); txt.className='lab-text'; lab.appendChild(txt); }
+      txt.textContent=(f==='barber'?'師傅':(labels[f]||STAFF_FIELD_DEFAULT[f]));
+      var required=staffEffectiveRequired(f)&&(f==='barber'||vis[f]);
+      lab.classList.toggle('required',required);
+      var tog=lab.querySelector('.req-toggle');
+      if(!tog){
+        tog=document.createElement('span'); tog.className='req-toggle';
+        tog.innerHTML='<input type="checkbox" class="req-chk" data-req="'+f+'"><span>必填</span>';
+        lab.appendChild(tog);
+      }
+      var chk=tog.querySelector('input');
+      chk.checked=required;
+      chk.disabled=!staffAdminMode;
+      tog.classList.toggle('on',required);
+    });
+  }
+  function applyAdminReqButton(){
+    var btn=document.getElementById('adminReqBtn');
+    if(!btn) return;
+    btn.textContent=staffAdminMode?'🔓 管理員模式（點此鎖定）':'🔒 管理員解鎖必填設定';
+    btn.classList.toggle('on',staffAdminMode);
+  }
+  async function saveStaffRequired(){
+    try{
+      await db.collection('config').doc('settings').set({staffManualRequired:Object.assign({},config.staffManualRequired||{})},{merge:true});
+      return true;
+    }catch(e){
+      console.error('儲存必填設定失敗',e);
+      alert('儲存必填設定失敗：'+(e.code||e.message)+'\n請確認管理員帳號已登入。');
+      return false;
+    }
+  }
   function barberRadios(b,prefix){
     return config.barbers.map(x=>`<button type="button" class="barber-chip" data-booking="${b.id}" data-value="${x}">${x}</button>`).join('');
   }
@@ -526,46 +608,138 @@ body.dark[data-hwbg="2"] .staff-container{background:rgba(18,21,26,var(--hw-surf
     }
   });
 
+  function staffWithTimeout(p,ms,val){
+    return Promise.race([p,new Promise(function(res){ setTimeout(function(){ res(val); },ms); })]);
+  }
   async function manualRegister(type){
-    const name=document.getElementById('staffName').value.trim();
-    const email=document.getElementById('staffEmail').value.trim();
-    const gender=document.getElementById('staffGender').value;
-    const service=document.getElementById('staffService').value;
-    const barber=document.getElementById('staffBarber').value;
+    var name=document.getElementById('staffName').value.trim();
+    var email=document.getElementById('staffEmail').value.trim();
+    var phone=document.getElementById('staffPhone').value.trim();
+    var gender=document.getElementById('staffGender').value;
+    var service=document.getElementById('staffService').value;
+    var barber=document.getElementById('staffBarber').value;
+    var voucherCode=document.getElementById('staffVoucherCode').value.trim().toUpperCase();
 
-    if(!name||!gender||!service||!barber){ alert('請填寫姓名、性別、服務項目、師傅'); return; }
+    var missing=[];
+    if(staffVisible('name')&&staffEffectiveRequired('name')&&!name) missing.push('姓名');
+    if(staffVisible('email')&&staffEffectiveRequired('email')&&!email) missing.push('Email');
+    if(staffVisible('phone')&&staffEffectiveRequired('phone')&&!phone) missing.push('電話號碼');
+    if(staffVisible('gender')&&staffEffectiveRequired('gender')&&!gender) missing.push('性別');
+    if(staffVisible('service')&&staffEffectiveRequired('service')&&!service) missing.push('服務項目');
+    if(staffVisible('voucherCode')&&staffEffectiveRequired('voucherCode')&&!voucherCode) missing.push('優惠券號碼');
+    if(staffEffectiveRequired('barber')&&!barber) missing.push('師傅');
+    if(missing.length){ alert('請填寫：'+missing.join('、')); return; }
     if(email&&!email.includes('@')){ alert('Email 格式不正確'); return; }
 
-    await fetchAllBookings();
-
-    if(email){
-      const dup=bookings.find(b=>b.email===email&&['pending','processing','completed','no-show'].includes(b.status));
-      if(dup){
-        alert(`此 Email 已有預約記錄，請勿重複登記。\n\n姓名：${dup.name||''}\n狀態：${dup.status}\n日期：${dup.date} ${dup.time||''}`);
-        return;
+    // 按主頁面同一套「允許重複」規則，只檢查未完成（pending／processing）預約
+    var active=[];
+    if(staffVisible('email')&&!staffAllowDup('email')&&email) active.push({k:'email',v:email,label:'Email'});
+    if(staffVisible('name')&&!staffAllowDup('name')&&name) active.push({k:'name',v:name,label:'姓名'});
+    if(staffVisible('phone')&&!staffAllowDup('phone')&&phone) active.push({k:'phone',v:phone,label:'電話號碼'});
+    if(staffVisible('voucherCode')&&!staffAllowDup('voucherCode')&&voucherCode) active.push({k:'voucherCode',v:voucherCode,label:'優惠券號碼'});
+    var jobs=active.map(function(p){
+      return db.collection('appointments').where(p.k,'==',p.v).limit(20).get().then(function(snap){
+        var hit=null;
+        snap.forEach(function(doc){
+          var d=doc.data();
+          if(['pending','processing'].includes(d.status||'pending') && normalizeType(d.type)===type && String(d[p.k]||'').trim().toLowerCase()===p.v.toLowerCase()) hit=d;
+        });
+        return hit?{p:p,d:hit}:null;
+      }).catch(function(e){ console.error('重複檢查失敗',p.k,e); return null; });
+    });
+    var res=await staffWithTimeout(Promise.all(jobs),8000,null);
+    if(!res){ alert('網絡較慢，未能完成即時重複檢查；如重複登記，請自行核對記錄。'); }
+    else{
+      for(var i=0;i<res.length;i++){
+        var r=res[i];
+        if(r){
+          alert('已有相同'+r.p.label+'（'+r.p.v+'）的未完成預約，不能重複登記。\n\n姓名：'+(r.d.name||'')+'\n狀態：'+(r.d.status||'')+'\n日期：'+(r.d.date||'')+' '+(r.d.time||''));
+          return;
+        }
       }
-    }else{
-      const dupToday=bookings.find(b=>b.name===name&&b.date===getTodayStr()&&b.type===type);
-      if(dupToday && !confirm(`今日已有同名（${name}）記錄，仍然登記？`)) return;
     }
 
-    const now=new Date();
+    // 優惠券號碼沿用主頁面的格式／可用範圍檢查
+    if(voucherCode){
+      var rules=(Array.isArray(config.voucherCodeRules)?config.voucherCodeRules:[]).filter(function(r){ return r&&r.prefix; });
+      if(rules.length){
+        var rule=rules.find(function(r){ return voucherCode.indexOf(String(r.prefix))===0; });
+        if(!rule){ alert('優惠券號碼格式不正確，請確認前綴（可用：'+rules.map(function(r){return r.prefix;}).join('、')+'）'); return; }
+        var num=parseInt(String(voucherCode).slice(String(rule.prefix).length),10);
+        if(!isFinite(num)||num<Number(rule.from)||num>Number(rule.to)){
+          alert('此號碼不在可用範圍（'+rule.prefix+rule.from+' 至 '+rule.prefix+rule.to+'）'); return;
+        }
+      }
+    }
+
+    // 優惠券號碼沿用主頁面的「不可重複使用」檢查
+    if(voucherCode){
+      try{
+        var vsnap=await staffWithTimeout(db.collection('appointments').where('voucherCode','==',voucherCode).limit(20).get(),8000,null);
+        if(vsnap){
+          var used=false;
+          vsnap.forEach(function(doc){ if((doc.data().status||'')!=='cancelled') used=true; });
+          if(used){ alert('此優惠券號碼（'+voucherCode+'）已使用過，不能重複使用'); return; }
+        }
+      }catch(e){ console.error('券號檢查失敗',e); }
+    }
+
+    var now=new Date();
+    var nowTime=now.toTimeString().slice(0,5);
     try{
-      const gsRef=await db.collection("appointments").add({
-        email:email, name:name, gender:gender, service:service,
-        date:getTodayStr(), time:now.toTimeString().slice(0,5), barber:barber,
+      var gsRef=await db.collection('appointments').add({
+        email:email, name:name, gender:gender, service:service, phone:phone, voucherCode:voucherCode,
+        date:getTodayStr(), time:nowTime, barber:barber,
         status:'completed', type:type, voucherPurchased:false,
+        voucherKind:(type==='voucher'?'v20':''),
         completedAt:now.toISOString(), updatedAt:now.toISOString(), source:'walkin'
       });
-      gsPost({action:'upsert',record:gsRecord({id:gsRef.id,type:type,email:email,name:name,gender:gender,service:service,barber:barber,date:getTodayStr(),time:now.toTimeString().slice(0,5),status:'completed',voucherPurchased:false,completedAt:now.toISOString(),updatedAt:now.toISOString(),source:'walkin'})});
-      document.getElementById('staffName').value='';
-      document.getElementById('staffEmail').value='';
+      gsPost({action:'upsert',record:gsRecord({id:gsRef.id,type:type,email:email,name:name,gender:gender,service:service,phone:phone,voucherCode:voucherCode,barber:barber,date:getTodayStr(),time:nowTime,status:'completed',voucherPurchased:false,completedAt:now.toISOString(),updatedAt:now.toISOString(),source:'walkin'})});
+      ['staffName','staffEmail','staffPhone','staffVoucherCode'].forEach(function(id){ document.getElementById(id).value=''; });
+      document.getElementById('staffGender').value='';
+      document.getElementById('staffService').value='';
       await renderStaffPage(getTodayStr());
       alert(`登記成功\n${type==='voucher'?'（優惠券）':''}\n${name} ${gender}／${service}\n師傅：${barber}`);
     }catch(err){ alert('登記失敗：'+err.message); }
   }
   document.getElementById('submitStudentWalkin').addEventListener('click',()=>manualRegister('normal'));
   document.getElementById('submitParentWalkin').addEventListener('click',()=>manualRegister('voucher'));
+
+  document.getElementById('adminReqBtn').addEventListener('click',async function(){
+    if(staffAdminMode){
+      staffAdminMode=false;
+      applyStaffFieldSettings(); applyAdminReqButton();
+      try{ await auth.signOut(); await auth.signInAnonymously(); }catch(e){}
+      alert('已鎖定必填設定；職員無法再更改。');
+      return;
+    }
+    var pwd=prompt('請輸入管理員密碼（不是員工編輯密碼）');
+    if(pwd===null) return;
+    try{
+      await auth.signInWithEmailAndPassword(ADMIN_EMAIL,pwd);
+      staffAdminMode=true;
+      applyStaffFieldSettings(); applyAdminReqButton();
+      alert('已進入管理員模式，現在可勾選／取消各欄位的「必填」。');
+    }catch(e){
+      alert('管理員登入失敗：'+(e.code||e.message)+'\n請使用固定管理員帳號的密碼。');
+    }
+  });
+
+  document.addEventListener('change',async function(e){
+    var t=e.target;
+    if(!t.classList||!t.classList.contains('req-chk')) return;
+    var f=t.dataset.req;
+    if(!staffAdminMode){ t.checked=staffEffectiveRequired(f); applyStaffFieldSettings(); alert('必填設定只有管理員可更改。'); return; }
+    var old=(config.staffManualRequired&&config.staffManualRequired[f]!==undefined)?config.staffManualRequired[f]:undefined;
+    if(!config.staffManualRequired||typeof config.staffManualRequired!=='object') config.staffManualRequired={};
+    config.staffManualRequired[f]=t.checked;
+    applyStaffFieldSettings();
+    var ok=await saveStaffRequired();
+    if(!ok){
+      if(old===undefined) delete config.staffManualRequired[f]; else config.staffManualRequired[f]=old;
+      applyStaffFieldSettings();
+    }
+  });
 
   document.getElementById('staffRefreshBtn').addEventListener('click',()=>renderStaffPage(document.getElementById('staffDatePicker').value));
   document.getElementById('staffDatePicker').addEventListener('change',function(){ renderStaffPage(this.value); });

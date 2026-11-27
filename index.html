@@ -838,6 +838,11 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         <div class="settings-row"><input type="text" id="ntfyTopic" placeholder="只填主題名稱，例如 hairworld_arerts_9f3k6x"><button class="btn-small" id="testNotificationBtn" style="margin:0;">測試</button></div>
         <div style="color:#B45A2A;font-size:12px;margin-top:5px;" id="testResult"></div>
         <label style="display:flex;align-items:center;gap:8px;margin:8px 0;"><input type="checkbox" id="enableNotification"> 啟用預約通知</label>
+        <div class="form-group"><label>同時提交警報門檻（人）</label><input type="number" id="alertActiveLimit" min="1" step="1" placeholder="10"></div>
+        <div class="form-group"><label>本小時成功預約警報門檻（筆）</label><input type="number" id="alertHourlyLimit" min="1" step="1" placeholder="20"></div>
+        <div class="form-group"><label>同類警報冷卻時間（分鐘）</label><input type="number" id="alertCooldownMin" min="1" step="1" placeholder="15"></div>
+        <label style="display:flex;align-items:center;gap:8px;margin:8px 0;"><input type="checkbox" id="alertOnTimeout"> 提交逾時也發警報</label>
+        <div style="font-size:12px;color:#888;">警報只發到 ntfy，內容只有數字，不會包含客人資料。</div>
       </div>
     </details>
 
@@ -1117,7 +1122,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     parentScreenshotLabel:"確定已使用優惠券預約",
     parentCardLabel:"我已準備好出示優惠券核對",
     voucherInfo:"• 本頁只供已購買 $20 優惠券的客人預約。\n• 到店時請出示優惠券（電子或實體均可）。\n• 優惠券可寄存於店舖，使用時請通知店員。\n• 每位客人同一時間只可保留一個有效預約。",
-    ntfyTopic:"hairworld_demo", ntfyEnabled:true, enableCaptcha:true, maxPerDevicePerDay:2, maxPerEmailPerDay:1, submitCooldownSec:30, testDevices:[], blockEmails:[],
+    ntfyTopic:"hairworld_demo", ntfyEnabled:true, alertActiveLimit:10, alertHourlyLimit:20, alertCooldownMin:15, alertOnTimeout:true, enableCaptcha:true, maxPerDevicePerDay:2, maxPerEmailPerDay:1, submitCooldownSec:30, testDevices:[], blockEmails:[],
     staffCanEditDefault:false,
     weekdaySlots:['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'],
     holidaySlots:['10:30','11:30','12:30'],
@@ -1582,6 +1587,15 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   const ALERT_HOURLY_LIMIT=20;
   const ALERT_COOLDOWN_MS=15*60*1000;
   const MONITOR_STALE_MS=10*60*1000;
+  function alertSettings(){
+    const n=function(v,d){ const x=Number(v); return isFinite(x)&&x>=1?Math.floor(x):d; };
+    return {
+      active:n(config.alertActiveLimit,ALERT_ACTIVE_LIMIT),
+      hourly:n(config.alertHourlyLimit,ALERT_HOURLY_LIMIT),
+      cooldownMs:n(config.alertCooldownMin,ALERT_COOLDOWN_MS/60000)*60*1000,
+      onTimeout:config.alertOnTimeout!==false
+    };
+  }
   function monitorEnabled(){
     return !!(config.ntfyEnabled && cleanNtfyTopic(config.ntfyTopic));
   }
@@ -1610,9 +1624,10 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         const active=stale?1:((Number(d.active)||0)+1);
         const hk=hourKeyNow();
         const hc=(d.hourKey===hk)?(Number(d.hourCount)||0):0;
-        const alert=(active>=ALERT_ACTIVE_LIMIT && now-(Number(d.lastAlertAt)||0)>ALERT_COOLDOWN_MS);
+        const st=alertSettings();
+        const alert=(active>=st.active && now-(Number(d.lastAlertActive)||0)>st.cooldownMs);
         const patch={active:active,lastStartAt:now,hourKey:hk,hourCount:hc,updatedAt:now};
-        if(alert){ patch.lastAlertAt=now; patch.lastAlertType='active'; }
+        if(alert){ patch.lastAlertActive=now; patch.lastAlertAt=now; patch.lastAlertType='active'; }
         tx.set(LOAD_DOC,patch,{merge:true});
         return {active:active,alert:alert};
       });
@@ -1637,9 +1652,10 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
         const d=doc.exists?doc.data():{};
         const now=Date.now(), hk=hourKeyNow();
         const hc=(d.hourKey===hk)?((Number(d.hourCount)||0)+1):1;
-        const alert=(hc>=ALERT_HOURLY_LIMIT && now-(Number(d.lastAlertAt)||0)>ALERT_COOLDOWN_MS);
+        const st=alertSettings();
+        const alert=(hc>=st.hourly && now-(Number(d.lastAlertHourly)||0)>st.cooldownMs);
         const patch={hourKey:hk,hourCount:hc,updatedAt:now};
-        if(alert){ patch.lastAlertAt=now; patch.lastAlertType='hourly'; }
+        if(alert){ patch.lastAlertHourly=now; patch.lastAlertAt=now; patch.lastAlertType='hourly'; }
         tx.set(LOAD_DOC,patch,{merge:true});
         return {count:hc,alert:alert};
       });
@@ -1647,13 +1663,15 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   }
   async function claimTimeoutAlert(){
     if(!monitorEnabled()||isTestDevice()) return false;
+    const st=alertSettings();
+    if(!st.onTimeout) return false;
     try{
       return await db.runTransaction(async function(tx){
         const doc=await tx.get(LOAD_DOC);
         const d=doc.exists?doc.data():{};
         const now=Date.now();
-        if(now-(Number(d.lastAlertAt)||0)<=ALERT_COOLDOWN_MS) return false;
-        tx.set(LOAD_DOC,{lastAlertAt:now,lastAlertType:'timeout',updatedAt:now},{merge:true});
+        if(now-(Number(d.lastAlertTimeout)||0)<=st.cooldownMs) return false;
+        tx.set(LOAD_DOC,{lastAlertTimeout:now,lastAlertAt:now,lastAlertType:'timeout',updatedAt:now},{merge:true});
         return true;
       });
     }catch(e){ return false; }
@@ -2336,7 +2354,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyLang(CUR_LANG);
   }
 
-  const APP_VERSION='12.7';
+  const APP_VERSION='12.8';
   function cleanNtfyTopic(v){
     return String(v||'').trim()
       .replace(/^https?:\/\/[^/]+\//i,'')
@@ -4250,6 +4268,10 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
 
     document.getElementById('ntfyTopic').value=cleanNtfyTopic(config.ntfyTopic||'');
     document.getElementById('enableNotification').checked=!!config.ntfyEnabled;
+    document.getElementById('alertActiveLimit').value=(config.alertActiveLimit===undefined?10:config.alertActiveLimit);
+    document.getElementById('alertHourlyLimit').value=(config.alertHourlyLimit===undefined?20:config.alertHourlyLimit);
+    document.getElementById('alertCooldownMin').value=(config.alertCooldownMin===undefined?15:config.alertCooldownMin);
+    document.getElementById('alertOnTimeout').checked=config.alertOnTimeout!==false;
     document.getElementById('enableCaptcha').checked=!!config.enableCaptcha;
     document.getElementById('maxPerDevicePerDay').value=(config.maxPerDevicePerDay===undefined?'2':config.maxPerDevicePerDay);
     document.getElementById('maxPerEmailPerDay').value=(config.maxPerEmailPerDay===undefined?'1':config.maxPerEmailPerDay);
@@ -4365,6 +4387,10 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     config.ntfyTopic=cleanNtfyTopic(document.getElementById('ntfyTopic').value);
     document.getElementById('ntfyTopic').value=config.ntfyTopic;
     config.ntfyEnabled=document.getElementById('enableNotification').checked;
+    config.alertActiveLimit=Math.max(1,Number(document.getElementById('alertActiveLimit').value)||10);
+    config.alertHourlyLimit=Math.max(1,Number(document.getElementById('alertHourlyLimit').value)||20);
+    config.alertCooldownMin=Math.max(1,Number(document.getElementById('alertCooldownMin').value)||15);
+    config.alertOnTimeout=document.getElementById('alertOnTimeout').checked;
     config.enableCaptcha=document.getElementById('enableCaptcha').checked;
     config.maxPerDevicePerDay=Number(document.getElementById('maxPerDevicePerDay').value)||0;
     config.maxPerEmailPerDay=Number(document.getElementById('maxPerEmailPerDay').value)||0;

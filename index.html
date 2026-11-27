@@ -835,7 +835,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     <details class="settings-section" id="section-ntfy">
       <summary>即時通知設定</summary>
       <div class="section-content">
-        <div class="settings-row"><input type="text" id="ntfyTopic" placeholder="主題名稱"><button class="btn-small" id="testNotificationBtn" style="margin:0;">測試</button></div>
+        <div class="settings-row"><input type="text" id="ntfyTopic" placeholder="只填主題名稱，例如 hairworld_arerts_9f3k6x"><button class="btn-small" id="testNotificationBtn" style="margin:0;">測試</button></div>
         <div style="color:#B45A2A;font-size:12px;margin-top:5px;" id="testResult"></div>
         <label style="display:flex;align-items:center;gap:8px;margin:8px 0;"><input type="checkbox" id="enableNotification"> 啟用預約通知</label>
       </div>
@@ -1583,7 +1583,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   const ALERT_COOLDOWN_MS=15*60*1000;
   const MONITOR_STALE_MS=10*60*1000;
   function monitorEnabled(){
-    return !!(config.ntfyEnabled && String(config.ntfyTopic||'').trim());
+    return !!(config.ntfyEnabled && cleanNtfyTopic(config.ntfyTopic));
   }
   function hourKeyNow(){
     const d=new Date();
@@ -1591,7 +1591,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   }
   function notifyOwner(title,message){
     if(!monitorEnabled()) return;
-    const topic=String(config.ntfyTopic||'').trim();
+    const topic=cleanNtfyTopic(config.ntfyTopic);
     try{
       fetch('https://ntfy.sh/'+encodeURIComponent(topic),{
         method:'POST',body:message,
@@ -2336,7 +2336,13 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     applyLang(CUR_LANG);
   }
 
-  const APP_VERSION='12.6';
+  const APP_VERSION='12.7';
+  function cleanNtfyTopic(v){
+    return String(v||'').trim()
+      .replace(/^https?:\/\/[^/]+\//i,'')
+      .replace(/^ntfy\.sh\//i,'')
+      .replace(/^\/+/,'');
+  }
   const PAGE_TYPE='normal';
   let voucherOpen=false;
   function getVoucherSource(){
@@ -4242,7 +4248,7 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     document.getElementById('voucherInfoText').value=config.voucherInfo||'';
     if(document.getElementById('voucherInfoTextEn')) document.getElementById('voucherInfoTextEn').value=config.voucherInfoEn||'';
 
-    document.getElementById('ntfyTopic').value=config.ntfyTopic||'';
+    document.getElementById('ntfyTopic').value=cleanNtfyTopic(config.ntfyTopic||'');
     document.getElementById('enableNotification').checked=!!config.ntfyEnabled;
     document.getElementById('enableCaptcha').checked=!!config.enableCaptcha;
     document.getElementById('maxPerDevicePerDay').value=(config.maxPerDevicePerDay===undefined?'2':config.maxPerDevicePerDay);
@@ -4356,7 +4362,8 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
     config.parentScreenshotLabel=(config.voucherConfirmBoxes[0]&&config.voucherConfirmBoxes[0].label)||'';
     config.parentCardLabel=(config.voucherConfirmBoxes[1]&&config.voucherConfirmBoxes[1].label)||'';
     config.parentCardNoteLabel=(config.voucherConfirmBoxes[1]&&config.voucherConfirmBoxes[1].note)||'';
-    config.ntfyTopic=document.getElementById('ntfyTopic').value.trim();
+    config.ntfyTopic=cleanNtfyTopic(document.getElementById('ntfyTopic').value);
+    document.getElementById('ntfyTopic').value=config.ntfyTopic;
     config.ntfyEnabled=document.getElementById('enableNotification').checked;
     config.enableCaptcha=document.getElementById('enableCaptcha').checked;
     config.maxPerDevicePerDay=Number(document.getElementById('maxPerDevicePerDay').value)||0;
@@ -4401,12 +4408,13 @@ body.dark #stepStub{background:#171B21;border-color:#2F353D;color:#FFB27F}
   });
 
   document.getElementById('testNotificationBtn').addEventListener('click',function(){
-    const topic=document.getElementById('ntfyTopic').value.trim();
+    const topic=cleanNtfyTopic(document.getElementById('ntfyTopic').value);
+    document.getElementById('ntfyTopic').value=topic;
     const div=document.getElementById('testResult');
     if(!topic){ div.innerText='請輸入主題名稱'; return; }
     if(location.protocol==='file:'){ div.innerText='本機檔案無法自動發送通知，請用 ntfy App 手動測試：'+topic; return; }
     div.innerText='發送中...';
-    fetch(`https://ntfy.sh/${topic}`,{method:'POST',body:'這是一則測試通知',headers:{'Title':'Hair World 測試','Priority':'default','Tags':'scissors'}})
+    fetch(`https://ntfy.sh/${encodeURIComponent(topic)}`,{method:'POST',body:'這是一則測試通知',headers:{'Title':'Hair World Test','Priority':'default','Tags':'scissors'}})
       .then(r=>{ div.innerText=r.ok?'測試通知已送出，請檢查手機 ntfy App':'發送失敗 (HTTP '+r.status+')'; })
       .catch(err=>{ div.innerText='發送失敗：'+err.message; });
   });
